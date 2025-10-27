@@ -81,7 +81,9 @@
 	H.adjust_skillrank(/datum/skill/combat/axes, 4, TRUE)
 	H.adjust_skillrank(/datum/skill/combat/knives, 3, TRUE)
 	H.adjust_skillrank(/datum/skill/combat/whipsflails, 2, TRUE)
-	H.adjust_skillrank(/datum/skill/combat/slings, 1, TRUE)
+	H.adjust_skillrank(/datum/skill/combat/crossbows, 1, TRUE)		//Handy in a seige
+	H.adjust_skillrank(/datum/skill/combat/bows, 1, TRUE)	
+	H.adjust_skillrank(/datum/skill/combat/slings, 2, TRUE)
 	H.adjust_skillrank(/datum/skill/combat/shields, 3, TRUE)
 	H.adjust_skillrank(/datum/skill/combat/wrestling, 4, TRUE)
 	H.adjust_skillrank(/datum/skill/combat/unarmed, 3, TRUE)
@@ -175,9 +177,9 @@
 
 /datum/outfit/job/roguetown/manorguard/skirmisher/pre_equip(mob/living/carbon/human/H)
 	..()
-	H.adjust_skillrank(/datum/skill/combat/swords, 4, TRUE)
+	H.adjust_skillrank(/datum/skill/combat/swords, 3, TRUE)    //not at parity with footmen
 	H.adjust_skillrank(/datum/skill/combat/knives, 4, TRUE)
-	H.adjust_skillrank(/datum/skill/combat/maces, 2, TRUE) 		// Still have a cugel.
+	H.adjust_skillrank(/datum/skill/combat/maces, 3, TRUE) 		// Still have a cudgel for giving criminals a good drubbing.
 	H.adjust_skillrank(/datum/skill/combat/crossbows, 5, TRUE)		//Only effects draw and reload time.
 	H.adjust_skillrank(/datum/skill/combat/bows, 5, TRUE)			//Only effects draw times.
 	H.adjust_skillrank(/datum/skill/combat/slings, 5, TRUE)
