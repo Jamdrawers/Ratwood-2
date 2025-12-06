@@ -105,12 +105,12 @@
 	. = ..()
 	reagents.add_reagent(/datum/reagent/consumable/ethanol/saigamilk,900)
 
-/obj/structure/fermentation_keg/kgsunsake
-	desc = "A barrel with a Golden Swan mark. A translucient, pale-blue liquid made from rice. A favourite drink of the warlords and nobles of Kazengun."
+// /obj/structure/fermentation_keg/kgsunsake
+// 	desc = "A barrel with a Golden Swan mark. A translucient, pale-blue liquid made from rice. A favourite drink of the warlords and nobles of Kazengun."
 
-/obj/structure/fermentation_keg/kgsunsake/Initialize()
-	. = ..()
-	reagents.add_reagent(/datum/reagent/consumable/ethanol/kgunsake,900)
+// /obj/structure/fermentation_keg/kgsunsake/Initialize()
+// 	. = ..()
+// 	reagents.add_reagent(/datum/reagent/consumable/ethanol/kgunsake,900)
 
 
 /obj/structure/fermentation_keg/avarrice

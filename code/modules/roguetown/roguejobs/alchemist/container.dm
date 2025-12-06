@@ -194,38 +194,38 @@
 	list_reagents = list(/datum/reagent/consumable/ethanol/saigamilk = 50)
 	desc = "A bottle with a Running Saiga cork-seal. A form of alcohol brewed from the milk of a saiga and salt. Common drink of the nomads living in the steppe."
 
-/obj/item/reagent_containers/glass/bottle/rogue/beer/kgunlager
-	list_reagents = list(/datum/reagent/consumable/ethanol/kgunlager = 50)
-	desc = "A bottle with a Yamaguchi Brewery cork-seal. A pale lager brewed in the far-away lands of Kazengun, refined with green tea for an unique flavour-profile. Even lighter than elven-brew!"
-
-/obj/item/reagent_containers/glass/bottle/rogue/beer/kgunsake
-	list_reagents = list(/datum/reagent/consumable/ethanol/kgunsake = 50)
-	desc = "A bottle with a Golden Swan cork-seal. A translucient, pale-blue liquid made from rice. A favourite drink of the warlords and nobles of Kazengun."
+// /obj/item/reagent_containers/glass/bottle/rogue/beer/kgunlager
+// 	list_reagents = list(/datum/reagent/consumable/ethanol/kgunlager = 50)
+// 	desc = "A bottle with a Yamaguchi Brewery cork-seal. A pale lager brewed in the far-away lands of Kazengun, refined with green tea for an unique flavour-profile. Even lighter than elven-brew!"
+// 
+// /obj/item/reagent_containers/glass/bottle/rogue/beer/kgunsake
+// 	list_reagents = list(/datum/reagent/consumable/ethanol/kgunsake = 50)
+// 	desc = "A bottle with a Golden Swan cork-seal. A translucient, pale-blue liquid made from rice. A favourite drink of the warlords and nobles of Kazengun."
 
 /obj/item/reagent_containers/glass/bottle/rogue/beer/kgunplum
 	list_reagents = list(/datum/reagent/consumable/ethanol/kgunplum = 50)
 	desc = "A bottle with a Golden Swan cork-seal. A reddish-golden alcohol made from a fruit commonly found on the Kazengun-isles. A favourite of the commoners."
 
-/obj/item/reagent_containers/glass/bottle/rogue/beer/kgunshochu
-	list_reagents = list(/datum/reagent/consumable/ethanol/kgunshochu = 50)
-	desc = "A bottle with a Golden Swan cork-seal. A clean alcohol made by distilling rice. With a dry and clean finish. Popular amongst the warrior caste of Kazengun."
+// /obj/item/reagent_containers/glass/bottle/rogue/beer/kgunshochu
+// 	list_reagents = list(/datum/reagent/consumable/ethanol/kgunshochu = 50)
+// 	desc = "A bottle with a Golden Swan cork-seal. A clean alcohol made by distilling rice. With a dry and clean finish. Popular amongst the warrior caste of Kazengun."
 
 // Zhongese Drinks
-/obj/item/reagent_containers/glass/bottle/rogue/beer/huangjiu
-	list_reagents = list(/datum/reagent/consumable/ethanol/huangjiu = 50)
-	desc = "A bottle with a red seal. A strong, sweet yellow rice wine that is often used in cooking."
+// /obj/item/reagent_containers/glass/bottle/rogue/beer/huangjiu
+// 	list_reagents = list(/datum/reagent/consumable/ethanol/huangjiu = 50)
+// 	desc = "A bottle with a red seal. A strong, sweet yellow rice wine that is often used in cooking."
 
 /obj/item/reagent_containers/glass/bottle/rogue/beer/baijiu
 	list_reagents = list(/datum/reagent/consumable/ethanol/baijiu = 50)
 	desc = "A bottle with a red seal. A strong, clear liquor made from fermented sorghum or rice. The favored drink of wandering warriors."
 
-/obj/item/reagent_containers/glass/bottle/rogue/beer/yaojiu
-	list_reagents = list(/datum/reagent/consumable/ethanol/yaojiu = 50)
-	desc = "A bottle with a red seal. A strong, sweet rice wine infused with medicinal herbs, including Ginseng. Often prescribed as a medicine on the Zhongese mainland."
+// /obj/item/reagent_containers/glass/bottle/rogue/beer/yaojiu
+// 	list_reagents = list(/datum/reagent/consumable/ethanol/yaojiu = 50)
+// 	desc = "A bottle with a red seal. A strong, sweet rice wine infused with medicinal herbs, including Ginseng. Often prescribed as a medicine on the Zhongese mainland."
 
-/obj/item/reagent_containers/glass/bottle/rogue/beer/shejiu
-	list_reagents = list(/datum/reagent/consumable/ethanol/shejiu = 50)
-	desc = "A bottle with a red seal. A strong rice wine with a dead snake inside. In the land of Zhong, It is believed that drinking this will improve one's virility and blood circulation."
+// /obj/item/reagent_containers/glass/bottle/rogue/beer/shejiu
+// 	list_reagents = list(/datum/reagent/consumable/ethanol/shejiu = 50)
+// 	desc = "A bottle with a red seal. A strong rice wine with a dead snake inside. In the land of Zhong, It is believed that drinking this will improve one's virility and blood circulation."
 
 /obj/item/reagent_containers/glass/bottle/rogue/beer/murkwine
 	list_reagents = list(/datum/reagent/consumable/ethanol/murkwine = 50)
