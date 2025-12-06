@@ -445,25 +445,25 @@
 
 //Kazengun boozes
 
-/datum/reagent/consumable/ethanol/kgunlager
-	name = "Yamaguchi Pale"
-	boozepwr = 10 //A PALE imitation actual beer...
-	taste_description = "mellow bitterness and a hint of green tea"
-	color = "#d7dbbc"
+// /datum/reagent/consumable/ethanol/kgunlager
+// 	name = "Yamaguchi Pale"
+// 	boozepwr = 10 //A PALE imitation actual beer...
+// 	taste_description = "mellow bitterness and a hint of green tea"
+// 	color = "#d7dbbc"
 
-/datum/reagent/consumable/ethanol/kgunsake
-	name = "Junmai-ginjo"
-	boozepwr = 50
-	taste_description = "dry sweetness"
-	color = "#ccd7e0"
-	quality = DRINK_VERYGOOD
+// /datum/reagent/consumable/ethanol/kgunsake
+// 	name = "Junmai-ginjo"
+// 	boozepwr = 50
+// 	taste_description = "dry sweetness"
+// 	color = "#ccd7e0"
+// 	quality = DRINK_VERYGOOD
 
-/datum/reagent/consumable/ethanol/kgunshochu
-	name = "Shochu"
-	boozepwr = 60
-	taste_description = "dry, clean finish"
-	color = "#F8FDFC"
-	quality = DRINK_VERYGOOD
+// /datum/reagent/consumable/ethanol/kgunshochu
+// 	name = "Shochu"
+// 	boozepwr = 60
+// 	taste_description = "dry, clean finish"
+// 	color = "#F8FDFC"
+// 	quality = DRINK_VERYGOOD
 
 /datum/reagent/consumable/ethanol/kgunplum
 	name = "Umeshu"
@@ -473,11 +473,11 @@
 	quality = DRINK_GOOD
 
 // Zhongese
-/datum/reagent/consumable/ethanol/huangjiu
-	name = "Huangjiu"
-	boozepwr = 30
-	taste_description = "a mix of sweet and sour"
-	color = "#d8b84c"
+// /datum/reagent/consumable/ethanol/huangjiu
+// 	name = "Huangjiu"
+// 	boozepwr = 30
+// 	taste_description = "a mix of sweet and sour"
+// 	color = "#d8b84c"
 
 /datum/reagent/consumable/ethanol/baijiu
 	name = "Baijiu"
@@ -486,19 +486,19 @@
 	color = "#f8fdfc"
 	quality = DRINK_GOOD
 
-/datum/reagent/consumable/ethanol/yaojiu
-	name = "Yaojiu"
-	boozepwr = 50
-	taste_description = "bittersweet alcohol with deep herbal notes"
-	color = "#8C4B1F"
-	quality = DRINK_VERYGOOD
+// /datum/reagent/consumable/ethanol/yaojiu
+// 	name = "Yaojiu"
+// 	boozepwr = 50
+// 	taste_description = "bittersweet alcohol with deep herbal notes"
+// 	color = "#8C4B1F"
+// 	quality = DRINK_VERYGOOD
 
-/datum/reagent/consumable/ethanol/shejiu
-	name = "Shejiu"
-	boozepwr = 50
-	taste_description = "musky and strong alcohol with a hint of gameiness"
-	color = "#C49A6C"
-	quality = DRINK_VERYGOOD
+// /datum/reagent/consumable/ethanol/shejiu
+// 	name = "Shejiu"
+// 	boozepwr = 50
+// 	taste_description = "musky and strong alcohol with a hint of gameiness"
+// 	color = "#C49A6C"
+// 	quality = DRINK_VERYGOOD
 
 // Mead
 /datum/reagent/consumable/ethanol/mead
