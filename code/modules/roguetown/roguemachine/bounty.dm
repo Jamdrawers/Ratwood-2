@@ -111,7 +111,7 @@
 			scom_announce("The bounty posting on [target_name] has been removed.")
 			message_admins("[ADMIN_LOOKUPFLW(user)] has removed the bounty on [ADMIN_LOOKUPFLW(target_name)]")
 			return
-	say("Error. Bounty no longer active.") 
+	say("Error. Bounty no longer active.")
 
 ///Sets a bounty on a target player through user input.
 ///@param user: The player setting the bounty.
@@ -119,16 +119,19 @@
 	var/list/eligible_players = list()
 
 	if(user.mind.known_people.len)
-		for(var/guys_name in user.mind.known_people)
-			eligible_players += guys_name
+		for(var/mob/living/carbon/human/H in GLOB.human_list)
+			if(H.real_name in user.mind.known_people)
+				eligible_players[H.real_name] = H
 	else
 		to_chat(user, span_warning("I don't know anyone."))
 		return
-	eligible_players = sortList(eligible_players)
-	var/target = input(user, "Whose name shall be etched on the wanted list?", src) as null|anything in eligible_players
-	if(isnull(target))
+
+	var/choice = input(user, "Whose name shall be etched on the wanted list?", src) as null|anything in eligible_players
+	if(isnull(choice))
 		say("No target selected.")
 		return
+
+	var/mob/living/carbon/human/target = eligible_players[choice]
 
 	var/amount = input(user, "How many mammons shall be stained red for their demise?", src) as null|num
 	if(isnull(amount))
@@ -164,8 +167,15 @@
 
 	amount -= royal_tax
 
+	var/race = target.dna.species
+	var/gender = target.gender
+	var/list/d_list = target.get_mob_descriptors()
+	var/descriptor_height = build_coalesce_description_nofluff(d_list, target, list(MOB_DESCRIPTOR_SLOT_HEIGHT), "%DESC1%")
+	var/descriptor_body = build_coalesce_description_nofluff(d_list, target, list(MOB_DESCRIPTOR_SLOT_BODY), "%DESC1%")
+	var/descriptor_voice = build_coalesce_description_nofluff(d_list, target, list(MOB_DESCRIPTOR_SLOT_VOICE), "%DESC1%")
+
 	// Finally create bounty
-	add_bounty(target, amount, FALSE, reason, user.real_name)
+	add_bounty(target.real_name, race, gender, descriptor_height, descriptor_body, descriptor_voice, amount, FALSE, reason, user.real_name)
 
 	//Announce it locally and on scomm
 	playsound(src, 'sound/misc/machinetalk.ogg', 100, FALSE, -1)
@@ -313,7 +323,8 @@
 
 /obj/structure/chair/freedomchair
 	name = "LIBERTAS"
-	desc = "A chair-shaped machine normally used to place cursed masks onto a prisoner's head. This one's been tampered with, and now does the opposite - re-purposed to remove those wretched iron masks."
+	desc = "A chair-shaped machine normally used to place cursed collars onto a prisoner's neck. \
+	This one's been tampered with, and now does the opposite - re-purposed to remove those wretched iron collars."
 	icon = 'icons/roguetown/misc/machines.dmi'
 	icon_state = "evilchair"
 	blade_dulling = DULLING_BASH
@@ -322,7 +333,7 @@
 	anchored = TRUE
 
 /obj/structure/chair/freedomchair/crafted
-	desc = "A chair-shaped machine normally used to place cursed masks onto a prisoner's head. This one's clearly been tampered with, and looks suspicious."
+	desc = "A chair-shaped machine normally used to place cursed collars onto a prisoner's neck. This one's clearly been tampered with, and looks suspicious."
 
 /obj/structure/chair/freedomchair/crafted/attack_right(mob/living/carbon/human/A)
 	var/mob/living/carbon/human/M = null
@@ -343,16 +354,16 @@
 	playsound(src.loc, 'sound/items/pickgood1.ogg', 100, TRUE, -1)
 	M.Paralyze(3 SECONDS)
 
-	var/obj/item/clothing/mask/old_mask = M.get_item_by_slot(SLOT_WEAR_MASK)
+	var/obj/item/clothing/neck/old_mask = M.get_item_by_slot(SLOT_NECK)
 	if(old_mask)
-		if(istype(old_mask, /obj/item/clothing/mask/rogue/facemask/prisoner))
+		if(istype(old_mask, /obj/item/clothing/neck/roguetown/collar/prisoner))
 			say("ERROR: UNLAWFUL SYSTEM TAMPERING DETECTED... ENGAGING SELF DESTRUCT...")
 			sleep(1 SECONDS)
 			explosion(src, light_impact_range = 1, flame_range = 1)
 			M.dropItemToGround(old_mask, TRUE)
 			qdel(src)
 	else
-		say("ANALYSIS COMPLETE. NO CURSED MASK FOUND. ABORT.")
+		say("ANALYSIS COMPLETE. NO CURSED COLLAR FOUND. ABORT.")
 		return
 
 /obj/structure/chair/freedomchair/attack_right(mob/living/carbon/human/A)
@@ -374,13 +385,13 @@
 	playsound(src.loc, 'sound/items/pickgood1.ogg', 100, TRUE, -1)
 	M.Paralyze(3 SECONDS)
 
-	var/obj/item/clothing/mask/old_mask = M.get_item_by_slot(SLOT_WEAR_MASK)
+	var/obj/item/clothing/neck/old_mask = M.get_item_by_slot(SLOT_NECK)
 	if(old_mask)
-		if(istype(old_mask, /obj/item/clothing/mask/rogue/facemask/prisoner))
-			say("MASK DISCARDED. FREEDOM, AT LAST...")
+		if(istype(old_mask, /obj/item/clothing/neck/roguetown/collar/prisoner))
+			say("COLLAR DISCARDED. FREEDOM, AT LAST...")
 			M.dropItemToGround(old_mask, TRUE)
 	else
-		say("ANALYSIS COMPLETE. NO CURSED MASK FOUND. ABORT.")
+		say("ANALYSIS COMPLETE. NO CURSED COLLAR FOUND. ABORT.")
 		return
 
 /obj/structure/chair/arrestchair
@@ -472,12 +483,12 @@
 		say("A bounty has been sated.")
 		budget2change((reward_amount))
 
-		var/obj/item/clothing/mask/old_mask = M.get_item_by_slot(SLOT_WEAR_MASK)
+		var/obj/item/clothing/neck/old_mask = M.get_item_by_slot(SLOT_NECK)
 		if(old_mask)
 			M.dropItemToGround(old_mask, TRUE)
-		var/obj/item/clothing/mask/rogue/facemask/prisoner/prisonmask = new(get_turf(M))
+		var/obj/item/clothing/neck/roguetown/collar/prisoner/prisonmask = new(get_turf(M))
 		prisonmask.bounty_amount = reward_amount
-		M.equip_to_slot_or_del(prisonmask, SLOT_WEAR_MASK, TRUE)
+		M.equip_to_slot_or_del(prisonmask, SLOT_NECK, TRUE)
 		playsound(src.loc, 'sound/items/beartrap.ogg', 100, TRUE, -1)
 	else
 		say("This skull carries no reward, you fool.")
