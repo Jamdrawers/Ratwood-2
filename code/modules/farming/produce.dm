@@ -3,6 +3,7 @@
 	dried_type = null
 	resistance_flags = FLAMMABLE
 	w_class = WEIGHT_CLASS_SMALL
+	dropshrink = 0.8
 	var/list/pipe_reagents = list()
 	var/seed
 	var/bitesize_mod = 0
@@ -534,7 +535,7 @@
 	desc = "A wonderful vegetable with many layers and broad flavor profile."
 	slice_path = /obj/item/reagent_containers/food/snacks/rogue/veg/onion_sliced
 	chopping_sound = TRUE
-	dropshrink = 0.8
+	dropshrink = 0.6
 	icon_state = "onion"
 	slices_num = 2
 	tastes = list("spicy sweetness" = 1)
@@ -554,6 +555,7 @@
 	slice_path = /obj/item/reagent_containers/food/snacks/rogue/veg/cabbage_sliced
 	chopping_sound = TRUE
 	rotprocess = SHELFLIFE_LONG
+	dropshrink = 0.6
 	seed = /obj/item/seeds/cabbage
 
 /obj/item/reagent_containers/food/snacks/grown/potato/rogue
@@ -562,6 +564,7 @@
 	icon_state = "potato"
 	eat_effect = null
 	tastes = list("potato" = 1)
+	dropshrink = 0.6
 	bitesize = 2
 	list_reagents = list(/datum/reagent/consumable/nutriment = 1)
 	slices_num = 2

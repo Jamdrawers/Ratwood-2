@@ -9,6 +9,7 @@
 	sellprice = 10
 	grid_width = 32
 	grid_height = 32
+	dropshrink = 0.7
 
 /obj/item/reagent_containers/powder/spice
 	name = "spice"

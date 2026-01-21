@@ -11,6 +11,7 @@
 	grid_width = 32
 	grid_height = 64
 	var/overarmor
+	dropshrink = 0.8
 
 /obj/item/clothing/wrists/roguetown/MiddleClick(mob/user, params)
 	. = ..()

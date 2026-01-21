@@ -12,3 +12,4 @@
 	experimental_inhand = FALSE
 	/// Unarmed damage multiplier (for pure fists / wrestling only)
 	var/unarmed_bonus = 1
+	dropshrink = 0.8

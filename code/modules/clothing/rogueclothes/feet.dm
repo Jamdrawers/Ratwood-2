@@ -13,6 +13,7 @@
 	experimental_inhand = FALSE
 	salvage_amount = 0
 	salvage_result = null
+	dropshrink = 0.8
 
 /obj/item/clothing/shoes/roguetown/boots
 	name = "dark boots"

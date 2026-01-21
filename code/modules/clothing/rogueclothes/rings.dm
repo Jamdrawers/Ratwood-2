@@ -14,6 +14,7 @@
 	anvilrepair = /datum/skill/craft/armorsmithing
 	experimental_inhand = FALSE
 	drop_sound = 'sound/foley/coinphy (1).ogg'
+	dropshrikn = 0.7
 
 /obj/item/clothing/ring/silver
 	name = "silver ring"
