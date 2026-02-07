@@ -66,7 +66,7 @@
 
 /obj/structure/roguemachine/goldface/public
 	name = "SILVERFACE"
-	extra_fee = 0.5
+	extra_fee = 0.65
 	is_public = TRUE
 	locked = FALSE
 	motto = "SILVERFACE - Commerce for all."
