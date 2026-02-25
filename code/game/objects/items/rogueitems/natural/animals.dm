@@ -88,6 +88,12 @@
 	icon_state = "wool2"
 	color = "#cecac4"
 
+/obj/item/natural/fur/raccoon	
+	desc = "from a raccoon."
+	icon_state = "pelt_raccoon"
+	color = null
+	sellprice = 12
+
 //RTD make this a storage item and make clickign on animals with things put it in storage
 /obj/item/natural/saddle
 	name = "saddle"
@@ -166,7 +172,7 @@
 	var/static/list/slapcraft_recipe_list = list(
 		/datum/crafting_recipe/roguetown/survival/heatershield,
 		/datum/crafting_recipe/roguetown/leather/neck/leather_collar,
-    /datum/crafting_recipe/roguetown/leather/neck/leather_leash
+	/datum/crafting_recipe/roguetown/leather/neck/leather_leash
 	)
 
 
@@ -186,7 +192,8 @@
 /obj/item/natural/cured/essence
 	name = "essence of wilderness"
 	icon_state = "wessence"
-	desc = "A large drop of mystical sap said to contain Dendor's own energies, often carried by hunters and other wildsmen as a token of luck."
+	desc = "A large drop of mystical sap said to contain Dendor's own energies, \n\
+	often carried by hunters and other wildsmen as a token of luck. A skilled tailor can imbue it into certain clothing or leather to provide protection."
 	resistance_flags = FLAMMABLE
 	w_class = WEIGHT_CLASS_SMALL
 	sellprice = 20

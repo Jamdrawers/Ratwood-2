@@ -15,7 +15,7 @@
 	/// If defined, this is the maximum amount of times this wave can spawn
 	var/max_spawns = null
 	/// The relative probability this wave will be picked, from all available waves
-	var/weight = 100
+	var/weight = 20
 	/// Name of the latejoin spawn landmark for the wave to decide where to spawn
 	var/spawn_landmark = "Pilgrim"
 	/// Text to greet all players in the wave with
@@ -147,3 +147,11 @@
 		/datum/migrant_role/bandit = 1,
 	)
 
+/datum/migrant_wave/assassin
+	name = "Assassin Hit"
+	downgrade_wave = /datum/migrant_wave/assassin
+	can_roll = FALSE
+	weight = 12
+	roles = list(
+		/datum/migrant_role/assassin = 4,
+	)

@@ -145,11 +145,11 @@
 
 //! --BLACKSTONE SCROLLS-- !/
 /obj/item/book/granter/spell/blackstone/
-    desc = "A scroll of potential known only to those that can decipher its secrets."
-    icon = 'icons/roguetown/items/misc.dmi'
-    oneuse = TRUE
-    drop_sound = 'sound/foley/dropsound/paper_drop.ogg'
-    pickup_sound =  'sound/blank.ogg'
+	desc = "A scroll of potential known only to those that can decipher its secrets."
+	icon = 'icons/roguetown/items/misc.dmi'
+	oneuse = TRUE
+	drop_sound = 'sound/foley/dropsound/paper_drop.ogg'
+	pickup_sound =  'sound/blank.ogg'
 
 /obj/item/book/granter/spell/blackstone/onlearned(mob/living/carbon/user)
 	..()
@@ -314,6 +314,13 @@
 	spellname = "Leap"
 	icon_state ="scrolldarkred"
 	remarks = list("Altitudinem revelat..", "Cuius pedes in aere volant..", "In levitate audacia..")
+
+/obj/item/book/granter/spell/blackstone/familiar //Find Familiar Scroll
+	name = "Scroll of Find Familiar"
+	spell = /obj/effect/proc_holder/spell/self/findfamiliar
+	spellname = "Find Familiar"
+	icon_state ="scrolldarkred"
+	oneuse = FALSE
 
 //scroll for giving the reader 3 spell points, this should be dungeon loot
 /obj/item/book/granter/spell_points

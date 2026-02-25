@@ -6,6 +6,10 @@
 /datum/status_effect/incapacitating/off_balanced
 	id = "off_balanced"
 	alert_type = /atom/movable/screen/alert/status_effect/off_balanced
+	mob_effect_icon = 'icons/mob/mob_effects.dmi'
+	mob_effect_icon_state = "eff_offbalanced"
+	mob_effect_offset_y = -4	//We want this shown UNDER the feet of the mob.
+	mob_effect_layer = MOB_EFFECT_LAYER_OFFBALANCED
 
 /atom/movable/screen/alert/status_effect/off_balanced
 	name = "Off Balanced"
@@ -198,6 +202,7 @@
 /datum/status_effect/compliance
 	id = "compliance"
 	alert_type = /atom/movable/screen/alert/status_effect/compliance
+	needs_processing = FALSE
 
 /datum/status_effect/carebox
 	id = "carebox"

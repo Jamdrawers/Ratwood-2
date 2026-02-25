@@ -170,6 +170,12 @@ GLOBAL_LIST_EMPTY(biggates)
 			attached_gate = G
 			G.attached_to = src
 
+	for(var/obj/structure/gate_vertical/V in GLOB.biggates)
+		if(V.gid == gid)
+			GLOB.biggates -= V
+			attached_gate = V
+			V.attached_to = src			
+
 /obj/structure/winch/attack_hand(mob/user)
 	. = ..()
 	if(!attached_gate)
@@ -189,7 +195,7 @@ GLOBAL_LIST_EMPTY(biggates)
 /obj/structure/gate/psy_vault
 	name = "\improper HIS vault"
 	redstone_id = "swamp_psy_dungeon_hour"
-	max_integrity = "9999"
+	max_integrity = 9999
 
 /obj/structure/gate/psy_vault/Initialize()
 	. = ..()

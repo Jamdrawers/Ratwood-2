@@ -20,7 +20,7 @@
 	var/duplication_threshold = 4 // Every 4 ingots deposited will duplicate the last one
 	var/list/ingots_added_total = list()
 
-/obj/item/reagent_containers/glass/crucible/proc/add_ingot(var/ingot_type, var/mob/user)
+/obj/item/reagent_containers/glass/crucible/proc/add_ingot(ingot_type, mob/user)
 	// Initialize counters if they don't exist
 	if(!ingots[ingot_type])
 		ingots[ingot_type] = 0
@@ -255,7 +255,7 @@
 
 	var/obj/item/blade/new_blade = new blade_path(get_turf(src))
 	new_blade.forceMove(get_turf(src))
-
+	
 	if(attached_sprue)
 		attached_sprue.forceMove(get_turf(src))
 		attached_sprue = null

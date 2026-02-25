@@ -567,7 +567,7 @@ Traitors and the like can also be revived with the previous role mostly intact.
 
 /client/proc/cmd_admin_gib_self()
 	set name = "Gibself"
-	set category = "-Fun-"
+	set category = "-GameMaster-"
 
 	var/confirm = alert(src, "You sure?", "Confirm", "Yes", "No")
 	if(confirm == "Yes")
@@ -651,7 +651,7 @@ Traitors and the like can also be revived with the previous role mostly intact.
 
 
 /client/proc/run_weather()
-	set category = "-Fun-"
+	set category = "-GameMaster-"
 	set name = "Run Weather"
 	set desc = ""
 	set hidden = 1 //Replaced by particle weather
@@ -716,7 +716,7 @@ Traitors and the like can also be revived with the previous role mostly intact.
 
 /client/proc/smite(mob/living/target as mob)
 	set name = "Smite"
-	set category = "-Fun-"
+	set category = "-GameMaster-"
 	if(!check_rights(R_ADMIN) || !check_rights(R_FUN))
 		return
 	var/static/list/punishment_list = list(
@@ -746,7 +746,7 @@ Traitors and the like can also be revived with the previous role mostly intact.
 			if(ishuman(target))
 				var/mob/living/carbon/human/H = target
 				H.electrocution_animation(40)
-			GLOB.azure_round_stats[STATS_PEOPLE_SMITTEN]++
+			record_round_statistic(STATS_PEOPLE_SMITTEN)
 			to_chat(target, span_danger("The gods have punished you for your sins!"))
 		if(ADMIN_PUNISHMENT_BRAINDAMAGE)
 			target.adjustOrganLoss(ORGAN_SLOT_BRAIN, 199, 199)

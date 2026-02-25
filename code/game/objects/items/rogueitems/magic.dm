@@ -65,7 +65,7 @@
 			to_chat(user, span_warning("The orb doesn't seem ready. Maybe I should wait..."))
 
 	var/time_to_use
-	if (arcane_skill >= 1)
+	if(arcane_skill >= 1)
 		time_to_use = 60 / arcane_skill
 	else
 		time_to_use = 100
@@ -75,6 +75,7 @@
 		return
 
 	var/success_chance = 0
+
 	var/break_on_fail = FALSE
 	var/failure_severity = 6 - arcane_skill
 
@@ -100,18 +101,17 @@
 			if(SKILL_LEVEL_NOVICE)
 				break_on_fail = TRUE
 				success_chance = 50
-			if(SKILL_LEVEL_APPRENTICE) //Apprentices have this
+			if(SKILL_LEVEL_APPRENTICE)
 				success_chance = 65
-			if(SKILL_LEVEL_JOURNEYMAN) // refugee mages have this
+			if(SKILL_LEVEL_JOURNEYMAN)
 				success_chance = 80
 			if(SKILL_LEVEL_EXPERT)
 				success_chance = 90
-			if(SKILL_LEVEL_MASTER) // Magus has this
-				success_chance = 94
+			if(SKILL_LEVEL_MASTER)
+				success_chance = 95
 			if(SKILL_LEVEL_LEGENDARY)
 				success_chance = 100
-
-		// Only a true master of the arcane can reliably use the orb when it's REALLY been pushed
+	// Only a true master of the arcane can reliably use the orb when it's REALLY been pushed
 		if (on_extended_cooldown && arcane_skill < SKILL_LEVEL_LEGENDARY)
 			success_chance /= 2
 	else
@@ -143,9 +143,15 @@
 	if (target == null)
 		return
 
+//You're once more warned and the trait prevents scrying. It also tells you WHO is trying to scry you.
+	if(HAS_TRAIT(target, TRAIT_ANTISCRYING))
+		to_chat(user, span_warning("I peer into the ball, but an impenetrable fog shrouds [target.real_name]."))
+		to_chat(target, span_warning("My arcyne shroud shrieks in alarm! I can clearly see [user.real_name] staring into the fog!"))
+		return
+
 	if(!prob(success_chance))
 		on_failure(user, target, failure_severity)
-		if (break_on_fail)
+		if(break_on_fail)
 			failure_break(user)
 		return
 
@@ -194,8 +200,9 @@
 				if(target.mind.do_i_know(name=user.real_name))
 					to_chat(target, span_warning("I can clearly see the face of [user.real_name] staring at me!."))
 					return
-			to_chat(target, span_warning("I can clearly see the face of an unknown [user.gender == FEMALE ? "woman" : "man"] staring at me!"))
-			return
+				to_chat(target, span_warning("I can clearly see the face of an unknown [user.gender == FEMALE ? "woman" : "man"] staring at me!"))
+				return
+
 		if(target.STAPER >= 11)
 			to_chat(target, span_warning("I feel a pair of unknown eyes on me."))
 	return
@@ -203,7 +210,7 @@
 /obj/item/scrying/proc/failure_break(mob/living/user)
 	visible_message("\The [src] shatters!")
 	user.flash_fullscreen("redflash1")
-	new /obj/item/natural/glass_shard(get_turf(src))
+	new /obj/item/magic/obsidian(get_turf(src))
 	playsound(src, "shatter", 70, TRUE)
 	qdel(src)
 
@@ -353,8 +360,8 @@ Necra's Censer
 ============*/
 /*
 - Cleans in an area around the person after
-  a do_after call, infinite uses. Should aid
-  the morticians with cleaning the town.
+	a do_after call, infinite uses. Should aid
+	the morticians with cleaning the town.
 */
 
 /obj/item/necra_censer
@@ -377,8 +384,56 @@ Necra's Censer
 
 /obj/item/necra_censer/attack_self(mob/user)
 	if(do_after(user, 3 SECONDS))
-		playsound(user.loc,  'sound/items/censer_use.ogg', 100)
+		playsound(user.loc, 'sound/items/censer_use.ogg', 100)
 		user.visible_message(span_info("[user.name] lifts up their arm and swings the chain on \the [name] around lightly."))
 		var/datum/effect_system/smoke_spread/smoke/necra_censer/S = new
 		S.set_up(2, user.loc)
 		S.start()
+
+/obj/item/circuitus_scroll
+	name = "Circuitus Scroll"
+	desc = "A scroll prepared for use in the art of Circuitus. Write an incantation upon this scroll and perform Circuitus while holding it to perform the spell written."
+	icon = 'icons/roguetown/items/misc.dmi'
+	icon_state = "scroll"
+	w_class = WEIGHT_CLASS_TINY
+	max_integrity = 30
+	pickup_sound = 'sound/blank.ogg'
+	drop_sound = 'sound/foley/dropsound/paper_drop.ogg'
+	grind_results = list(/datum/reagent/cellulose = 3)
+	color = "#A7C7E7"
+	throw_range = 1
+	throw_speed = 1
+	throwforce = 0
+	grid_height = 64
+	grid_width = 32
+	dropshrink = 0.6
+	resistance_flags = FLAMMABLE
+	var/spell_info
+
+/obj/item/circuitus_scroll/attack_self(mob/living/user)
+	if(!spell_info)
+		spell_info = stripped_input(user, "Write words of power.", "Incantation", "", 512)
+		return
+
+	if(alert("Read or re-write scroll?",,"Read","Re-Write")!="Read")
+		spell_info = stripped_input(user, "Write words of power.", "Incantation", "", 512)
+		return
+	else
+		to_chat(user, "The scroll reads: [spell_info]")
+
+/obj/item/memory_string
+	name = "memory string"
+	icon = 'icons/roguetown/items/natural.dmi'
+	icon_state = "fibers"
+	possible_item_intents = list(/datum/intent/use)
+	desc = "A memory string. For use in the art of circuitus, as a means to store iotas."
+	force = 0
+	throwforce = 0
+	obj_flags = null
+	color = "#A7C7E7"
+	firefuel = 5 MINUTES
+	resistance_flags = FLAMMABLE
+	max_integrity = 20
+	w_class = WEIGHT_CLASS_TINY
+	sellprice = 2
+	var/iota

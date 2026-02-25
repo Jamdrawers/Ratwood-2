@@ -1,6 +1,6 @@
 /obj/item/storage/magebag
-	name = "summoners pouch"
-	desc = "A pouch for carrying handfuls of summoning ingredients."
+	name = "scholar's pouch"
+	desc = "A pouch to carry handfuls of ingredients for summoning and alchemy."
 	icon_state = "summoning"
 	item_state = "summoning"
 	icon = 'icons/roguetown/clothing/storage.dmi'
@@ -73,6 +73,25 @@
 		/obj/item/seeds/pipeweed = 1,
 	)
 
+/obj/item/storage/magebag/witch
+	name = "witch pouch"
+	desc = "A pouch for carrying handfuls of alchemical ingredients."
+	color = "#210f0c"
+	populate_contents = list(
+		/obj/item/alch/viscera,
+		/obj/item/alch/viscera,
+		/obj/item/alch/viscera,
+		/obj/item/alch/urtica,
+		/obj/item/alch/taraxacum,
+		/obj/item/alch/puresalt,
+		/obj/item/alch/paris,
+		/obj/item/alch/mentha,
+		/obj/item/alch/hypericum,
+		/obj/item/alch/salvia,
+		/obj/item/alch/calendula,
+		/obj/item/seeds/swampweed = 1,
+		/obj/item/seeds/pipeweed = 1,
+		)
 
 /obj/item/chalk
 	name = "stick of chalk"
@@ -132,7 +151,7 @@
 	if(amount == 0)
 		qdel(src)
 
-/obj/item/chalk/proc/check_for_structures_and_closed_turfs(loc, var/obj/effect/decal/cleanable/roguerune/rune_to_scribe)
+/obj/item/chalk/proc/check_for_structures_and_closed_turfs(loc, obj/effect/decal/cleanable/roguerune/rune_to_scribe)
 	for(var/turf/T in range(loc, rune_to_scribe.runesize))
 		//check for /sturcture subtypes in the turf's contents
 		for(var/obj/structure/S in T.contents)
@@ -216,7 +235,7 @@
 		)
 		new rune_to_scribe(Turf, chosen_keyword)
 
-/obj/item/rogueweapon/huntingknife/idagger/proc/check_for_structures_and_closed_turfs(loc, var/obj/effect/decal/cleanable/roguerune/rune_to_scribe)
+/obj/item/rogueweapon/huntingknife/idagger/proc/check_for_structures_and_closed_turfs(loc, obj/effect/decal/cleanable/roguerune/rune_to_scribe)
 	for(var/turf/T in range(loc, rune_to_scribe.runesize))
 		//check for /sturcture subtypes in the turf's contents
 		for(var/obj/structure/S in T.contents)
@@ -498,7 +517,7 @@
 	see_in_dark = 8
 	lighting_alpha = LIGHTING_PLANE_ALPHA_MOSTLY_INVISIBLE//easiest way to give mage summons proper darksight, although I'm wracking my brain for other angles since admin-spawned guys might happen
 
-/obj/item/rope/chain/bindingshackles/proc/custom_name(mob/awakener, var/mob/chosen_one, iteration = 1)
+/obj/item/rope/chain/bindingshackles/proc/custom_name(mob/awakener, mob/chosen_one, iteration = 1)
 	if(iteration > 5)
 		return  // The spirit of indecision
 	chosen_name = sanitize_name(stripped_input(chosen_one, "What are you named?"))

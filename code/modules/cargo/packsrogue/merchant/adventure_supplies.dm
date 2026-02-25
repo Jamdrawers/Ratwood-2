@@ -72,12 +72,12 @@
 				)
 
 /datum/supply_pack/rogue/adventure_supplies/woodstaff
-	name = "Six Foot Pole"
+	name = "Six Foot Pole (Wooden Staff)"
 	cost = 6
 	contains = list(/obj/item/rogueweapon/woodstaff)
 
 /datum/supply_pack/rogue/adventure_supplies/quarterstaff
-	name = "Eight Foot Pole"
+	name = "Eight Foot Pole "
 	cost = 12
 	contains = list(/obj/item/rogueweapon/woodstaff/quarterstaff)
 
@@ -110,3 +110,8 @@
 					/obj/item/ration,
 					/obj/item/ration,
 				)
+
+/datum/supply_pack/rogue/adventure_supplies/rationpaper
+	name = "Roll of bandages"
+	cost = 25
+	contains = list(/obj/item/natural/bundle/cloth/bandage/full)

@@ -1,4 +1,4 @@
-/*  * * * * * * * * * * * * * * * * * * * * * * * * *
+/* * * * * * * * * * * * * * * * * * * * * * * * * *
  *													*		Animal that can locate hidden truffles in bog area dirt turf
  *					TRUFFLE PIG						*		Dig them up with a shovel, pig will demand truffles eventually or stop working
  *					 								*		Meant to help locate some extra food in the wilderness
@@ -53,7 +53,7 @@
 	sellprice = 5
 
 /obj/item/reagent_containers/food/snacks/rogue/truffles/cooked
-	eat_effect = /datum/status_effect/buff/foodbuff
+	eat_effect = /datum/status_effect/buff/snackbuff
 	bonus_reagents = list(/datum/reagent/consumable/nutriment = 2)
 	color = "#835b4f"
 	tastes = list("succulent truffles" = 1)

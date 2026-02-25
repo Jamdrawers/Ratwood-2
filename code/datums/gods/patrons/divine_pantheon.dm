@@ -53,7 +53,7 @@
 	domain = "The Night, The Moon, Knowledge, Magic, Secrets"
 	desc = "The Father of Secrets is the glorious moonlight that grants us power through knowledge. We are granted visions of His vault of secrets, and given the ability to wield the Arcyne through His benevolence."
 	worshippers = "Wizards, Scholars, Night Owls"
-	mob_traits = list(TRAIT_NIGHT_OWL)
+	mob_traits = list(TRAIT_NIGHT_OWL, TRAIT_NOCSIGHT)
 	miracles = list(/obj/effect/proc_holder/spell/targeted/touch/orison			= CLERIC_ORI,
 					/obj/effect/proc_holder/spell/invoked/noc_sight				= CLERIC_T0,
 					/obj/effect/proc_holder/spell/invoked/darkvision/miracle	= CLERIC_T0,
@@ -70,7 +70,6 @@
 		"NOC SEES ALL!",
 		"I SEEK THE MYSTERIES OF THE MOON!",
 	)
-	traits_tier = list(TRAIT_DARKVISION = CLERIC_T1)
 	storyteller = /datum/storyteller/noc
 
 /datum/patron/divine/dendor
@@ -84,10 +83,11 @@
 					/obj/effect/proc_holder/spell/targeted/blesscrop			= CLERIC_T0,
 					/obj/effect/proc_holder/spell/invoked/lesser_heal 			= CLERIC_T1,
 					/obj/effect/proc_holder/spell/invoked/blood_heal			= CLERIC_T1,
-					/obj/effect/proc_holder/spell/targeted/wildshape			= CLERIC_T2,
+					/obj/effect/proc_holder/spell/self/wildshape			= CLERIC_T2,
 					/obj/effect/proc_holder/spell/targeted/beasttame			= CLERIC_T2,
 					/obj/effect/proc_holder/spell/invoked/wound_heal			= CLERIC_T3,
 					/obj/effect/proc_holder/spell/targeted/conjure_glowshroom	= CLERIC_T3,
+					/obj/effect/proc_holder/spell/targeted/conjure_vines 		= CLERIC_T3,
 					/obj/effect/proc_holder/spell/self/howl/call_of_the_moon	= CLERIC_T4,
 					/obj/effect/proc_holder/spell/invoked/resurrect/dendor		= CLERIC_T4,
 	)
@@ -181,16 +181,16 @@
 	desc = "The Trickster is an unknown amongst the Pantheon. They created the Fluvian race with the gift of Fate, and serve the sole purpose of pulling pranks on Gods and Mortals alike. Their followers see freedom as an absolute, and despise slavery."
 	worshippers = "Gamblers, Bards, Artists, The Silver-Tongued, Fluvians"
 	mob_traits = list(TRAIT_XYLIX)
-	miracles = list(/obj/effect/proc_holder/spell/targeted/touch/orison			= CLERIC_ORI,
-					/obj/effect/proc_holder/spell/self/xylixslip				= CLERIC_T0,
-					/obj/effect/proc_holder/spell/invoked/xylixlian_luck        = CLERIC_T1,
-					/obj/effect/proc_holder/spell/invoked/lesser_heal 			= CLERIC_T1,
-					/obj/effect/proc_holder/spell/invoked/blood_heal			= CLERIC_T1,
-					/obj/effect/proc_holder/spell/invoked/wheel					= CLERIC_T1,
-					/obj/effect/proc_holder/spell/invoked/mockery				= CLERIC_T1,
-					/obj/effect/proc_holder/spell/invoked/mastersillusion		= CLERIC_T2,
-					/obj/effect/proc_holder/spell/invoked/wound_heal			= CLERIC_T3,
-					/obj/effect/proc_holder/spell/invoked/resurrect/xylix		= CLERIC_T4,
+	miracles = list(/obj/effect/proc_holder/spell/targeted/touch/orison				= CLERIC_ORI,
+					/obj/effect/proc_holder/spell/self/xylixslip					= CLERIC_T0,
+					/obj/effect/proc_holder/spell/invoked/xylixlian_luck        	= CLERIC_T1,
+					/obj/effect/proc_holder/spell/invoked/lesser_heal 				= CLERIC_T1,
+					/obj/effect/proc_holder/spell/invoked/projectile/fetch/miracle 	= CLERIC_T1,
+					/obj/effect/proc_holder/spell/invoked/projectile/repel/miracle 	= CLERIC_T1,
+					/obj/effect/proc_holder/spell/invoked/mockery					= CLERIC_T1,
+					/obj/effect/proc_holder/spell/invoked/blood_heal				= CLERIC_T2,
+					/obj/effect/proc_holder/spell/invoked/mastersillusion			= CLERIC_T2,
+					/obj/effect/proc_holder/spell/invoked/wound_heal				= CLERIC_T4,
 	)
 	confess_lines = list(
 		"ASTRATA IS MY LIGHT!",

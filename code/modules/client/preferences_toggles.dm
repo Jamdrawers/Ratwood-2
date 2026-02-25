@@ -104,6 +104,61 @@
 		else
 			to_chat(src, "You will no longer be notified in chat when toggling Compliance Mode.")
 
+/client/verb/toggle_examine_blocks()
+	set category = "Options"
+	set name = "Toggle Examine Blocks"
+	if(prefs)
+		prefs.no_examine_blocks = !prefs.no_examine_blocks
+		prefs.save_preferences()
+		if(prefs.no_examine_blocks)
+			to_chat(src, "You will no longer see examined items in boxes.")
+		else
+			to_chat(src, "You will now see examined items in boxes.")
+
+/client/verb/toggle_wildshape_name()
+	set category = "Options"
+	set name = "Toggle Wildshape Name"
+	if(prefs)
+		prefs.wildshape_name = !prefs.wildshape_name
+		prefs.save_preferences()
+		if(prefs.wildshape_name)
+			to_chat(src, "You will show your character's name when wildshaping as a Druid.")
+		else
+			to_chat(src, "You will hide your character's name when wildshaping as a Druid and appear solely as your animal form.")
+
+/client/verb/toggle_autopunctuation()
+	set category = "Options"
+	set name = "Toggle Autopunctuation"
+	if(prefs)
+		prefs.no_autopunctuate = !prefs.no_autopunctuate
+		prefs.save_preferences()
+		if(prefs.no_autopunctuate)
+			to_chat(src, "Your messages will no longer be automatically punctuated.")
+		else
+			to_chat(src, "Your messages will now be automatically punctuated.")
+
+/client/verb/toggle_language_fonts()
+	set category = "Options"
+	set name = "Toggle Language Fonts"
+	if(prefs)
+		prefs.no_language_fonts = !prefs.no_language_fonts
+		prefs.save_preferences()
+		if(prefs.no_language_fonts)
+			to_chat(src, "You will no longer see languages in their stylized fonts.")
+		else
+			to_chat(src, "You will now see languages in their stylized fonts.")
+
+/client/verb/toggle_language_icon()
+	set category = "Options"
+	set name = "Toggle Language Icon"
+	if(prefs)
+		prefs.no_language_icon = !prefs.no_language_icon
+		prefs.save_preferences()
+		if(prefs.no_language_icon)
+			to_chat(src, "You will no longer see the language icon in front of a language.")
+		else
+			to_chat(src, "You will now see the language icon in front of a language.")
+
 /client/verb/toggle_lobby_music()
 	set name = "Toggle Lobby Music"
 	set category = "Options"
@@ -171,6 +226,19 @@
 		prefs.floating_text_toggles ^= FLOATING_TEXT
 		prefs.save_preferences()
 	to_chat(src, "You will [prefs.floating_text_toggles & FLOATING_TEXT ? "see" : "not see any"] floating text.")
+
+/client/verb/toggle_deadchat() // Whether the user can see DSAY or not.
+	set name = "Show/Hide Deadchat"
+	set category = "Options"
+	set desc ="Toggles seeing deadchat"
+
+	if(prefs)
+		prefs.chat_toggles ^= CHAT_DSAY
+		prefs.save_preferences()
+	to_chat(src, "You will [(prefs.chat_toggles & CHAT_DSAY) ? "now" : "no longer"] see deadchat.")
+	if(holder)
+		SSblackbox.record_feedback("nested tally", "admin_toggle", 1, list("Toggle Deadchat Visibility", "[prefs.chat_toggles & CHAT_DSAY ? "Enabled" : "Disabled"]"))
+
 /*
 //toggles
 /datum/verbs/menu/Settings/Ghost/chatterbox
@@ -577,17 +645,6 @@ GLOBAL_LIST_INIT(ghost_orbits, list(GHOST_ORBIT_CIRCLE,GHOST_ORBIT_TRIANGLE,GHOS
 	prefs.save_preferences()
 	to_chat(usr, "You will [(prefs.chat_toggles & CHAT_RADIO) ? "now" : "no longer"] see radio chatter from nearby radios or speakers")
 	SSblackbox.record_feedback("nested tally", "admin_toggle", 1, list("Toggle Radio Chatter", "[prefs.chat_toggles & CHAT_RADIO ? "Enabled" : "Disabled"]")) //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
-
-/client/proc/deadchat()
-	set name = "Show/Hide Deadchat"
-	set category = "Prefs - Admin"
-	set desc ="Toggles seeing deadchat"
-	if(!holder)
-		return
-	prefs.chat_toggles ^= CHAT_DEAD
-	prefs.save_preferences()
-	to_chat(src, "You will [(prefs.chat_toggles & CHAT_DEAD) ? "now" : "no longer"] see deadchat.")
-	SSblackbox.record_feedback("nested tally", "admin_toggle", 1, list("Toggle Deadchat Visibility", "[prefs.chat_toggles & CHAT_DEAD ? "Enabled" : "Disabled"]")) //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
 
 /client/proc/toggleprayers()
 	set name = "Show/Hide Prayers"

@@ -47,6 +47,8 @@
 				for(var/J in legacy_configs)
 					LoadEntries(J)
 				break
+	if (fexists("[directory]/dev_overrides.txt"))
+		LoadEntries("dev_overrides.txt")
 	loadmaplist(CONFIG_MAPS_FILE)
 	LoadMOTD()
 	LoadPolicy()
@@ -234,9 +236,9 @@ special keywords defined in _DEFINES/admin.dm
 
 Example config:
 {
-    "Assistant" : "Don't kill everyone",
-    "/datum/antagonist/highlander" : "<b>Kill everyone</b>",
-    "Ash Walker" : "Kill all spacemans"
+	"Assistant" : "Don't kill everyone",
+	"/datum/antagonist/highlander" : "<b>Kill everyone</b>",
+	"Ash Walker" : "Kill all spacemans"
 }
 
 */

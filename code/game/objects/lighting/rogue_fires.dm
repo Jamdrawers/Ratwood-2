@@ -1,5 +1,5 @@
 #define MIN_STEW_TEMPERATURE 374 // For cooking
-#define VOLUME_PER_STEW_COOK 32 // Volume to cook per ingredient
+#define VOLUME_PER_STEW_COOK 29 // Volume to cook per ingredient
 #define VOLUME_PER_STEW_COOK_AFTER 1 // Volume to deduct after the sleep is over
 #define DEEP_FRY_TIME 5 SECONDS // Default deep fry time
 #define OIL_CONSUMED 5 // Amount of oil consumed per deep fry (1 fat = 4 fry)
@@ -101,6 +101,12 @@
 	base_state = "standingg"
 	bulb_colour = "#8ee2a7"
 	desc = "Soft and green like... well, nothing you can really think of right now."
+
+/obj/machinery/light/rogue/firebowl/standing/red
+	icon_state = "standingr1"
+	base_state = "standingr"
+	bulb_colour = "#f02929"
+	desc = "An unearthly red, wafting a faint scent of brimstone."
 
 
 /obj/machinery/light/rogue/firebowl/standing/proc/knock_over() //use this later for jump impacts and shit
@@ -220,6 +226,35 @@
 /obj/machinery/light/rogue/wallfire/candle/blue/l
 	pixel_y = 0
 	pixel_x = -32
+
+//GREEN!
+/obj/machinery/light/rogue/wallfire/candle/green
+	bulb_colour = "#60f382"
+	icon_state = "wallcandleg1"
+	base_state = "wallcandleg"
+	desc = "Tiny greenish flames flicker with unearthly warmth."
+
+/obj/machinery/light/rogue/wallfire/candle/green/r
+	pixel_y = 0
+	pixel_x = 32
+/obj/machinery/light/rogue/wallfire/candle/green/l
+	pixel_y = 0
+	pixel_x = -32
+
+//RED!
+/obj/machinery/light/rogue/wallfire/candle/red
+	bulb_colour = "#f02929"
+	icon_state = "wallcandler1"
+	base_state = "wallcandler"
+	desc = "Tiny red flames flicker hatefully in the dark."
+
+/obj/machinery/light/rogue/wallfire/candle/red/r
+	pixel_y = 0
+	pixel_x = 32
+/obj/machinery/light/rogue/wallfire/candle/red/l
+	pixel_y = 0
+	pixel_x = -32
+
 
 /obj/machinery/light/rogue/wallfire/candle/weak
 	light_power = 0.9
@@ -426,7 +461,7 @@
 	cookonme = TRUE
 	soundloop = /datum/looping_sound/fireloop
 	var/obj/item/attachment = null
-	var/obj/item/reagent_containers/food/snacks/food = null
+	var/obj/item/food = null
 	var/mob/living/carbon/human/lastuser
 	var/datum/looping_sound/boilloop/boilloop
 
@@ -510,6 +545,14 @@
 						playsound(get_turf(user), 'modular/Neu_Food/sound/eggbreak.ogg', 100, TRUE, -1)
 						sleep(25) // to get egg crack before frying hiss
 						W.icon_state = "rawegg" // added
+				if(!food)
+					S.forceMove(src)
+					food = S
+					update_icon()
+					playsound(src.loc, 'sound/misc/frying.ogg', 80, FALSE, extrarange = 5)
+					return
+			if(W.type in subtypesof(/obj/item/seeds))
+				var/obj/item/seeds/S = W
 				if(!food)
 					S.forceMove(src)
 					food = S
@@ -630,7 +673,7 @@
 	if(on)
 		try_cook(cooktime_divisor)
 
-/obj/machinery/light/rogue/hearth/proc/try_cook(var/cooktime_divisor)
+/obj/machinery/light/rogue/hearth/proc/try_cook(cooktime_divisor)
 	if(initial(fueluse) > 0)
 		if(fueluse > 0)
 			fueluse = max(fueluse - 10, 0)
@@ -799,14 +842,19 @@
 
 	if(on)
 		var/mob/living/carbon/human/H = user
-
-		if(istype(H))
+		if(ishuman(H))
 			H.visible_message("<span class='info'>[H] warms [user.p_their()] hand near the fire.</span>")
-
-			if(do_after(H, 100, target = src))
-				H.apply_status_effect(/datum/status_effect/buff/healing, 1)
+			var/first_go = TRUE
+			while(do_after(H, 105, target = src) && on)
+				// Astrata followers get enhanced fire healing
+				var/buff_strength = 1
+				if(H.patron?.type == /datum/patron/divine/astrata || H.patron?.type == /datum/patron/inhumen/matthios) //Fire and the fire-stealer
+					buff_strength = 2
+				H.apply_status_effect(/datum/status_effect/buff/healing/campfire, buff_strength)
 				H.add_stress(/datum/stressevent/campfire)
-				to_chat(H, "<span class='info'>The warmth of the fire comforts me, affording me a short rest.</span>")
+				if(first_go)
+					to_chat(H, span_good("The warmth of the fire comforts me, affording me a short rest."))
+					first_go = FALSE
 		return TRUE //fires that are on always have this interaction with lmb unless its a torch
 
 /obj/machinery/light/rogue/campfire/densefire

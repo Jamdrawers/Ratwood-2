@@ -3,7 +3,7 @@
 	var/budget = 0
 	var/compact = TRUE
 	var/current_category = "Raw Materials"
-	var/list/categories = list("Raw Materials", "Foodstuffs", "Fruits")
+	var/list/categories = list("Raw Materials", "Foodstuffs", "Fruits", "Seafood")
 	var/obj/structure/roguemachine/parent_structure = null
 
 /datum/withdraw_tab/New(stockpile_param, obj/structure/roguemachine/structure_param)
@@ -81,6 +81,7 @@
 			budget -= total_price
 			SStreasury.economic_output -= D.export_price // Prevent GDP double counting
 			SStreasury.give_money_treasury(D.withdraw_price, "stockpile withdraw")
+			record_round_statistic(STATS_STOCKPILE_REVENUE, D.withdraw_price)
 			var/obj/item/I = new D.item_type(parent_structure.loc)
 			var/mob/user = usr
 			if(!user.put_in_hands(I))

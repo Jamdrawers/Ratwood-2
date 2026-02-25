@@ -168,7 +168,7 @@ INITIALIZE_IMMEDIATE(/obj/effect/landmark)
 	icon_state = "arrow"
 
 /obj/effect/landmark/start/physician
-	name = "Court Physician"
+	name = "Head Physician"
 	icon_state = "arrow"
 
 /obj/effect/landmark/start/guardsman
@@ -211,8 +211,12 @@ INITIALIZE_IMMEDIATE(/obj/effect/landmark)
 	name = "Towner"
 	icon_state = "arrow"
 
-/obj/effect/landmark/start/woodsman
-	name = "Town Elder"
+/obj/effect/landmark/start/crier
+	name = "Town Crier"
+	icon_state = "arrow"
+
+/obj/effect/landmark/start/keeper
+	name = "Keeper"
 	icon_state = "arrow"
 
 /obj/effect/landmark/start/priest
@@ -256,7 +260,7 @@ INITIALIZE_IMMEDIATE(/obj/effect/landmark)
 	icon_state = "arrow"
 
 /obj/effect/landmark/start/nightman
-	name = "Nightmaster"
+	name = "Bathmaster"
 	icon_state = "arrow"
 
 /obj/effect/landmark/start/nightmaiden
@@ -387,6 +391,12 @@ INITIALIZE_IMMEDIATE(/obj/effect/landmark)
 /obj/effect/landmark/start/adventurer
 	name = "Adventurer"
 	icon_state = "arrow"
+
+//Remove this at some point. Vestigial.
+/obj/effect/landmark/start/trader
+	name = "Refugee"
+	icon_state = "arrow"
+//End of remove.
 
 /obj/effect/landmark/start/courtagent
 	name = "Court Agent"
@@ -670,6 +680,33 @@ INITIALIZE_IMMEDIATE(/obj/effect/landmark/start/new_player)
 /obj/effect/landmark/underworldsafe
 	name = "safe zone"
 
+//Deathsdoor landmark
+/obj/effect/landmark/deaths_door/entry/Initialize(mapload)
+	. = ..()
+	var/turf/T = get_turf(src)
+	if(T)
+		GLOB.deaths_door_entries += T
+	qdel(src)
+
+/obj/effect/landmark/deaths_door/entry/tl
+	name = "deaths door entry point"
+/obj/effect/landmark/deaths_door/entry/tr
+	name = "deaths door entry point"
+/obj/effect/landmark/deaths_door/entry/bl
+	name = "deaths door entry point"
+/obj/effect/landmark/deaths_door/entry/br
+	name = "deaths door entry point"
+
+/obj/effect/landmark/deaths_door/exit/Initialize(mapload)
+	. = ..()
+	var/turf/T = get_turf(src)
+	if(T)
+		GLOB.deaths_door_exit = T
+	qdel(src)
+
+/obj/effect/landmark/deaths_door/exit
+	name = "deaths door exit point"
+
 GLOBAL_LIST_EMPTY(travel_tile_locations)
 
 /obj/effect/landmark/travel_tile_location
@@ -707,7 +744,7 @@ GLOBAL_LIST_EMPTY(travel_spawn_points)
 		return point.loc
 	return null
 
-/proc/create_travel_tiles(var/atom/location, travel_id, travel_goes_to_id, required_trait)
+/proc/create_travel_tiles(atom/location, travel_id, travel_goes_to_id, required_trait)
 	for(var/obj/effect/landmark/travel_tile_location/landmark as anything in GLOB.travel_tile_locations)
 		if(get_dist(location, landmark) > 5)
 			continue
