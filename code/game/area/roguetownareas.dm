@@ -22,9 +22,12 @@ GLOBAL_LIST_INIT(roguetown_areas_typecache, typecacheof(/area/rogue/indoors/town
 	var/cell_area = FALSE
 	var/ceiling_protected = FALSE //Prevents tunneling into these from above
 	var/hoardmaster_protected = FALSE//If a player enters, it ashes them. Your greed will consume you.
+	var/necra_area = FALSE
 
 /area/rogue/Entered(mob/living/carbon/human/guy)
 	. = ..()
+	if(!ishuman(guy))
+		return
 	if((src.town_area == TRUE) && HAS_TRAIT(guy, TRAIT_GUARDSMAN) && !guy.has_status_effect(/datum/status_effect/buff/guardbuffone)) //man at arms
 		guy.apply_status_effect(/datum/status_effect/buff/guardbuffone)
 	if((src.tavern_area == TRUE) && HAS_TRAIT(guy, TRAIT_TAVERN_FIGHTER) && !guy.has_status_effect(/datum/status_effect/buff/barkeepbuff)) // THE FIGHTER
@@ -37,6 +40,11 @@ GLOBAL_LIST_INIT(roguetown_areas_typecache, typecacheof(/area/rogue/indoors/town
 		guy.add_stress(/datum/stressevent/seeblessed)
 	if((src.holy_area == TRUE) && HAS_TRAIT(guy, TRAIT_OVERTHERETIC))//Heretics are punished for walking in the Church with rites buffs.
 		guy.apply_status_effect(/datum/status_effect/debuff/overt_punishment)
+	if((src.necra_area == TRUE) && !(guy.has_status_effect(/datum/status_effect/debuff/necrandeathdoorwilloss)||(guy.has_status_effect(/datum/status_effect/debuff/deathdoorwilloss)))) //Necra saps at wil
+		if(HAS_TRAIT(guy, TRAIT_SOUL_EXAMINE))
+			guy.apply_status_effect(/datum/status_effect/debuff/necrandeathdoorwilloss)
+		else
+			guy.apply_status_effect(/datum/status_effect/debuff/deathdoorwilloss)
 	if((src.hoardmaster_protected == TRUE))//Your greed consumes you.
 		message_admins("[guy.real_name]([key_name(guy)]) was dusted by the Hoardmaster, at [ADMIN_JMP(src)]")
 		log_admin("[guy.real_name]([key_name(guy)]) was dusted by the Hoardmaster")
@@ -83,10 +91,19 @@ GLOBAL_LIST_INIT(roguetown_areas_typecache, typecacheof(/area/rogue/indoors/town
 /area/rogue/indoors/ravoxarena/can_craft_here()
 	return FALSE
 
-/area/rogue/indoors/ravoxarena/proc/cleanthearena(var/turf/returnzone)
+/area/rogue/indoors/ravoxarena/proc/cleanthearena(turf/returnzone)
 	for(var/obj/item/trash in src)
 		do_teleport(trash, returnzone)
 	GLOB.arenafolks.len = list()
+
+/area/rogue/indoors/deathsedge
+	name = "Death's Precipice"
+	deathsight_message = "an place bordering necra's grasp"
+	necra_area = TRUE
+	droning_sound = 'sound/music/area/underworlddrone.ogg'
+	droning_sound_dusk = null
+	droning_sound_night = null
+	first_time_text = "DEATHS PRECIPICE"
 
 /area/rogue/indoors/eventarea
 	name = "Event Area"
@@ -148,6 +165,15 @@ GLOBAL_LIST_INIT(roguetown_areas_typecache, typecacheof(/area/rogue/indoors/town
 	deathsight_message = "a twisted tangle of soaring peaks"
 	// I SURE HOPE NO ONE USE THIS HUH
 
+/area/rogue/outdoors/cave/inhumen/wretch/ghrotto
+	name = "WRETCHED GHROTTO"
+	icon_state = "outdoors"
+	first_time_text = "WRETCHED GHROTTO"
+	droning_sound = 'sound/ambience/bogday (1).ogg'
+	droning_sound_dusk = 'sound/ambience/bogday (2).ogg'
+	droning_sound_night = 'sound/ambience/bogday (3).ogg'
+	converted_type = /area/rogue/outdoors/dungeon1
+	detail_text = DETAIL_TEXT_WRETCHED_GHROTTO
 
 /area/rogue/indoors/shelter/mountains
 	icon_state = "mountains"
@@ -346,7 +372,7 @@ GLOBAL_LIST_INIT(roguetown_areas_typecache, typecacheof(/area/rogue/indoors/town
 	droning_sound_night = 'sound/music/area/sleeping.ogg'
 	converted_type = /area/rogue/outdoors/exposed/town
 	town_area = TRUE
-	deathsight_message = "the city of Rotwood Vale and all its bustling souls"
+	deathsight_message = "the comforts of a warm, wellkept building, newly disturbed"
 
 /area/rogue/outdoors/exposed/town
 	icon_state = "town"
@@ -379,6 +405,7 @@ GLOBAL_LIST_INIT(roguetown_areas_typecache, typecacheof(/area/rogue/indoors/town
 
 /area/rogue/indoors/town/manor/rockhill
 	first_time_text = "Rockhill Keep"
+	deathsight_message = "those sequestered amongst Astrata's favor"
 
 /area/rogue/outdoors/exposed/manorgarri
 	icon_state = "manorgarri"
@@ -415,6 +442,7 @@ GLOBAL_LIST_INIT(roguetown_areas_typecache, typecacheof(/area/rogue/indoors/town
 /area/rogue/outdoors/exposed/shop
 	icon_state = "shop"
 	droning_sound = 'sound/music/area/shop.ogg'
+	deathsight_message = "a pile of expensive wares and zenarii"
 
 /area/rogue/indoors/town/physician
 	name = "Physician"
@@ -422,6 +450,7 @@ GLOBAL_LIST_INIT(roguetown_areas_typecache, typecacheof(/area/rogue/indoors/town
 	droning_sound = 'sound/music/area/academy.ogg'
 	droning_sound_dusk = null
 	droning_sound_night = null
+	deathsight_message = "a structure full of pained wails and practiced surgeons"
 
 /area/rogue/indoors/town/Academy
 	name = "Academy"
@@ -429,6 +458,7 @@ GLOBAL_LIST_INIT(roguetown_areas_typecache, typecacheof(/area/rogue/indoors/town
 	droning_sound = 'sound/music/area/academy.ogg'
 	droning_sound_dusk = null
 	droning_sound_night = null
+	deathsight_message = "the rustle of heavy books"
 
 /area/rogue/indoors/town/bath
 	name = "Baths"
@@ -437,6 +467,8 @@ GLOBAL_LIST_INIT(roguetown_areas_typecache, typecacheof(/area/rogue/indoors/town
 	droning_sound_dusk = null
 	droning_sound_night = null
 	converted_type = /area/rogue/outdoors/exposed/bath
+	deathsight_message = "a den of pleasure and gluttony"
+
 /area/rogue/outdoors/exposed/bath
 	icon_state = "bath"
 	droning_sound = 'sound/music/area/bath.ogg'
@@ -456,6 +488,7 @@ GLOBAL_LIST_INIT(roguetown_areas_typecache, typecacheof(/area/rogue/indoors/town
 	droning_sound_night = null
 	converted_type = /area/rogue/outdoors/exposed/manorgarri
 	keep_area = TRUE
+	deathsight_message = "a rattle of chains and crackles of stunmaces"
 
 /area/rogue/indoors/town/cell
 	name = "dungeon cell"
@@ -469,6 +502,7 @@ GLOBAL_LIST_INIT(roguetown_areas_typecache, typecacheof(/area/rogue/indoors/town
 	keep_area = TRUE
 	cell_area = TRUE
 	soundproof = TRUE
+	deathsight_message = "cells of pain and suffering"
 
 /area/rogue/indoors/town/tavern
 	name = "tavern"
@@ -480,7 +514,8 @@ GLOBAL_LIST_INIT(roguetown_areas_typecache, typecacheof(/area/rogue/indoors/town
 	droning_sound_night = null
 	converted_type = /area/rogue/outdoors/exposed/tavern
 	tavern_area = TRUE
-	
+	deathsight_message = "pungent alcohol and weary travelers"
+
 /area/rogue/outdoors/exposed/tavern
 	icon_state = "tavern"
 	droning_sound = 'sound/silence.ogg'
@@ -525,10 +560,12 @@ GLOBAL_LIST_INIT(roguetown_areas_typecache, typecacheof(/area/rogue/indoors/town
 /area/rogue/indoors/town/warehouse
 	name = "dock warehouse import"
 	icon_state = "warehouse"
+	deathsight_message = "musty crates and cheap imports"
 
 /area/rogue/indoors/town/warden
 	name = "Warden Fort"
 	warden_area = TRUE
+	deathsight_message = "a moss covered stone redoubt, guarding against the wilds"
 
 /area/rogue/indoors/town/warehouse/can_craft_here()
 	return FALSE
@@ -577,6 +614,7 @@ GLOBAL_LIST_INIT(roguetown_areas_typecache, typecacheof(/area/rogue/indoors/town
 	droning_sound_night = null
 	first_time_text = "VALE GUILD OF CRAFT"
 	converted_type = /area/rogue/outdoors/exposed/dwarf
+	deathsight_message = "the sounds of hammers and roaring furnaces"
 
 /area/rogue/indoors/town/dwarfin/rockhill
 	first_time_text = "Rockhill Guild of Crafts"
@@ -611,10 +649,12 @@ GLOBAL_LIST_INIT(roguetown_areas_typecache, typecacheof(/area/rogue/indoors/town
 	converted_type = /area/rogue/indoors/shelter/town
 	first_time_text = "THE CITY OF ROTWOOD VALE"
 	town_area = TRUE
+	deathsight_message = "the city of Rotwood Vale and all its bustling souls"
 
 /area/rogue/outdoors/town/rockhill
 	name = "outdoors rockhill"
 	first_time_text = "The Town of Rockhill"
+	deathsight_message = "the city of Rockhill and all its bustling souls"
 
 /area/rogue/indoors/shelter/town
 	icon_state = "town"
@@ -652,6 +692,7 @@ GLOBAL_LIST_INIT(roguetown_areas_typecache, typecacheof(/area/rogue/indoors/town
 	soundenv = 17
 	converted_type = /area/rogue/indoors/shelter/town/roofs
 	first_time_text = null
+	deathsight_message = "the roofs of the bustling city"
 
 /area/rogue/outdoors/town/roofs/keep
 	name = "Keep Rooftops"
@@ -703,6 +744,7 @@ GLOBAL_LIST_INIT(roguetown_areas_typecache, typecacheof(/area/rogue/indoors/town
 	droning_sound_dusk = null
 	droning_sound_night = null
 	converted_type = /area/rogue/outdoors/exposed/under/town
+
 /area/rogue/outdoors/exposed/under/town
 	icon_state = "town"
 	droning_sound = 'sound/music/area/catacombs.ogg'
@@ -722,6 +764,8 @@ GLOBAL_LIST_INIT(roguetown_areas_typecache, typecacheof(/area/rogue/indoors/town
 	ambientrain = RAIN_SEWER
 	soundenv = 21
 	converted_type = /area/rogue/outdoors/exposed/under/sewer
+	deathsight_message = "beneath streets of stone, putrid and wet"
+
 /area/rogue/outdoors/exposed/under/sewer
 	icon_state = "sewer"
 	droning_sound = 'sound/music/area/sewers.ogg'
@@ -758,6 +802,7 @@ GLOBAL_LIST_INIT(roguetown_areas_typecache, typecacheof(/area/rogue/indoors/town
 	soundenv = 5
 	town_area = TRUE
 	converted_type = /area/rogue/outdoors/exposed/under/basement
+	deathsight_message = "beneath streets of stone, frequent of blood and steel"
 
 /area/rogue/under/town/basement/keep
 	name = "keep basement"
@@ -765,6 +810,7 @@ GLOBAL_LIST_INIT(roguetown_areas_typecache, typecacheof(/area/rogue/indoors/town
 	keep_area = TRUE
 	town_area = TRUE
 	ceiling_protected = TRUE
+	deathsight_message = "beneath royal roses and stone battlements"
 
 /area/rogue/under/town/basement/tavern
 	name = "tavern basement"
@@ -772,6 +818,7 @@ GLOBAL_LIST_INIT(roguetown_areas_typecache, typecacheof(/area/rogue/indoors/town
 	tavern_area = TRUE
 	town_area = TRUE
 	ceiling_protected = TRUE
+	deathsight_message = "a room full of aging ales"
 
 /area/rogue/outdoors/exposed/under/basement
 	icon_state = "basement"

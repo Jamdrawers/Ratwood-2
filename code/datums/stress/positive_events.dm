@@ -287,14 +287,14 @@
 	desc = span_green("My meditations were rewarding.")
 
 /datum/stressevent/bathcleaned
-    timer = 20 MINUTES
-    stressadd = -3
-    desc = span_green("I feel immaculate!")
+	timer = 20 MINUTES
+	stressadd = -3
+	desc = span_green("I feel immaculate!")
 
 /datum/stressevent/bath
-    timer = 10 MINUTES
-    stressadd = -1
-    desc = span_green("I'm just a bit cleaner.")
+	timer = 10 MINUTES
+	stressadd = -1
+	desc = span_green("I'm just a bit cleaner.")
 
 
 /datum/stressevent/pacified
@@ -403,6 +403,21 @@
 	timer = INFINITY
 
 /datum/stressevent/oath_ring
-	stressadd = 1
+	stressadd = -1
 	desc = span_aiprivradio("My oath keeps me going. One step at a time. How much longer can I continue? How long has it been?")
 	timer = INFINITY
+
+/datum/stressevent/keep_standard
+	stressadd = -4
+	desc = span_aiprivradio("The standard speaks of certainty.")
+	timer = INFINITY
+
+/datum/stressevent/keep_standard_lesser
+	stressadd = -3
+	desc = span_aiprivradio("The standard calls out to me! It knows we're to see victory!")
+	timer = 3 MINUTES
+
+/datum/stressevent/parasolrain
+	timer = 1 MINUTES
+	stressadd = -2
+	desc = list(span_blue("A covered stroll in the rain is quite pleasant."))

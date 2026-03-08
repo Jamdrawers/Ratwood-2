@@ -225,6 +225,12 @@
 	createditem_num = 3
 */
 
+/datum/anvil_recipe/tools/iron/branding
+	name = "Branding iron"
+	req_bar = /obj/item/ingot/steel
+	additional_items = list(/obj/item/ingot/iron)
+	created_item = /obj/item/rogueweapon/surgery/cautery/branding
+
 /datum/anvil_recipe/tools/iron/shovel
 	name = "Shovel, Iron (+2 Sticks)"
 	req_bar = /obj/item/ingot/iron
@@ -310,6 +316,12 @@
 	created_item = /obj/item/storage/hip/headhook
 	i_type = "Tools"
 
+/datum/anvil_recipe/tools/scissors
+	name = "Scissors"
+	req_bar = /obj/item/ingot/iron
+	created_item = /obj/item/rogueweapon/huntingknife/scissors
+	i_type = "Tools"
+
 // --------- Steel -----------
 
 /datum/anvil_recipe/tools/steel/hammer
@@ -342,6 +354,12 @@
 	req_bar = /obj/item/ingot/steel
 	created_item = /obj/item/rogueweapon/huntingknife/cleaver
 	createditem_num = 1
+
+/datum/anvil_recipe/tools/steelscissors
+	name = "Scissors"
+	req_bar = /obj/item/ingot/steel
+	created_item = /obj/item/rogueweapon/huntingknife/scissors/steel
+	i_type = "Tools"
 
 // --------- SILVER -----------
 

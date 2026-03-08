@@ -44,11 +44,25 @@
 	nomouseover = FALSE
 	var/swimdir = FALSE
 
-/turf/open/water/Initialize()
+/turf/open/water/Initialize(mapload)
 	.  = ..()
 	water_overlay = new(src)
 	water_top_overlay = new(src)
 	update_icon()
+
+/turf/open/water/attack_hand(mob/user)
+	. = ..()
+	if(!ishuman(user))
+		return
+	var/mob/living/carbon/human/H = user
+	if(HAS_TRAIT(H, TRAIT_MIRROR_MAGIC))
+		to_chat(H, span_info("You gaze at your reflection in the water, concentrating on the glamoring magicks..."))
+		if(do_after(H, 3 SECONDS, src))
+			perform_mirror_transform(H)
+		return
+	else
+		to_chat(H, span_notice("You see your reflection in the water."))
+		return
 
 /turf/open/water/update_icon()
 	if(water_overlay)
@@ -183,24 +197,25 @@
 		if (istype(src,/turf/open/water/bloody))
 			L.add_mob_blood(L)
 
-		if(!(L.mobility_flags & MOBILITY_STAND) || water_level == 3)
-			L.SoakMob(FULL_BODY)
-		else
-			if(water_level == 2)
-				L.SoakMob(BELOW_CHEST)
-		if(water_overlay)
-			if(water_level > 1 && !istype(oldLoc, type))
-				playsound(AM, 'sound/foley/waterenter.ogg', 100, FALSE)
+		if(!(L.movement_type & FLYING))
+			if(!(L.mobility_flags & MOBILITY_STAND) || water_level == 3)
+				L.SoakMob(FULL_BODY)
 			else
-				playsound(AM, pick('sound/foley/watermove (1).ogg','sound/foley/watermove (2).ogg'), 100, FALSE)
-			if(istype(oldLoc, type) && (get_dir(src, oldLoc) != SOUTH))
-				water_overlay.layer = ABOVE_MOB_LAYER
-				water_overlay.plane = water_overlay.plane = GAME_PLANE_HIGHEST
-			else
-				spawn(6)
-					if(AM.loc == src)
-						water_overlay.layer = ABOVE_MOB_LAYER
-						water_overlay.plane = GAME_PLANE_HIGHEST
+				if(water_level == 2)
+					L.SoakMob(BELOW_CHEST)
+			if(water_overlay)
+				if(water_level > 1 && !istype(oldLoc, type))
+					playsound(AM, 'sound/foley/waterenter.ogg', 100, FALSE)
+				else
+					playsound(AM, pick('sound/foley/watermove (1).ogg','sound/foley/watermove (2).ogg'), 100, FALSE)
+				if(istype(oldLoc, type) && (get_dir(src, oldLoc) != SOUTH))
+					water_overlay.layer = ABOVE_MOB_LAYER
+					water_overlay.plane = water_overlay.plane = GAME_PLANE_HIGHEST
+				else
+					spawn(6)
+						if(AM.loc == src)
+							water_overlay.layer = ABOVE_MOB_LAYER
+							water_overlay.plane = GAME_PLANE_HIGHEST
 		if(!istype(L, /mob/living/carbon/human/species/skeleton))
 			return
 		if(!istype(src, /turf/open/water/sewer))
@@ -225,6 +240,12 @@
 				if (istype(C, /obj/item/reagent_containers/glass/bottle/waterskin/purifier) && water_reagent != water_reagent_purified)
 					var/obj/item/reagent_containers/glass/bottle/waterskin/purifier/P = C
 					P.cleanwater(user)
+			return
+
+	if(ishuman(user) && istype(C, /obj/item/handmirror))
+		var/mob/living/carbon/human/H = user
+		if(HAS_TRAIT(H, TRAIT_MIRROR_MAGIC))
+			to_chat(H, span_notice("To change yourself via water reflection, use your bare hands on the water."))
 			return
 	. = ..()
 
@@ -354,7 +375,7 @@
 	slowdown = 3
 	water_reagent = /datum/reagent/water/bathwater
 
-/turf/open/water/bath/Initialize()
+/turf/open/water/bath/Initialize(mapload)
 	.  = ..()
 	icon_state = "bathtile"
 
@@ -369,9 +390,9 @@
 	wash_in = FALSE
 	water_reagent = /datum/reagent/water/gross/sewage
 
-/turf/open/water/sewer/Initialize()
+/turf/open/water/sewer/Initialize(mapload)
 	icon_state = "paving"
-	water_color = pick("#705a43","#697043")
+	water_color = pick("#705a43","#697043", "#6C6543")
 	.  = ..()
 
 /turf/open/water/swamp
@@ -396,13 +417,13 @@
 	wash_in = FALSE
 	water_reagent = /datum/reagent/blood/shitty
 
-/turf/open/water/swamp/Initialize()
+/turf/open/water/swamp/Initialize(mapload)
 	icon_state = "dirt"
 	dir = pick(GLOB.cardinals)
 	water_color = pick("#705a43")
 	.  = ..()
 
-/turf/open/water/bloody/Initialize()
+/turf/open/water/bloody/Initialize(mapload)
 	icon_state = "dirt"
 	dir = pick(GLOB.cardinals)
 	water_color = pick("#880808")
@@ -493,7 +514,7 @@
 	wash_in = TRUE
 	water_reagent = /datum/reagent/water
 
-/turf/open/water/cleanshallow/Initialize()
+/turf/open/water/cleanshallow/Initialize(mapload)
 	icon_state = "rock"
 	dir = pick(GLOB.cardinals)
 	.  = ..()
@@ -509,6 +530,13 @@
 	swim_skill = TRUE
 	var/river_processing
 	swimdir = TRUE
+
+/turf/open/water/river/muddy
+	water_color = "#705a43"
+	water_reagent = /datum/reagent/water/gross
+	icon_state = "rockwd"
+	name = "muddy river"
+	desc = "A river of thick, silt-laden sludge lurches languidly through the land."
 
 /turf/open/water/river/flow
 	icon_state = "rockwd"
@@ -532,7 +560,7 @@
 		water_top_overlay.icon_state = "rivertop"
 		water_top_overlay.dir = dir
 
-/turf/open/water/river/Initialize()
+/turf/open/water/river/Initialize(mapload)
 	icon_state = "rock"
 	.  = ..()
 
@@ -613,7 +641,7 @@
 	var/heal_amount = 20
 	var/last_heal = 0
 
-/turf/open/water/ocean/deep/thermalwater/Initialize()
+/turf/open/water/ocean/deep/thermalwater/Initialize(mapload)
 	. = ..()
 	START_PROCESSING(SSobj, src)
 

@@ -167,6 +167,11 @@
 	cost = 35
 	contains = list(/obj/item/rogueweapon/handsaw)
 
+/datum/supply_pack/rogue/tools/handsaw
+	name = "Chisel"
+	cost = 35
+	contains = list(/obj/item/rogueweapon/chisel)
+
 /datum/supply_pack/rogue/tools/hammer
 	name = "Hammer"
 	cost = 35
@@ -194,7 +199,18 @@
 	contains = list(/obj/item/reagent_containers/glass/bottle/alchemical,/obj/item/reagent_containers/glass/bottle/alchemical,/obj/item/reagent_containers/glass/bottle/alchemical,
 	/obj/item/reagent_containers/glass/bottle/alchemical,/obj/item/reagent_containers/glass/bottle/alchemical,/obj/item/reagent_containers/glass/bottle/alchemical,
 	/obj/item/reagent_containers/glass/bottle/alchemical,/obj/item/reagent_containers/glass/bottle/alchemical,/obj/item/reagent_containers/glass/bottle/alchemical)
-	
+
+/datum/supply_pack/rogue/tools/alch_bottlenormal
+	name = "Bottle"
+	cost = 3
+	contains = list(/obj/item/reagent_containers/glass/bottle,)
+
+/datum/supply_pack/rogue/tools/alch_bottlesnormal
+	name = "Bulk Bottles" //
+	cost = 20
+	contains = list(/obj/item/reagent_containers/glass/bottle/,/obj/item/reagent_containers/glass/bottle/,/obj/item/reagent_containers/glass/bottle/,
+	/obj/item/reagent_containers/glass/bottle/,/obj/item/reagent_containers/glass/bottle/,/obj/item/reagent_containers/glass/bottle/,)
+
 /datum/supply_pack/rogue/tools/gwstrap
 	name = "Greatweapon Strap"
 	cost = 30
@@ -209,7 +225,7 @@
 	name = "Bottle Kit"
 	cost = 50
 	contains = list(/obj/item/bottle_kit)
-	
+
 /datum/supply_pack/rogue/tools/surgeonsbag
 	name = "Surgeon's bag, Full"
 	cost = 80

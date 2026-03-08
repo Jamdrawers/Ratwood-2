@@ -267,10 +267,8 @@ SUBSYSTEM_DEF(migrants)
 			fakekey = get_fake_key(character.ckey)
 		GLOB.character_list[character.mobid] = "[fakekey] was [character.real_name] ([rank])<BR>"
 		GLOB.character_ckey_list[character.real_name] = character.ckey
-		if(!character.mind.special_role)
-			GLOB.actors_list[character.mobid] = "[character.real_name] as [rank]<BR>"
 		if(character.mind.special_role == "Court Agent")
-			GLOB.actors_list[character.mobid] = "[character.real_name] as Adventurer<BR>"
+			GLOB.actors_list["Wanderers"] += list(character.mobid, "[character.real_name] as Adventurer<BR>")
 		log_character("[character.ckey] ([fakekey]) - [character.real_name] - [rank]")
 	if(GLOB.respawncounts[character.ckey])
 		var/AN = GLOB.respawncounts[character.ckey]
@@ -317,17 +315,30 @@ SUBSYSTEM_DEF(migrants)
 
 	for(var/client/client as anything in players)
 		var/base_priority = 0
-
-		// Standard role preference priority
+		var/triumph_bonus = 0
+		//Standard role preference priority
 		if(role_type in client.prefs.migrant.role_preferences)
-			base_priority = 100
+			base_priority = 1
+			triumph_bonus = get_triumph_selection_bonus(client, wave_type) //Only gains the Triumph Bonus if they want that role.
 
-		var/final_priority = base_priority + 100 * get_triumph_selection_bonus(client, wave_type)
+		var/final_priority = base_priority + triumph_bonus
 
 		if(final_priority > 0)
 			triumph_weighted[client] = final_priority
 
-	// Convert weighted list back to prioritized list
+	//Check if all triumph_weighted values are equal
+	var/all_equal = TRUE
+	var/first_val = -1
+
+	if(length(triumph_weighted))
+		first_val = triumph_weighted[1]
+		for(var/client/client in triumph_weighted)
+			// Check if anything is not equal to the first value in the list
+			if(triumph_weighted[client] != first_val)
+				all_equal = FALSE
+				break
+
+	//Convert weighted list to prioritized list
 	while(length(triumph_weighted))
 		var/client/highest = null
 		var/highest_priority = 0
@@ -341,8 +352,11 @@ SUBSYSTEM_DEF(migrants)
 			priority += highest
 			triumph_weighted -= highest
 
-	return priority
+	//Shuffle only if all have equal priority
+	if(all_equal)
+		priority = shuffle(priority)
 
+	return priority
 
 /datum/controller/subsystem/migrants/proc/can_be_role(client/player, role_type)
 	var/datum/migrant_role/role = MIGRANT_ROLE(role_type)
@@ -457,7 +471,7 @@ SUBSYSTEM_DEF(migrants)
 	var/triumph_bonus = wave.triumph_total
 
 	// Triumph provides a linear bonus to weight (configurable multiplier)
-	var/triumph_multiplier = 2 // Each triumph point adds 2x weight
+	var/triumph_multiplier = 6 // Each triumph point adds 6x weight
 	var/final_weight = base_weight + (triumph_bonus * triumph_multiplier)
 
 	return max(final_weight, 1) // Ensure minimum weight of 1
@@ -530,8 +544,14 @@ SUBSYSTEM_DEF(migrants)
 			global_triumph_contributions[ckey] -= wave.type
 
 /datum/controller/subsystem/migrants/proc/update_ui()
+	var/countdown_text
+	if(!current_wave)
+		countdown_text = "The mist will clear out of the way in [time_until_next_wave / (1 SECONDS)] seconds..."
+	else
+		countdown_text = "They will arrive in [wave_timer / (1 SECONDS)] seconds..."
 	for(var/client/client as anything in get_all_migrants())
-		client.prefs.migrant.show_ui()
+		if(client?.mob)
+			client.mob << output(countdown_text, "migration.browser:update_migrant_countdown")
 
 /datum/controller/subsystem/migrants/proc/get_active_migrant_amount()
 	var/list/migrants = get_active_migrants()
@@ -620,9 +640,9 @@ SUBSYSTEM_DEF(migrants)
 	character.invisibility = INVISIBILITY_MAXIMUM
 	character.become_blind("advsetup")
 
-	if(GLOB.adventurer_hugbox_duration)
+	/*if(GLOB.adventurer_hugbox_duration)
 		///FOR SOME silly FUCKING REASON THIS REFUSED TO WORK WITHOUT A FUCKING TIMER IT JUST FUCKED SHIT UP
-		addtimer(CALLBACK(character, TYPE_PROC_REF(/mob/living/carbon/human, adv_hugboxing_start)), 1)
+		addtimer(CALLBACK(character, TYPE_PROC_REF(/mob/living/carbon/human, adv_hugboxing_start)), 1)*/
 
 /proc/grant_lit_torch(mob/living/carbon/human/character)
 	var/obj/item/flashlight/flare/torch/torch = new()

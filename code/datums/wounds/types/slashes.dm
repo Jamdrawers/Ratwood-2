@@ -44,7 +44,7 @@
 	bleed_rate = 1
 	sew_threshold = 25
 	woundpain = 5
-	clotting_rate = 0.1
+	clotting_rate = 0.05
 	clotting_threshold = 0.25
 
 	sewn_clotting_threshold = null
@@ -168,6 +168,13 @@
 /datum/wound/slash/incision/cauterize_wound()
 	qdel(src)
 	return TRUE
+
+/datum/wound/slash/incision/construct
+	name = "open hatch"
+	check_name = span_bloody("<B>OPEN HATCH</B>")
+	bleed_rate = 0
+	sewn_bleed_rate = 0.0
+	bypass_bloody_wound_check = TRUE
 
 /datum/wound/slash/vein
 	name= "vein"

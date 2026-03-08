@@ -159,7 +159,7 @@
 		user.mind.RemoveSpell(new /obj/effect/proc_holder/spell/invoked/engineeranalyze)
 		to_chat(user, span_notice("Time to stop working"))
 
-/obj/item/clothing/mask/rogue/spectacles/Initialize()
+/obj/item/clothing/mask/rogue/spectacles/Initialize(mapload)
 	..()
 	AddComponent(/datum/component/spill, null, 'sound/blank.ogg')
 
@@ -334,8 +334,8 @@
 	smeltresult = /obj/item/ingot/iron
 
 /obj/item/clothing/mask/rogue/facemask/shadowfacemask
-	name = "anthraxi war mask"
-	desc = "A metal mask resembling a spider's face. Such a visage haunts many an older dark elf's nitemares - while the younger generation simply scoffs at such relics."
+	name = "spider rider's mask"
+	desc = "A metal mask adorned with arachnid iconography. A grim visage crafted by a grim race."
 	icon_state = "shadowfacemask"
 
 /obj/item/clothing/mask/rogue/facemask/aalloy
@@ -385,7 +385,7 @@
 	var/bounty_amount
 	cansnout = TRUE
 
-/obj/item/clothing/mask/rogue/facemask/prisoner/Initialize()
+/obj/item/clothing/mask/rogue/facemask/prisoner/Initialize(mapload)
 	. = ..()
 	ADD_TRAIT(src, TRAIT_NODROP, CURSED_ITEM_TRAIT)
 
@@ -580,6 +580,9 @@
 /obj/item/clothing/mask/rogue/ragmask/red //predyed mask for NPCs
 	color = CLOTHING_RED
 
+/obj/item/clothing/mask/rogue/ragmask/azure  //predyed mask for gang
+	color = CLOTHING_AZURE
+
 /obj/item/clothing/mask/rogue/ragmask/black
 	color = CLOTHING_BLACK
 
@@ -656,3 +659,79 @@
 	armor = list("blunt" = 80, "slash" = 90, "stab" = 80, "piercing" = 80, "fire" = 0, "acid" = 0)
 	armor_class = ARMOR_CLASS_LIGHT
 	sewrepair = TRUE
+
+//gemcarved masks from Vanderlin
+
+/obj/item/clothing/mask/rogue/facemask/carved
+	name = "carved mask"
+	icon_state = "ancientmask"
+	desc = "You shouldn't be seeing this."
+	max_integrity = 50
+	blocksound = PLATEHIT
+	break_sound = 'sound/foley/breaksound.ogg'
+	drop_sound = 'sound/foley/dropsound/armor_drop.ogg'
+	armor = ARMOR_PLATE
+	prevent_crits = list(BCLASS_CUT, BCLASS_STAB, BCLASS_CHOP, BCLASS_BLUNT)
+	flags_inv = HIDEFACE
+	body_parts_covered = FACE
+	block2add = FOV_BEHIND
+	slot_flags = ITEM_SLOT_MASK|ITEM_SLOT_HIP
+	anvilrepair = /datum/skill/craft/armorsmithing //Maybe these shouldn't be repairable, someone else can do that if they want.
+	clothing_flags = CANT_SLEEP_IN
+	sellprice = 70
+	smeltresult = null
+	salvage_result = null
+
+/obj/item/clothing/mask/rogue/facemask/carved/jademask
+	name = "jade mask "
+	icon_state = "mask_jade"
+	desc = "A jade mask that both conceals and protects the face."
+	sellprice = 70
+
+/obj/item/clothing/mask/rogue/facemask/carved/jademask
+	name = "jade mask"
+	icon_state = "mask_jade"
+	desc = "A jade mask that both conceals and protects the face."
+	sellprice = 70
+
+/obj/item/clothing/mask/rogue/facemask/carved/turqmask
+	name = "cerulite mask"
+	icon_state = "mask_turq"
+	desc = "A cerulite mask that both conceals and protects the face."
+	sellprice = 95
+
+/obj/item/clothing/mask/rogue/facemask/carved/rosemask
+	name = "rosestone mask"
+	icon_state = "mask_rose"
+	desc = "A rosestone mask that both conceals and protects the face."
+	sellprice = 35
+
+/obj/item/clothing/mask/rogue/facemask/carved/shellmask
+	name = "shell mask"
+	icon_state = "mask_shell"
+	desc = "A shell mask that both conceals and protects the face."
+	sellprice = 30
+
+/obj/item/clothing/mask/rogue/facemask/carved/coralmask
+	name = "heartstone mask"
+	icon_state = "mask_coral"
+	desc = "An heartstone mask that both conceals and protects the face."
+	sellprice = 80
+
+/obj/item/clothing/mask/rogue/facemask/carved/ambermask
+	name = "amber mask"
+	icon_state = "mask_amber"
+	desc = "A amber mask that both conceals and protects the face."
+	sellprice = 70
+
+/obj/item/clothing/mask/rogue/facemask/carved/onyxamask
+	name = "onyxa mask"
+	icon_state = "mask_onyxa"
+	desc = "An onyxa mask that both conceals and protects the face."
+	sellprice = 50
+
+/obj/item/clothing/mask/rogue/facemask/carved/opalmask
+	name = "opal mask"
+	icon_state = "mask_opal"
+	desc = "An opal mask that both conceals and protects the face."
+	sellprice = 100

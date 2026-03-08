@@ -49,6 +49,8 @@
 	var/food_type = /obj/item/reagent_containers/food/snacks/organ
 	/// Original owner of the organ, the one who had it inside them last
 	var/mob/living/carbon/last_owner = null
+	/// Whether or not this organ should be regenerated at /datum/job/proc/equip() in _job.dm via /mob/living/carbon/proc/apply_organ_stuff()
+	var/should_regenerate = FALSE
 
 	grid_width = 32
 	grid_height = 32
@@ -204,7 +206,7 @@
 			D.process_win(winner = eater, loser = challenger)
 			return TRUE
 
-/obj/item/organ/Initialize()
+/obj/item/organ/Initialize(mapload)
 	. = ..()
 	if(accessory_type)
 		set_accessory_type(accessory_type)
@@ -249,11 +251,11 @@
 	applyOrganDamage(d - damage)
 
 /** check_damage_thresholds
-  * input: M (a mob, the owner of the organ we call the proc on)
-  * output: returns a message should get displayed.
-  * description: By checking our current damage against our previous damage, we can decide whether we've passed an organ threshold.
-  *				 If we have, send the corresponding threshold message to the owner, if such a message exists.
-  */
+ * input: M (a mob, the owner of the organ we call the proc on)
+ * output: returns a message should get displayed.
+ * description: By checking our current damage against our previous damage, we can decide whether we've passed an organ threshold.
+ *				 If we have, send the corresponding threshold message to the owner, if such a message exists.
+ */
 /obj/item/organ/proc/check_damage_thresholds(mob/M)
 	if(damage == prev_damage)
 		return
@@ -402,3 +404,10 @@
 		if(!getorganslot(ORGAN_SLOT_EARS))
 			var/obj/item/organ/ears/ears = new()
 			ears.Insert(src)
+
+/mob/living/carbon/proc/apply_organ_stuff()
+	if(dna?.species)
+		dna.species.apply_organ_stuff_species(src)
+		return
+	else
+		regenerate_organs()

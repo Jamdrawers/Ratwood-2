@@ -19,7 +19,7 @@
 	sellprice = 2
 	bundletype = /obj/item/natural/bundle/fibers
 
-/obj/item/natural/fibers/Initialize()
+/obj/item/natural/fibers/Initialize(mapload)
 	. = ..()
 	var/static/list/slapcraft_recipe_list = list(
 		/datum/crafting_recipe/roguetown/survival/stonehoe,
@@ -166,15 +166,19 @@
 	experimental_inhand = FALSE
 	bundletype = /obj/item/natural/bundle/cloth
 	sellprice = 4
+	detail_tag = "_soaked"
 	var/wet = 0
 	/// Effectiveness when used as a bandage, how much it'll lower the bloodloss, bloodloss will get multiplied by this.
-	var/bandage_effectiveness = 0.5 
+	var/bandage_effectiveness = 0.5
 	var/bandage_speed = 7 SECONDS
 	///How much you can bleed into the bandage until it needs to be changed
 	var/bandage_health = 150 //75 total blood stopped
 	//bandage_health * (1 - bandage_effectiveness) = total amount of blood saved from one bandage
+	/// If the bandage is soaked in some kind of medicine.
+	var/medicine_quality
+	var/medicine_amount = 0
 
-/obj/item/natural/cloth/Initialize()
+/obj/item/natural/cloth/Initialize(mapload)
 	. = ..()
 	var/static/list/slapcraft_recipe_list = list(
 		/datum/crafting_recipe/roguetown/survival/longbowpartial,
@@ -269,6 +273,59 @@
 	. = ..()
 	wet = 10
 	bandage_health = initial(bandage_health)
+	medicine_amount = 0
+	medicine_quality = 0
+	update_icon()
+
+/obj/item/natural/cloth/attackby(obj/item/I, mob/living/user, params)
+	var/obj/item/reagent_containers/C = I
+	if(!istype(C))
+		return ..()
+	if(C.reagents.has_reagent(/datum/reagent/medicine/healthpot, 10) && !medicine_amount)
+		to_chat(user, span_notice("Soaking the [src] in lyfeblood..."))
+		if(do_after(user, 3 SECONDS, target = src))
+			C.reagents.remove_reagent(/datum/reagent/medicine/healthpot, 10)
+			medicine_quality = 1
+			medicine_amount += 10
+			desc += " It has been soaked in lyfeblood."
+			detail_color = "#ff0000"
+			update_icon()
+	if(C.reagents.has_reagent(/datum/reagent/medicine/stronghealth, 10) && !medicine_amount)
+		to_chat(user, span_notice("Soaking the [src] in strong lyfeblood..."))
+		if(do_after(user, 3 SECONDS, target = src))
+			C.reagents.remove_reagent(/datum/reagent/medicine/stronghealth, 10)
+			medicine_quality = 2
+			medicine_amount += 10
+			desc += " It has been soaked in strong lyfeblood."
+			detail_color = "#820000"
+			update_icon()
+	if(C.reagents.has_reagent(/datum/reagent/consumable/ethanol/aqua_vitae, 10) && !medicine_amount)
+		to_chat(user, span_notice("Soaking the [src] in aqua vitae..."))
+		if(do_after(user, 3 SECONDS, target = src))
+			C.reagents.remove_reagent(/datum/reagent/consumable/ethanol/aqua_vitae, 10)
+			medicine_quality = 0.5 //slower than health potions, more healing overall. Good for fractures or other big wounds.
+			medicine_amount += 60
+			desc += " It has been soaked in aqua vitae."
+			detail_color = "#6e6e6e"
+			update_icon()
+	if(C.reagents.has_reagent(/datum/reagent/water/blessed, 10) && !medicine_amount)
+		to_chat(user, span_notice("Soaking the [src] in blessed water..."))
+		if(do_after(user, 3 SECONDS, target = src))
+			C.reagents.remove_reagent(/datum/reagent/water/blessed, 10)
+			medicine_quality = 0.2 //cheap, easy to get, doesn't even heal wounds if it's not on a bandage
+			medicine_amount += 20
+			desc += " It has been soaked in blessed water."
+			detail_color = "#6a9295"
+			update_icon()
+
+/obj/item/natural/cloth/update_icon()
+	cut_overlays()
+	if(medicine_amount > 0)
+		var/mutable_appearance/pic = mutable_appearance(icon(icon, "[icon_state][detail_tag]"))
+		pic.appearance_flags = RESET_COLOR
+		if(get_detail_color())
+			pic.color = get_detail_color()
+		add_overlay(pic)
 
 /obj/item/natural/cloth/proc/bandage(mob/living/M, mob/user)
 	if(!M.can_inject(user, TRUE))
@@ -285,7 +342,7 @@
 	var/used_time = bandage_speed
 	used_time -= ((user.get_skill_level(/datum/skill/misc/medicine) * 0.15) * bandage_speed) //15% time reduction per level
 	playsound(loc, 'sound/foley/bandage.ogg', 100, FALSE)
-	if(!do_mob(user, M, used_time))
+	if(!move_after(user, used_time, target = M))
 		return
 	playsound(loc, 'sound/foley/bandage.ogg', 100, FALSE)
 
@@ -294,9 +351,9 @@
 	H.update_damage_overlays()
 
 	if(M == user)
-		user.visible_message(span_notice("[user] bandages [user.p_their()] [affecting]."), span_notice("I bandage my [affecting]."))
+		user.visible_message(span_notice("[user] bandages [user.p_their()] [affecting]."), span_notice("I bandage my [affecting.name]."))
 	else
-		user.visible_message(span_notice("[user] bandages [M]'s [affecting]."), span_notice("I bandage [M]'s [affecting]."))
+		user.visible_message(span_notice("[user] bandages [M]'s [affecting]."), span_notice("I bandage [M]'s [affecting.name]."))
 
 /obj/item/natural/thorn
 	name = "thorn"
@@ -310,7 +367,7 @@
 	resistance_flags = FLAMMABLE
 	max_integrity = 20
 
-/obj/item/natural/thorn/Initialize()
+/obj/item/natural/thorn/Initialize(mapload)
 	. = ..()
 	var/static/list/slapcraft_recipe_list = list(
 		/datum/crafting_recipe/roguetown/survival/tneedle,
@@ -501,7 +558,7 @@
 
 /obj/item/natural/bundle/bone/rdm
 
-/obj/item/natural/bundle/bone/rdm/Initialize()
+/obj/item/natural/bundle/bone/rdm/Initialize(mapload)
 	..()
 	amount = rand(2,6)
 /*/obj/item/natural/bone/attackby(obj/item/I, mob/living/user, params)
@@ -540,7 +597,7 @@
 	spitoutmouth = FALSE
 	experimental_inhand = FALSE
 
-/obj/item/natural/bowstring/Initialize()
+/obj/item/natural/bowstring/Initialize(mapload)
 	. = ..()
 	var/static/list/slapcraft_recipe_list = list(
 		/datum/crafting_recipe/roguetown/survival/bow,

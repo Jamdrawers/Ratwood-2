@@ -60,6 +60,17 @@
 		else
 			to_chat(src, "Your character information will no longer be viewable when masked.")
 
+/client/verb/nsfw_examine_always()
+	set category = "Options"
+	set name = "Toggle NSFW Examine"
+	if(prefs)
+		prefs.nsfw_examine_always = !prefs.nsfw_examine_always
+		prefs.save_preferences()
+		if(prefs.nsfw_examine_always)
+			to_chat(src, "Your character NSFW information will always be visible.")
+		else
+			to_chat(src, "Your character NSFW information will only be visible when nude.")
+
 /client/verb/mute_animal_emotes()
 	set category = "Options"
 	set name = "Toggle Animal Noise Emotes"
@@ -95,7 +106,7 @@
 
 /client/verb/toggle_compliance_notifs() // The messages need to be on-by-default while this is in its early stages.
 	set category = "Options"
-	set name = "Compliance Notifs"
+	set name = "Toggle Compliance Notifs"
 	if(prefs)
 		prefs.compliance_notifs = !prefs.compliance_notifs
 		prefs.save_preferences()
@@ -103,6 +114,61 @@
 			to_chat(src, "You will receive chat notifications when enabling or disabling Compliance Mode.")
 		else
 			to_chat(src, "You will no longer be notified in chat when toggling Compliance Mode.")
+
+/client/verb/toggle_examine_blocks()
+	set category = "Options"
+	set name = "Toggle Examine Blocks"
+	if(prefs)
+		prefs.no_examine_blocks = !prefs.no_examine_blocks
+		prefs.save_preferences()
+		if(prefs.no_examine_blocks)
+			to_chat(src, "You will no longer see examined items in boxes.")
+		else
+			to_chat(src, "You will now see examined items in boxes.")
+
+/client/verb/toggle_wildshape_name()
+	set category = "Options"
+	set name = "Toggle Wildshape Name"
+	if(prefs)
+		prefs.wildshape_name = !prefs.wildshape_name
+		prefs.save_preferences()
+		if(prefs.wildshape_name)
+			to_chat(src, "You will show your character's name when wildshaping as a Druid.")
+		else
+			to_chat(src, "You will hide your character's name when wildshaping as a Druid and appear solely as your animal form.")
+
+/client/verb/toggle_autopunctuation()
+	set category = "Options"
+	set name = "Toggle Autopunctuation"
+	if(prefs)
+		prefs.no_autopunctuate = !prefs.no_autopunctuate
+		prefs.save_preferences()
+		if(prefs.no_autopunctuate)
+			to_chat(src, "Your messages will no longer be automatically punctuated.")
+		else
+			to_chat(src, "Your messages will now be automatically punctuated.")
+
+/client/verb/toggle_language_fonts()
+	set category = "Options"
+	set name = "Toggle Language Fonts"
+	if(prefs)
+		prefs.no_language_fonts = !prefs.no_language_fonts
+		prefs.save_preferences()
+		if(prefs.no_language_fonts)
+			to_chat(src, "You will no longer see languages in their stylized fonts.")
+		else
+			to_chat(src, "You will now see languages in their stylized fonts.")
+
+/client/verb/toggle_language_icon()
+	set category = "Options"
+	set name = "Toggle Language Icon"
+	if(prefs)
+		prefs.no_language_icon = !prefs.no_language_icon
+		prefs.save_preferences()
+		if(prefs.no_language_icon)
+			to_chat(src, "You will no longer see the language icon in front of a language.")
+		else
+			to_chat(src, "You will now see the language icon in front of a language.")
 
 /client/verb/toggle_lobby_music()
 	set name = "Toggle Lobby Music"

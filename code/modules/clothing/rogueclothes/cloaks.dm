@@ -242,7 +242,7 @@
 /obj/item/clothing/cloak/tabard/knight/attack_right(mob/user)
 	return
 
-/obj/item/clothing/cloak/tabard/knight/Initialize()
+/obj/item/clothing/cloak/tabard/knight/Initialize(mapload)
 	. = ..()
 	if(GLOB.lordprimary)
 		lordcolor(GLOB.lordprimary,GLOB.lordsecondary)
@@ -257,7 +257,7 @@
 	detail_color = CLOTHING_RED
 	boobed_detail = FALSE
 
-/obj/item/clothing/cloak/tabard/crusader/Initialize()
+/obj/item/clothing/cloak/tabard/crusader/Initialize(mapload)
 	. = ..()
 	update_icon()
 
@@ -408,7 +408,7 @@
 		return
 	picked = TRUE
 
-/obj/item/clothing/cloak/tabard/retinue/Initialize()
+/obj/item/clothing/cloak/tabard/retinue/Initialize(mapload)
 	. = ..()
 	if(GLOB.lordprimary)
 		lordcolor(GLOB.lordprimary,GLOB.lordsecondary)
@@ -563,7 +563,7 @@
 		return
 	picked = TRUE
 
-/obj/item/clothing/cloak/stabard/guard/Initialize()
+/obj/item/clothing/cloak/stabard/guard/Initialize(mapload)
 	. = ..()
 	if(GLOB.lordprimary)
 		lordcolor(GLOB.lordprimary,GLOB.lordsecondary)
@@ -612,7 +612,7 @@
 /obj/item/clothing/cloak/stabard/mercenary
 	detail_tag = "_quad"
 
-/obj/item/clothing/cloak/stabard/mercenary/Initialize()
+/obj/item/clothing/cloak/stabard/mercenary/Initialize(mapload)
 	. = ..()
 	detail_tag = pick("_quad", "_spl", "_box", "_dim")
 	color = clothing_color2hex(pick(CLOTHING_COLOR_NAMES))
@@ -726,7 +726,7 @@
 		return
 	picked = TRUE
 
-/obj/item/clothing/cloak/stabard/surcoat/guard/Initialize()
+/obj/item/clothing/cloak/stabard/surcoat/guard/Initialize(mapload)
 	. = ..()
 	if(GLOB.lordprimary)
 		lordcolor(GLOB.lordprimary,GLOB.lordsecondary)
@@ -761,7 +761,6 @@
 	nodismemsleeves = TRUE
 	inhand_mod = TRUE
 //	allowed_sex = list(MALE)
-	allowed_race = NON_DWARVEN_RACE_TYPES
 	detail_tag = "_det"
 	detail_color = CLOTHING_AZURE
 
@@ -781,7 +780,7 @@
 		var/mob/L = loc
 		L.update_inv_cloak()
 
-/obj/item/clothing/cloak/lordcloak/Initialize()
+/obj/item/clothing/cloak/lordcloak/Initialize(mapload)
 	. = ..()
 	if(GLOB.lordprimary)
 		lordcolor(GLOB.lordprimary,GLOB.lordsecondary)
@@ -838,6 +837,7 @@
 	icon_state = "bear_cloak"
 	item_state = "bear_cloak"
 	slot_flags = ITEM_SLOT_BACK_R|ITEM_SLOT_CLOAK
+	allowed_race = CLOTHED_RACES_TYPES
 	salvage_result = /obj/item/natural/hide/cured
 	salvage_amount = 3
 
@@ -848,6 +848,23 @@
 	slot_flags = ITEM_SLOT_BACK_R|ITEM_SLOT_CLOAK
 	salvage_result = /obj/item/natural/hide/cured
 	salvage_amount = 3
+
+/obj/item/clothing/cloak/apron/maid
+	name = "maid apron"
+	desc = "The frilly apron of a housemaster. It has pockets to store small things."
+	detail_color = "_detail"
+	slot_flags = ITEM_SLOT_ARMOR | ITEM_SLOT_CLOAK
+	detail_color = CLOTHING_BLACK
+	icon_state = "maidapron"
+	item_state = "maidapron"
+	mob_overlay_icon = 'icons/roguetown/clothing/onmob/cloaks.dmi'
+	boobed = FALSE
+	grid_width = 64
+	grid_height = 64
+
+/obj/item/clothing/cloak/apron/maid/Initialize(mapload, ...)
+	. = ..()
+	AddComponent(/datum/component/storage/concrete/roguetown/cloak)
 
 /obj/item/clothing/cloak/apron
 	name = "apron"
@@ -992,7 +1009,7 @@
 	hoodtype = /obj/item/clothing/head/hooded/rainhood/furhood
 	salvage_result = /obj/item/natural/fur
 
-/obj/item/clothing/cloak/raincloak/furcloak/crafted/Initialize()
+/obj/item/clothing/cloak/raincloak/furcloak/crafted/Initialize(mapload)
 	. = ..()
 	if(prob(50))
 		color = pick("#685542","#66564d")
@@ -1014,6 +1031,14 @@
 /obj/item/clothing/head/hooded/rainhood/furhood
 	icon_state = "fur_hood"
 	block2add = FOV_BEHIND
+
+/obj/item/clothing/cloak/lepoardcloak
+	name = "Leopard Cloak"
+	desc = "This Regal Cloak is made from the fur of a Lepoard. Worn by those of only the most wealth and prestige."
+	icon_state = "lepoardcape"
+	inhand_mod = FALSE
+	salvage_result = /obj/item/natural/fur
+	allowed_race = NON_DWARVEN_RACE_TYPES
 
 /obj/item/clothing/cloak/cape
 	name = "cape"
@@ -1038,7 +1063,7 @@
 /obj/item/clothing/cloak/cape/guard
 	color = CLOTHING_AZURE
 
-/obj/item/clothing/cloak/cape/guard/Initialize()
+/obj/item/clothing/cloak/cape/guard/Initialize(mapload)
 	. = ..()
 	if(GLOB.lordprimary)
 		lordcolor(GLOB.lordprimary,GLOB.lordsecondary)
@@ -1067,12 +1092,17 @@
 	allowed_race = CLOTHED_RACES_TYPES
 
 /obj/item/clothing/cloak/cape/inquisitor
-	name = "Inquisitors Cloak"
-	desc = "A time honored cloak Valorian design, used by founding clans of the Valorian Lodge"
+	name = "arbiter cloak"
+	desc = "The cloak of an Otavii arbiter, a class of warrior-priests within the Inquisition. \
+	Just as with the owner, the cloak has likely weathered some horrid sights."
 	icon_state = "inquisitor_cloak"
 	icon = 'icons/roguetown/clothing/cloaks.dmi'
 	mob_overlay_icon = 'icons/roguetown/clothing/onmob/cloaks.dmi'
 	sleeved = 'icons/roguetown/clothing/onmob/cloaks.dmi'
+
+/obj/item/clothing/cloak/cape/inquisitor/ComponentInitialize()
+	. = ..()
+	AddComponent(/datum/component/storage/concrete/roguetown/cloak)
 
 /obj/item/clothing/cloak/cape/rogue
 	name = "cape"
@@ -1135,6 +1165,20 @@
 	sellprice = 50
 	nodismemsleeves = TRUE
 	salvage_result = /obj/item/natural/fur
+
+/obj/item/clothing/cloak/black_cloak/ComponentInitialize()
+	. = ..()
+	AddComponent(/datum/component/storage/concrete/roguetown/cloak)
+
+/obj/item/clothing/cloak/black_cloak/dropped(mob/living/carbon/human/user)
+	..()
+	var/datum/component/storage/STR = GetComponent(/datum/component/storage)
+	if(STR)
+		var/list/things = STR.contents()
+		for(var/obj/item/I in things)
+			STR.remove_from_storage(I, get_turf(src))
+
+
 
 /obj/item/clothing/cloak/heartfelt
 	name = "red cloak"
@@ -1239,7 +1283,7 @@
 	allowed_race = NON_DWARVEN_RACE_TYPES
 	inhand_mod = FALSE
 
-/obj/item/clothing/cloak/half/vet/Initialize()
+/obj/item/clothing/cloak/half/vet/Initialize(mapload)
 	. = ..()
 	if(GLOB.lordprimary)
 		lordcolor(GLOB.lordprimary,GLOB.lordsecondary)
@@ -1254,7 +1298,6 @@
 	desc = "A heavy leather cloak held together by a gilded pin, depicting the Grand Duke's house. The sign of a faithful servant."
 	icon_state = "shadowcloak"
 	color = null
-	allowed_race = NON_DWARVEN_RACE_TYPES
 
 /obj/item/clothing/cloak/thief_cloak
 	name = "rapscallion's shawl"
@@ -1421,6 +1464,18 @@
 	salvage_result = /obj/item/natural/fibers
 	salvage_amount = 2
 
+/obj/item/clothing/cloak/wickercloak/ComponentInitialize()
+	. = ..()
+	AddComponent(/datum/component/storage/concrete/roguetown/cloak)
+
+/obj/item/clothing/cloak/wickercloak/dropped(mob/living/carbon/human/user)
+	..()
+	var/datum/component/storage/STR = GetComponent(/datum/component/storage)
+	if(STR)
+		var/list/things = STR.contents()
+		for(var/obj/item/I in things)
+			STR.remove_from_storage(I, get_turf(src))
+
 /obj/item/clothing/cloak/tribal
 	name = "tribal pelt"
 	desc = "A haphazardly cured pelt of a creecher, thrown on top of one's body or armor, to serve as additional protection against the cold. Itchy."
@@ -1468,7 +1523,6 @@
 	desc = "Chaste, righteous, merciless to the wicked."
 	color = null
 	icon_state = "battlenun"
-	allowed_sex = list(FEMALE)
 	item_state = "battlenun"
 	alternate_worn_layer = TABARD_LAYER
 	body_parts_covered = CHEST|GROIN
@@ -1573,20 +1627,20 @@
 /obj/item/clothing/head/roguetown/helmet/heavy/blkknight/attackby(obj/item/W, mob/living/user, params)
 	..()
 	if(istype(W, /obj/item/natural/feather) && !detail_tag)
-		var/choice = input(user, "Choose a color.", "Plume") as anything in colorlist
+		var/choice = input(user, "Choose a color.", "Plume") as anything in GLOB.colorlist
 		user.visible_message(span_warning("[user] adds [W] to [src]."))
 		user.transferItemToLoc(W, src, FALSE, FALSE)
-		detail_color = colorlist[choice]
+		detail_color = GLOB.colorlist[choice]
 		detail_tag = "_detail"
 		update_icon()
 		if(loc == user && ishuman(user))
 			var/mob/living/carbon/H = user
 			H.update_inv_head()
 	if(istype(W, /obj/item/natural/cloth) && !altdetail_tag)
-		var/choicealt = input(user, "Choose a color.", "Orle") as anything in colorlist
+		var/choicealt = input(user, "Choose a color.", "Orle") as anything in GLOB.colorlist
 		user.visible_message(span_warning("[user] adds [W] to [src]."))
 		user.transferItemToLoc(W, src, FALSE, FALSE)
-		altdetail_color = colorlist[choicealt]
+		altdetail_color = GLOB.colorlist[choicealt]
 		altdetail_tag = "_detailalt"
 		update_icon()
 		if(loc == user && ishuman(user))
@@ -1685,7 +1739,7 @@
 		return
 	picked = TRUE
 
-/obj/item/clothing/cloak/stabard/guardhood/Initialize()
+/obj/item/clothing/cloak/stabard/guardhood/Initialize(mapload)
 	. = ..()
 	if(GLOB.lordprimary)
 		lordcolor(GLOB.lordprimary,GLOB.lordsecondary)
@@ -1754,6 +1808,17 @@
 	nodismemsleeves = TRUE
 	inhand_mod = TRUE
 
+/obj/item/clothing/cloak/poachercloak
+	name = "weathered warden cloak"
+	desc = "A worn-out cloak, which once kept its wearer warm and dry, now merely keeps blood off their clothes."
+	icon_state = "poachercloak"
+	alternate_worn_layer = CLOAK_BEHIND_LAYER
+	slot_flags = ITEM_SLOT_BACK_R|ITEM_SLOT_CLOAK
+	sleeved = 'icons/roguetown/clothing/onmob/cloaks.dmi'
+	sleevetype = "shirt"
+	nodismemsleeves = TRUE
+	inhand_mod = TRUE
+
 /obj/item/clothing/cloak/wardencloak/ComponentInitialize()
 	. = ..()
 	AddComponent(/datum/component/storage/concrete/roguetown/cloak)
@@ -1769,7 +1834,7 @@
 	nodismemsleeves = TRUE
 	inhand_mod = TRUE
 
-/obj/item/clothing/cloak/graggar/Initialize()
+/obj/item/clothing/cloak/graggar/Initialize(mapload)
 	. = ..()
 	AddComponent(/datum/component/cursed_item, TRAIT_HORDE, "CLOAK", "RENDERED ASUNDER")
 
@@ -1926,7 +1991,7 @@
 			pic.color = get_detail_color()
 		add_overlay(pic)
 
-/obj/item/clothing/cloak/cotehardie/Initialize()
+/obj/item/clothing/cloak/cotehardie/Initialize(mapload)
 	..()
 	update_icon()
 
@@ -1952,7 +2017,7 @@
 	alternate_worn_layer = CLOAK_BEHIND_LAYER
 	detail_color = "#39404d"
 
-/obj/item/clothing/cloak/captain/Initialize()
+/obj/item/clothing/cloak/captain/Initialize(mapload)
 	. = ..()
 	if(GLOB.lordprimary)
 		lordcolor(GLOB.lordprimary, GLOB.lordsecondary)
@@ -1991,3 +2056,10 @@
 		if(get_detail_color())
 			pic.color = get_detail_color()
 		add_overlay(pic)
+
+/obj/item/clothing/cloak/half/duelistcape
+	name = "duelist cape"
+	desc = "A short cape favored by duelists."
+	icon_state = "duelistcape"
+	item_state = "duelistcape"
+	color = null

@@ -7,6 +7,7 @@ GLOBAL_VAR_INIT(rpg_loot_items, FALSE)
 
 /obj/item
 	name = "item"
+	var/original_name = null // Stores the original name if item was renamed
 	icon = 'icons/obj/items_and_weapons.dmi'
 	///icon state name for inhanf overlays
 	var/item_state = null
@@ -182,6 +183,8 @@ GLOBAL_VAR_INIT(rpg_loot_items, FALSE)
 
 	var/twohands_required = FALSE
 
+	var/from_stockpile = FALSE
+
 	var/bloody_icon = 'icons/effects/blood.dmi'
 	var/bloody_icon_state = "itemblood"
 	var/dam_icon = 'icons/effects/item_damage32.dmi'
@@ -253,7 +256,7 @@ GLOBAL_VAR_INIT(rpg_loot_items, FALSE)
 	var/no_use_cd = FALSE //if true, no cooldown when interacting with it
 	var/vorpal = FALSE // does this item/weapon circumvent two-stage death during dismemberment? (do not add this to anything but ultra rare shit)
 
-/obj/item/Initialize()
+/obj/item/Initialize(mapload)
 	. = ..()
 	if(!pixel_x && !pixel_y && !bigboy)
 		pixel_x = rand(-5,5)
@@ -314,7 +317,7 @@ GLOBAL_VAR_INIT(rpg_loot_items, FALSE)
 			if (obj_broken)
 				update_damaged_state()
 
-/obj/item/Initialize()
+/obj/item/Initialize(mapload)
 	if (attack_verb)
 		attack_verb = typelist("attack_verb", attack_verb)
 
@@ -446,58 +449,93 @@ GLOBAL_VAR_INIT(rpg_loot_items, FALSE)
 	. = ..()
 
 	if(href_list["explainshaft"])
-		to_chat(usr, span_info("Your weapon's shaft determines what kind of damage it is weak and strong against. Shafts other than Grand & Conjured Shaft can be swapped out.\n\
+		var/output = span_info("Your weapon's shaft determines what kind of damage it is weak and strong against. Shafts other than Grand & Conjured Shaft can be swapped out.\n\
 		<b>Metal Shaft</b>: [DULLFACTOR_COUNTERED_BY]x vs Blunt/Smash, [DULLFACTOR_COUNTERS] vs Cut/Chop. 1x Everything Else. \n\
 		<b>Reinforced Shaft</b>: [DULLFACTOR_COUNTERED_BY]x vs Stab/Pick, [DULLFACTOR_COUNTERS] vs Blunt/Smash. 1x Everything Else. \n\
 		<b>Wooden Shaft</b>: [DULLFACTOR_COUNTERED_BY]x vs Cut/Chop, [DULLFACTOR_COUNTERS] vs Blunt/Smash. 1x Everything Else. \n\
 		<b>Grand Shaft</b>: [DULLFACTOR_ANTAG]x vs Everything but Smash. 1x vs Smash. Only present on certain special weapons. \n\
 		<b>Conjured Shaft</b>: [DULLFACTOR_COUNTERED_BY]x vs Everything. Present on Conjured or Decrepit weapons. Also meant to represent crumbling weapons. \n\
-		"))
+		")
+		if(!usr.client.prefs.no_examine_blocks)
+			output = examine_block(output)
+		to_chat(usr, output)
 
 	if(href_list["explaindef"])
-		to_chat(usr, span_info("Each point of defense adds 10% to your parry chance.\n\
+		var/output = span_info("Each point of defense adds 10% to your parry chance.\n\
 		Your parry chance is increased by 20% per skill level in the weapon, and reduced by 20% per skill level of your attacker.\n\
-		Defense is often increased when you wield a weapon two-handed."))
+		Defense is often increased when you wield a weapon two-handed.")
+		if(!usr.client.prefs.no_examine_blocks)
+			output = examine_block(output)
+		to_chat(usr, output)
 
 	if(href_list["explainlength"])
-		to_chat(usr, span_info("A short weapon gains +10% accuracy on hitting any bodypart and can only attack the legs from the ground.\n\
+		var/output = span_info("A short weapon gains +10% accuracy on hitting any bodypart and can only attack the legs from the ground.\n\
 		A long weapon can hit chest or below from the ground, and can hit the feet while standing.\n\
-		A great weapon can hit any bodypart from anywhere."))
+		A great weapon can hit any bodypart from anywhere.")
+		if(!usr.client.prefs.no_examine_blocks)
+			output = examine_block(output)
+		to_chat(usr, output)
 
 	if(href_list["explainbalance"])
-		to_chat(usr, span_info("A heavy weapon is easier to dodge, and inflicts 2 stamina damage per level of strength differences on a parrying defender. \n\
+		var/output = span_info("A heavy weapon is easier to dodge, and inflicts 2 stamina damage per level of strength differences on a parrying defender. \n\
 		A swift balance weapon reduce the enemy's parry chance by 10% per level of speed difference, by up to 30%, \n\
 		If the defender have higher perception however, the penalty is reduced by 10% per point of difference, down to none.\n\
-		Intelligence also reduces the penalty by 3% per point of difference, down to none."))
+		Intelligence also reduces the penalty by 3% per point of difference, down to none.")
+		if(!usr.client.prefs.no_examine_blocks)
+			output = examine_block(output)
+		to_chat(usr, output)
+
 	var/additional_explanation = "This determines the damage dealt by this weapon. Force is increased / decrease by strength above / below 10 by 10% per point of differences,\n\
 	Each point of strength at 15 or above only applies an additional +3% damage, except on punches. Damage is also multiplied by damage factor on intents. \n\
 	Both multiplication are applied to the base number, and does not multiply each other. Reduced sharpness decrease the contribution of strength\n\
 	Force, combined with armor penetration on an intent determines whether an attack penetrate the target's armor. Armor penetrating attack deals less damage to the armor itself."
 	if(href_list["showforce"])
-		to_chat(usr, span_info("Actual Force: ([force]). [additional_explanation]"))
+		var/output = span_info("Actual Force: ([force]). [additional_explanation]")
+		if(!usr.client.prefs.no_examine_blocks)
+			output = examine_block(output)
+		to_chat(usr, output)
 
 	if(href_list["showforcewield"])
-		to_chat(usr, span_info("Wielded Force: ([force_wielded]). [additional_explanation]"))
+		var/output = span_info("Wielded Force: ([force_wielded]). [additional_explanation]")
+		if(!usr.client.prefs.no_examine_blocks)
+			output = examine_block(output)
+		to_chat(usr, output)
 
 	if(href_list["explainsharpness"])
-		to_chat(usr, span_info("Bladed weapons have sharpness. At [SHARPNESS_TIER1_THRESHOLD * 100]%, damage factor and strength damage starts to fall off gradually. \n\
+		var/output = span_info("Bladed weapons have sharpness. At [SHARPNESS_TIER1_THRESHOLD * 100]%, damage factor and strength damage starts to fall off gradually. \n\
 		At [SHARPNESS_TIER1_FLOOR * 100]%, strength and damage factor no longer applies. Below [SHARPNESS_TIER2_THRESHOLD * 100]%, the base damage value also starts to decline\n\
-		Sharpness declines by [SHARPNESS_ONHIT_DECAY] on parry for bladed weapon."))
+		Sharpness declines by [SHARPNESS_ONHIT_DECAY] on parry for bladed weapon.\n\
+		A grindstone can restore max sharpness, whereas other sources will degrade 0.5 max integrity per sharpening.")
+		if(!usr.client.prefs.no_examine_blocks)
+			output = examine_block(output)
+		to_chat(usr, output)
 
 	if(href_list["explaindurability"])
-		to_chat(usr, span_info("How durable your item is. On weapons, [INTEG_PARRY_DECAY] is lost on parry on a main hand bladed weapon. \n\
+		var/output = span_info("How durable your item is. On weapons, [INTEG_PARRY_DECAY] is lost on parry on a main hand bladed weapon. \n\
 		Blunt weapon or off-hand weapon loses [INTEG_PARRY_DECAY_NOSHARP] per parry instead. \n\
-		On armor, the blunt rating of an armor multiplies its effective durability against blunt damage."))
+		On armor, the blunt rating of an armor multiplies its effective durability against blunt damage.")
+		if(!usr.client.prefs.no_examine_blocks)
+			output = examine_block(output)
+		to_chat(usr, output)
 
 	if(href_list["explainintdamage"])
-		to_chat(usr, span_info("Multiplies the damage done to armor on hit."))
+		var/output = span_info("Multiplies the damage done to armor on hit.")
+		if(!usr.client.prefs.no_examine_blocks)
+			output = examine_block(output)
+		to_chat(usr, output)
 
 	if(href_list["explaindemolitionmod"])
-		to_chat(usr, span_info("Multiplies the damage done to objects when hitting them."))
+		var/output = span_info("Multiplies the damage done to objects when hitting them.")
+		if(!usr.client.prefs.no_examine_blocks)
+			output = examine_block(output)
+		to_chat(usr, output)
 
 	if(href_list["explainskill"])
-		to_chat(usr, span_info("The skill associated with this weapon. Each level gives +20% to your parry chance, -20% to your opponent's parry chance. \n\
-		The same is applied to dodge but with a +/-10% bonus. It also adds +8% chance to hit the body part you're aiming for."))
+		var/output = span_info("The skill associated with this weapon. Each level gives +20% to your parry chance, -20% to your opponent's parry chance. \n\
+		The same is applied to dodge but with a +/-10% bonus. It also adds +8% chance to hit the body part you're aiming for.")
+		if(!usr.client.prefs.no_examine_blocks)
+			output = examine_block(output)
+		to_chat(usr, output)
 
 	if(href_list["inspect"])
 		if(!usr.canUseTopic(src, be_close=TRUE))
@@ -616,8 +654,24 @@ GLOBAL_VAR_INIT(rpg_loot_items, FALSE)
 			inspec += "[percent]% ([floor(eff_currint)])"
 			if(force >= 5) // Durability is rather obvious for non-weapons
 				inspec += " <span class='info'><a href='?src=[REF(src)];explaindurability=1'>{?}</a></span>"
+		if(istype(src, /obj/item/clothing))	//awful
+			var/obj/item/clothing/C = src
+			var/str
+			switch(C.armor_class)
+				if(ARMOR_CLASS_NONE)
+					str = "None"
+				if(ARMOR_CLASS_LIGHT)
+					str = "Light"
+				if(ARMOR_CLASS_MEDIUM)
+					str = "Medium"
+				if(ARMOR_CLASS_HEAVY)
+					str = "Heavy"
+			inspec += "\n<b>ARMOR CLASS:</b> [str]"
 
-		to_chat(usr, "[inspec.Join()]")
+		var/output = "[inspec.Join()]"
+		if(!usr.client.prefs.no_examine_blocks)
+			output = examine_block(output)
+		to_chat(usr, output)	
 
 /obj/item
 	var/simpleton_price = FALSE
@@ -863,7 +917,7 @@ GLOBAL_VAR_INIT(rpg_loot_items, FALSE)
 /obj/item/proc/mob_can_equip(mob/living/M, mob/living/equipper, slot, disable_warning = FALSE, bypass_equip_delay_self = FALSE)
 	if((is_silver || smeltresult == /obj/item/ingot/silver) && (HAS_TRAIT(M, TRAIT_SILVER_WEAK) &&  !M.has_status_effect(STATUS_EFFECT_ANTIMAGIC)))
 		var/datum/antagonist/vampire/V_lord = M.mind?.has_antag_datum(/datum/antagonist/vampire/)
-		if(V_lord.generation >= GENERATION_METHUSELAH)
+		if(V_lord?.generation >= GENERATION_METHUSELAH)
 			return
 
 		to_chat(M, span_userdanger("I can't pick up the silver, it is my BANE!"))
@@ -1222,13 +1276,13 @@ GLOBAL_VAR_INIT(rpg_loot_items, FALSE)
 /obj/item/proc/grind_requirements() //Used to check for extra requirements for grinding an object
 	return TRUE
 
- //Called BEFORE the object is ground up - use this to change grind results based on conditions
- //Use "return -1" to prevent the grinding from occurring
+//Called BEFORE the object is ground up - use this to change grind results based on conditions
+//Use "return -1" to prevent the grinding from occurring
 /obj/item/proc/on_grind()
 
 /obj/item/proc/on_juice()
 
-/obj/item/proc/get_force_string(var/force)
+/obj/item/proc/get_force_string(force)
 	switch(force)
 		if(0 to 9)
 			return "Puny"
@@ -1359,6 +1413,46 @@ GLOBAL_VAR_INIT(rpg_loot_items, FALSE)
 /obj/item/update_icon()
 	. = ..()
 	update_transform()
+	// Update wearer's appearance if item is equipped (for color changes to show on mob sprites)
+	if(isliving(loc))
+		var/mob/living/L = loc
+		if(L.get_active_held_item() == src || L.get_inactive_held_item() == src)
+			L.update_inv_hands()
+		else if(istype(L, /mob/living/carbon/human))
+			var/mob/living/carbon/human/H = L
+			// Check if item is worn in a slot
+			if(H.head == src)
+				H.update_inv_head()
+			if(H.wear_mask == src)
+				H.update_inv_wear_mask()
+			if(H.wear_neck == src)
+				H.update_inv_neck()
+			if(H.back == src || H.backl == src || H.backr == src)
+				H.update_inv_back()
+			if(H.wear_armor == src)
+				H.update_inv_armor()
+			if(H.wear_pants == src)
+				H.update_inv_pants()
+			if(H.wear_shirt == src)
+				H.update_inv_shirt()
+			if(H.cloak == src)
+				H.update_inv_cloak()
+			if(H.belt == src || H.beltl == src || H.beltr == src)
+				H.update_inv_belt()
+			if(H.gloves == src)
+				H.update_inv_gloves()
+			if(H.shoes == src)
+				H.update_inv_shoes()
+			if(H.glasses == src)
+				H.update_inv_glasses()
+			if(H.ears == src)
+				H.update_inv_ears()
+			if(H.wear_ring == src)
+				H.update_inv_wear_id()
+			if(H.wear_wrists == src)
+				H.update_inv_wrists()
+			if(H.mouth == src)
+				H.update_inv_mouth()
 
 /obj/item/proc/ungrip(mob/living/carbon/user, show_message = TRUE)
 	if(!user)
@@ -1376,6 +1470,10 @@ GLOBAL_VAR_INIT(rpg_loot_items, FALSE)
 		wdefense_dynamic = wdefense
 	if(altgripped)
 		altgripped = FALSE
+		wielded = FALSE
+		if(force_wielded)
+			update_force_dynamic()
+		wdefense_dynamic = wdefense
 	update_transform()
 	if(user.get_item_by_slot(SLOT_BACK) == src)
 		user.update_inv_back()
@@ -1391,12 +1489,26 @@ GLOBAL_VAR_INIT(rpg_loot_items, FALSE)
 /obj/item/proc/altgrip(mob/living/carbon/user)
 	if(altgripped)
 		return
+	if(user.get_inactive_held_item())
+		to_chat(user, span_warning("I need a free hand first."))
+		return
+	if(user.get_num_arms() < 2)
+		to_chat(user, span_warning("I don't have enough hands."))
+		return
+	if (obj_broken)
+		to_chat(user, span_warning("It's completely broken."))
+		return
 	altgripped = TRUE
 	update_transform()
 	to_chat(user, span_notice("I wield [src] with an alternate grip"))
 	if(user.get_active_held_item() == src)
 		if(alt_intents)
 			user.update_a_intents()
+			wielded = TRUE
+			if(force_wielded)
+				update_force_dynamic()
+			wdefense_dynamic = (wdefense + wdefense_wbonus)
+			user.update_inv_hands()
 
 /obj/item/proc/wield(mob/living/carbon/user, show_message = TRUE)
 	if(wielded)
@@ -1431,7 +1543,7 @@ GLOBAL_VAR_INIT(rpg_loot_items, FALSE)
 	. = ..()
 	if(twohands_required)
 		return
-	if(wielded) //Trying to unwield it. Ratwood edit. Original: (altgripped || wielded) 
+	if(wielded) //Trying to unwield it. Ratwood edit. Original: (altgripped || wielded)
 		ungrip(user)
 		return
 	if(alt_intents && !gripped_intents)
@@ -1616,6 +1728,9 @@ GLOBAL_VAR_INIT(rpg_loot_items, FALSE)
 
 /obj/item/examine(mob/user)
 	. = ..()
+	// Show original name if item was renamed
+	if(original_name && original_name != name)
+		. += "<span style='font-size:0.8em;color:#888'>Originally: [original_name]</span>"
 	if(isliving(user))
 		var/mob/living/L = user
 		if(L.STAINT < 9)

@@ -142,6 +142,11 @@
 
 /datum/intent/rend/krieg
 	intent_intdamage_factor = 0.2
+	sharpness_penalty = 2
+
+/datum/intent/rend/krieg/short
+	damfactor = 1.8
+	swingdelay = 2
 
 //sword objs ฅ^•ﻌ•^ฅ
 
@@ -189,7 +194,7 @@
 	inv_storage_delay = 1.5 SECONDS
 	edelay_type = 1
 
-/obj/item/rogueweapon/sword/Initialize()
+/obj/item/rogueweapon/sword/Initialize(mapload)
 	. = ..()
 	var/rand_icon = "sword[rand(1,3)]"
 	if(icon_state == "sword1")
@@ -237,7 +242,7 @@
 	icon_state = "decsword1"
 	sellprice = 140
 
-/obj/item/rogueweapon/sword/decorated/Initialize()
+/obj/item/rogueweapon/sword/decorated/Initialize(mapload)
 	. = ..()
 	var/rand_icon = "decsword[rand(1,3)]"
 	if(icon_state == "decsword1")
@@ -273,7 +278,7 @@
 /obj/item/rogueweapon/sword/long
 	name = "longsword"
 	desc = "A lethal and perfectly balanced weapon. The longsword is the protagonist of endless tales and myths all across Psydonia, seen in the hands of noblemen and an ever-decreasing quantity of master duelists.\
-		 It has great cultural significance in the empires of Grenzelhoft and Etrusca, where legendary swordsmen have created and perfected many fighting techniques of todae."
+		It has great cultural significance in the empires of Grenzelhoft and Etrusca, where legendary swordsmen have created and perfected many fighting techniques of todae."
 	force = 25
 	force_wielded = 30
 	possible_item_intents = list(/datum/intent/sword/cut, /datum/intent/sword/thrust/long, /datum/intent/sword/strike, /datum/intent/sword/peel)
@@ -567,7 +572,7 @@
 	equip_delay_self = 0
 	unequip_delay_self = 0
 
-/obj/item/rogueweapon/sword/long/zizo/Initialize()
+/obj/item/rogueweapon/sword/long/zizo/Initialize(mapload)
 	. = ..()
 	AddComponent(/datum/component/cursed_item, TRAIT_CABAL, "SWORD")
 
@@ -645,7 +650,7 @@
 	equip_delay_self = 0
 	unequip_delay_self = 0
 
-/obj/item/rogueweapon/sword/long/judgement/vlord/Initialize()
+/obj/item/rogueweapon/sword/long/judgement/vlord/Initialize(mapload)
 	. = ..()
 	SEND_GLOBAL_SIGNAL(COMSIG_NEW_ICHOR_FANG_SPAWNED, src)
 	RegisterSignal(SSdcs, COMSIG_NEW_ICHOR_FANG_SPAWNED, PROC_REF(on_recall))
@@ -916,11 +921,12 @@
 /obj/item/rogueweapon/sword/short/falchion
 	name = "falchion"
 	desc = "A single-edged sword that is similar to a messer in appearance, its origins trace back to Otava. An implement of commoners and knights alike. It's good for cutting and thrusting."
-	force = 20
+	force = 22
 	icon_state = "falchion"
 	wdefense = 6
 	w_class = WEIGHT_CLASS_BULKY // Did not fit in a bag before path rework. Does not fit in a bag now either.
 	sheathe_icon = "falchion"
+	max_blade_int = 250
 
 /obj/item/rogueweapon/sword/short/gladius
 	name = "gladius"
@@ -959,7 +965,7 @@
 
 /obj/item/rogueweapon/sword/short/psy
 	name = "psydonic shortsword"
-	desc = "Otavan smiths worked with Grenzelhoftian artificers, and an esoteric sidearm was born: a shortsword with an unique design, dismissing a crossguard in favor of a hollow beak to hook and draw harm away from its user. Short in length, yet lethally light in weight."
+	desc = "Despite its shattered blade, this former-longsword finds new purpose and renewed lethality as something shorter and quicker and no less deadly. Like He, it perseveres, no matter what."
 	icon_state = "psyswordshort"
 	sheathe_icon = "psyswordshort"
 	force = 20
@@ -1018,14 +1024,15 @@
 	)
 
 /obj/item/rogueweapon/sword/short/messer
-	name = "messer"
+	name = "steel messer"
 	desc = "A \"Großesmesser\" of disputed Grenzel origin, meaning greatknife. It's a basic single-edge sword for civilian and military use. It excels at slicing and chopping, and it's made of steel. \
 	It can fill the exact function of a hunting sword, this one is more durable."
 	icon_state = "smesser"
-	force = 22	//Same damage as the iron messer
-	possible_item_intents = list(/datum/intent/sword/cut/sabre, /datum/intent/sword/thrust, /datum/intent/axe/chop, /datum/intent/sword/peel)
-	minstr = 5
-	wdefense = 4
+	force = 24	//Hunting sword + 4
+	max_blade_int = 250	//Sword + 50
+	possible_item_intents = list(/datum/intent/sword/cut/sabre, /datum/intent/rend/krieg/short, /datum/intent/axe/chop, /datum/intent/sword/peel)	//1.8x rend, similar to partizan
+	minstr = 6	// Hunting sword +2
+	wdefense = 4	//Hunting sword +2
 
 /obj/item/rogueweapon/sword/short/messer/iron
 	name = "hunting sword"
@@ -1150,8 +1157,8 @@
 	name = "stalker sabre"
 	desc = "A once elegant blade of mythril, diminishing under the suns gaze"
 	icon_state = "spidersaber"
-	force = 17
-	force_wielded = 20
+	force = 25 // same as elf sabre
+	force_wielded = 25
 	minstr = 7
 	wdefense = 9
 
@@ -1301,9 +1308,7 @@
 
 /obj/item/rogueweapon/sword/rapier/dec
 	name = "decorated rapier"
-	desc = "A fine duelist's instrument with a tapered thrusting blade. Its hilt is gilt in gold and inlaid, \
-	and its blade bears twin inscriptions on either side. One reads, \"CAST IN THE NAME OF GODS\" while the \
-	obverse reads, \"YE NOT GUILTY\"."
+	desc = "A strange, cheap ring devoid of purpose, yet carrying an uncanny sense of nostalgia of grand upsets, felled short.\n<i>'You shall know his name. You shall know his purpose. You shall die.'</i>"
 	icon_state = "decrapier"
 	sheathe_icon = "decrapier"
 	sellprice = 140
@@ -2061,15 +2066,17 @@
 	icon_state = "bs_sword"
 	minstr = 6
 	smeltresult = /obj/item/ingot/blacksteel
-	max_integrity = 200
-	sellprice = 100
+	max_integrity = 300
+	sellprice = 150
 	sheathe_icon = "sword1"
 
 /obj/item/rogueweapon/sword/decorated/blacksteel
 	name = "decorated arming sword"
 	desc = "A valuable ornate arming sword made for the purpose of ceremonial fashion. It has a fine leather grip, a carefully engraved gold-plated crossguard, and its blade is made entirely of blacksteel."
 	icon_state = "bs_swordregal"
+	max_integrity = 280
 	sellprice = 200
+
 /obj/item/rogueweapon/sword/long/shotel
 	name = "steel shotel"
 	icon_state = "shotel_steel"

@@ -36,6 +36,9 @@ GLOBAL_LIST_EMPTY(roundstart_races)
 
 	var/hairyness = null
 
+	var/use_titles = FALSE
+	var/list/race_titles = list()
+
 	var/custom_clothes = FALSE //append species id to clothing sprite name
 	var/use_f = FALSE //males use female clothes. for elves DO NOT TURN BOTH ON EVER
 	var/use_m = FALSE //females use male clothes. for half orcs DO NOT TURN BOTH ON
@@ -85,6 +88,12 @@ GLOBAL_LIST_EMPTY(roundstart_races)
 	var/list/species_traits = list()
 	// generic traits tied to having the species
 	var/list/inherent_traits = list()
+	/// Associative list of skills to adjustments
+	var/list/inherent_skills = list()
+	///traits a species can't get given by jobs
+	var/list/banned_traits = list()
+
+
 	var/inherent_biotypes = MOB_ORGANIC|MOB_HUMANOID
 	///List of factions the mob gain upon gaining this species.
 	var/list/inherent_factions
@@ -252,7 +261,7 @@ GLOBAL_LIST_EMPTY(roundstart_races)
 	return randname
 
 /datum/species/proc/random_surname()
-	return " [pick(world.file2list("strings/rt/names/human/humnorlast.txt"))]"
+	return "[pick(world.file2list("strings/rt/names/human/humnorlast.txt"))]"
 
 /datum/species/proc/regenerate_icons(mob/living/carbon/human/H)
 	return FALSE
@@ -393,6 +402,13 @@ GLOBAL_LIST_EMPTY(roundstart_races)
 			var/datum/organ_dna/new_dna = neworgan.create_organ_dna()
 			C.dna.organ_dna[slot] = new_dna
 
+/datum/species/proc/apply_organ_stuff_species(mob/living/carbon/C)
+	var/obj/item/organ/organ
+
+	for(organ in C.internal_organs)
+		if(organ.should_regenerate)
+			organ.Insert(C, TRUE, FALSE)
+
 /datum/species/proc/random_character(mob/living/carbon/human/H)
 	H.real_name = random_name(H.gender,1)
 //	H.age = pick(possible_ages)
@@ -462,6 +478,9 @@ GLOBAL_LIST_EMPTY(roundstart_races)
 	for(var/X in inherent_traits)
 		ADD_TRAIT(C, X, SPECIES_TRAIT)
 
+	for(var/skill as anything in inherent_skills)
+		C.adjust_skillrank(skill, inherent_skills[skill], TRUE)
+
 	if(TRAIT_TOXIMMUNE in inherent_traits)
 		C.setToxLoss(0, TRUE, TRUE)
 
@@ -510,6 +529,9 @@ GLOBAL_LIST_EMPTY(roundstart_races)
 		C.Digitigrade_Leg_Swap(TRUE)
 	for(var/X in inherent_traits)
 		REMOVE_TRAIT(C, X, SPECIES_TRAIT)
+
+	for(var/skill as anything in inherent_skills)
+		C.adjust_skillrank(skill, -inherent_skills[skill], TRUE)
 
 	if(inherent_factions)
 		for(var/i in inherent_factions)
@@ -615,6 +637,7 @@ GLOBAL_LIST_EMPTY(roundstart_races)
 	var/is_inhumen = HAS_TRAIT(H, TRAIT_INHUMEN_ANATOMY)
 	var/num_arms = H.get_num_arms(FALSE)
 	var/num_legs = H.get_num_legs(FALSE)
+	var/is_harpy = isharpy(H)
 	var/is_lamia = HAS_TRAIT(H, TRAIT_LAMIAN_TAIL)
 
 	switch(slot)
@@ -702,7 +725,7 @@ GLOBAL_LIST_EMPTY(roundstart_races)
 		if(SLOT_SHOES)
 			if(H.shoes)
 				return FALSE
-			if(is_nudist || is_inhumen || is_lamia)
+			if(is_nudist || is_inhumen || is_lamia || is_harpy)
 				return FALSE
 			if( !(I.slot_flags & ITEM_SLOT_SHOES) )
 				return FALSE
@@ -1035,20 +1058,32 @@ GLOBAL_LIST_EMPTY(roundstart_races)
 		if(NUTRITION_LEVEL_FAT to INFINITY)
 			H.add_stress(/datum/stressevent/stuffed)
 			H.remove_stress_list(list(/datum/stressevent/peckish,/datum/stressevent/hungry,/datum/stressevent/starving))
+			H.remove_status_effect(/datum/status_effect/debuff/hungryt1)
+			H.remove_status_effect(/datum/status_effect/debuff/hungryt2)
+			H.remove_status_effect(/datum/status_effect/debuff/hungryt3)
 		if(NUTRITION_LEVEL_FED to NUTRITION_LEVEL_FAT)
 			H.remove_stress_list(list(/datum/stressevent/peckish,/datum/stressevent/hungry,/datum/stressevent/starving))
+			H.remove_status_effect(/datum/status_effect/debuff/hungryt1)
+			H.remove_status_effect(/datum/status_effect/debuff/hungryt2)
+			H.remove_status_effect(/datum/status_effect/debuff/hungryt3)
 		if(NUTRITION_LEVEL_HUNGRY to NUTRITION_LEVEL_FED)
 			H.add_stress(/datum/stressevent/peckish)
 			H.remove_stress_list(list(/datum/stressevent/stuffed,/datum/stressevent/hungry,/datum/stressevent/starving))
 			H.apply_status_effect(/datum/status_effect/debuff/hungryt1)
+			H.remove_status_effect(/datum/status_effect/debuff/hungryt2)
+			H.remove_status_effect(/datum/status_effect/debuff/hungryt3)
 		if(NUTRITION_LEVEL_STARVING to NUTRITION_LEVEL_HUNGRY)
 			H.add_stress(/datum/stressevent/hungry)
 			H.remove_stress_list(list(/datum/stressevent/stuffed,/datum/stressevent/peckish,/datum/stressevent/starving))
 			H.apply_status_effect(/datum/status_effect/debuff/hungryt2)
+			H.remove_status_effect(/datum/status_effect/debuff/hungryt1)
+			H.remove_status_effect(/datum/status_effect/debuff/hungryt3)
 		if(0 to NUTRITION_LEVEL_STARVING)
 			H.add_stress(/datum/stressevent/starving)
 			H.remove_stress_list(list(/datum/stressevent/stuffed,/datum/stressevent/peckish,/datum/stressevent/hungry))
 			H.apply_status_effect(/datum/status_effect/debuff/hungryt3)
+			H.remove_status_effect(/datum/status_effect/debuff/hungryt1)
+			H.remove_status_effect(/datum/status_effect/debuff/hungryt2)
 			if(prob(3))
 				playsound(get_turf(H), pick('sound/body/hungry1.ogg','sound/body/hungry2.ogg','sound/body/hungry3.ogg'), 100, TRUE, -1)
 
@@ -1057,8 +1092,14 @@ GLOBAL_LIST_EMPTY(roundstart_races)
 //			H.apply_status_effect(/datum/status_effect/debuff/waterlogged)
 		if(HYDRATION_LEVEL_HYDRATED to INFINITY)
 			H.add_stress(/datum/stressevent/hydrated)
+			H.remove_status_effect(/datum/status_effect/debuff/thirstyt1)
+			H.remove_status_effect(/datum/status_effect/debuff/thirstyt2)
+			H.remove_status_effect(/datum/status_effect/debuff/thirstyt3)
 		if(HYDRATION_LEVEL_SMALLTHIRST to HYDRATION_LEVEL_HYDRATED)
 			H.remove_stress_list(list(/datum/stressevent/drym,/datum/stressevent/thirst,/datum/stressevent/parched))
+			H.remove_status_effect(/datum/status_effect/debuff/thirstyt1)
+			H.remove_status_effect(/datum/status_effect/debuff/thirstyt2)
+			H.remove_status_effect(/datum/status_effect/debuff/thirstyt3)
 		if(HYDRATION_LEVEL_THIRSTY to HYDRATION_LEVEL_SMALLTHIRST)
 			H.add_stress(/datum/stressevent/drym)
 			H.remove_stress_list(list(/datum/stressevent/parched,/datum/stressevent/thirst))
@@ -1067,10 +1108,14 @@ GLOBAL_LIST_EMPTY(roundstart_races)
 			H.add_stress(/datum/stressevent/thirst)
 			H.remove_stress_list(list(/datum/stressevent/parched,/datum/stressevent/drym))
 			H.apply_status_effect(/datum/status_effect/debuff/thirstyt2)
+			H.remove_status_effect(/datum/status_effect/debuff/thirstyt1)
+			H.remove_status_effect(/datum/status_effect/debuff/thirstyt3)
 		if(0 to HYDRATION_LEVEL_DEHYDRATED)
 			H.add_stress(/datum/stressevent/parched)
 			H.remove_stress_list(list(/datum/stressevent/thirst,/datum/stressevent/drym))
 			H.apply_status_effect(/datum/status_effect/debuff/thirstyt3)
+			H.remove_status_effect(/datum/status_effect/debuff/thirstyt1)
+			H.remove_status_effect(/datum/status_effect/debuff/thirstyt2)
 
 /datum/species/proc/update_health_hud(mob/living/carbon/human/H)
 	return 0
@@ -1197,6 +1242,18 @@ GLOBAL_LIST_EMPTY(roundstart_races)
 				user.adjust_blurriness(2)
 				user.adjustBruteLoss(rand(5, 10))
 				user.apply_status_effect(/datum/status_effect/churned, target)
+
+		if(user.mob_biotypes & MOB_UNDEAD)//This and necra's vow need a better way of handling this. But I'm too lazy to do that.
+			if(target.has_status_effect(/datum/status_effect/buff/inviolability))
+				if(isnull(user.mind))
+					user.adjust_fire_stacks(1)
+					user.ignite_mob()
+				else
+					if(prob(30))
+						to_chat(user, span_warning("Some matter of force harms us!"))
+				user.adjust_blurriness(2)
+				user.adjustBruteLoss(rand(10, 15))
+
 /*		var/miss_chance = 100//calculate the odds that a punch misses entirely. considers stamina and brute damage of the puncher. punches miss by default to prevent weird cases
 		if(user.dna.species.punchdamagelow)
 			if(atk_verb == ATTACK_EFFECT_KICK) //kicks never miss (provided my species deals more than 0 damage)
@@ -1481,6 +1538,7 @@ GLOBAL_LIST_EMPTY(roundstart_races)
 		return FALSE
 	if(user == target)
 		return FALSE
+	SEND_SIGNAL(user, COMSIG_MOB_KICKED, target)
 	if(!HAS_TRAIT(user, TRAIT_GARROTED))
 		if(user.check_leg_grabbed(1) || user.check_leg_grabbed(2))
 			to_chat(user, span_notice("I can't move my leg!"))
@@ -1524,7 +1582,7 @@ GLOBAL_LIST_EMPTY(roundstart_races)
 				var/text = "[bodyzone2readablezone(selzone)]..."
 				user.filtered_balloon_alert(TRAIT_COMBAT_AWARE, text)
 
-			user.do_attack_animation(target, ATTACK_EFFECT_DISARM)
+			user.do_attack_animation_simple(target, ATTACK_EFFECT_KICK, TRUE)
 			if(!nodmg)
 				playsound(target, 'sound/combat/hits/kick/stomp.ogg', 100, TRUE, -1)
 
@@ -1535,7 +1593,7 @@ GLOBAL_LIST_EMPTY(roundstart_races)
 	else
 		if(!target.kick_attack_check(user))
 			return 0
-		user.do_attack_animation(target, ATTACK_EFFECT_DISARM)
+		user.do_attack_animation_simple(target, ATTACK_EFFECT_KICK, TRUE)
 		playsound(target, 'sound/combat/hits/kick/kick.ogg', 100, TRUE, -1)
 
 		if (target.pulling && target.grab_state < GRAB_AGGRESSIVE)
@@ -1667,11 +1725,6 @@ GLOBAL_LIST_EMPTY(roundstart_races)
 			target.mind.attackedme[user.real_name] = world.time
 		user.stamina_add(15)
 		target.forcesay(GLOB.hit_appends)
-		if(user.has_status_effect(/datum/status_effect/buff/clash))
-			user.bad_guard(span_warning("The kick throws my stance off!"))
-		if(target.has_status_effect(/datum/status_effect/buff/clash))
-			target.bad_guard(span_warning("The kick throws my stance off!"))
-
 /datum/species/proc/spec_hitby(atom/movable/AM, mob/living/carbon/human/H)
 	return
 
@@ -1692,6 +1745,8 @@ GLOBAL_LIST_EMPTY(roundstart_races)
 		to_chat(M, span_warning("I attempt to touch [H]!"))
 		return 0
 	SEND_SIGNAL(M, COMSIG_MOB_ATTACK_HAND, M, H, attacker_style)
+	if(SEND_SIGNAL(H, COMSIG_MOB_ATTACKED_BY_HAND, M, H, attacker_style) & COMPONENT_HAND_NO_ATTACK)
+		return FALSE
 	switch(M.used_intent.type)
 		if(INTENT_HELP)
 			help(M, H, attacker_style)
@@ -1755,6 +1810,27 @@ GLOBAL_LIST_EMPTY(roundstart_races)
 			Iforce = 0
 	var/bladec = user.used_intent.blade_class
 
+	// Effective range check. Attacking a prone target doesn't apply a penalty at any range.
+	if(user.used_intent?.effective_range && H.mobility_flags & MOBILITY_STAND)
+		var/dist = get_dist(H, user)
+		var/range = user.used_intent?.effective_range
+		var/apply_penalty = FALSE
+		switch(user.used_intent?.effective_range_type)
+			if(EFF_RANGE_EXACT)
+				if(dist != range)
+					apply_penalty = TRUE
+			if(EFF_RANGE_ABOVE)
+				if(dist < range)
+					apply_penalty = TRUE
+			if(EFF_RANGE_BELOW)
+				if(dist > range)
+					apply_penalty = TRUE
+			else
+				CRASH("Invalid effective_range_type used by [user] with effective_range! Please set an effective_range_type on [user.used_intent?.type]")
+		if(apply_penalty)
+			pen = BLUNT_DEFAULT_PENFACTOR
+			Iforce *= 0.5
+
 	// No self-peeling. Useful for debug, though.
 	if(H == user && bladec == BCLASS_PEEL)
 		bladec = BCLASS_BLUNT
@@ -1787,10 +1863,15 @@ GLOBAL_LIST_EMPTY(roundstart_races)
 		H.next_attack_msg.Cut()
 		if(!apply_damage(Iforce * weakness, I.damtype, def_zone, armor_block, H))
 			nodmg = TRUE
-			H.next_attack_msg += " <span class='warning'>Armor stops the damage.</span>"
+			H.next_attack_msg += " <span class='warning'>The armor yet remains...</span>"
 			if(I)
 				I.remove_bintegrity(1)
 				I.take_damage(1, BRUTE, I.d_type)
+				//Blunt chipping, no matter what. Assuming it has damage. This is done after armour damage.
+				if(user.used_intent.blunt_chipping)//We won't check for blunt. Just that it's able. For funny reasons.
+					var/blunt_chip_block = H.run_armor_check(selzone, "blunt", armor_penetration = 80)//I hate this. So much.
+					H.apply_damage(Iforce * user.used_intent.blunt_chip_strength, BRUTE, def_zone, blunt_chip_block)//, spread_damage = TRUE)
+					H.next_attack_msg += " <span class='warning'>and yet the force punches through!</span>"//But sometimes it lies!
 		if(!nodmg)
 			var/datum/wound/crit_wound = affecting.bodypart_attacked_by(user.used_intent.blade_class, (Iforce * weakness) * ((100-(armor_block+armor))/100), user, selzone, crit_message = TRUE, weapon = I)
 			if(should_embed_weapon(crit_wound, I))
@@ -1842,6 +1923,7 @@ GLOBAL_LIST_EMPTY(roundstart_races)
 				new /obj/effect/temp_visual/dir_setting/bloodsplatter(H.loc, splatter_dir)
 				if(istype(location))
 					H.add_splatter_floor(location)
+					H.add_splatter_wall(location, force = I.force)
 				if(get_dist(user, H) <= 1)	//people with TK won't get smeared with blood
 					user.add_mob_blood(H)
 
@@ -2181,6 +2263,8 @@ GLOBAL_LIST_EMPTY(roundstart_races)
 		return
 	var/obj/item/organ/tail/T = H.getorganslot(ORGAN_SLOT_TAIL)
 	if(!T)
+		return
+	if(!T.wagging)
 		return
 	T.wagging = FALSE
 	H.update_body_parts(TRUE)

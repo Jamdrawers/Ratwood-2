@@ -60,8 +60,8 @@
 	var/obj/item/belt = null
 	var/obj/item/beltl = null
 	var/obj/item/beltr = null
-	var/obj/item/wear_ring = null
-	var/obj/item/wear_wrists = null
+	var/obj/item/clothing/wear_ring = null
+	var/obj/item/clothing/wear_wrists = null
 	var/obj/item/r_store = null
 	var/obj/item/l_store = null
 	var/obj/item/s_store = null
@@ -79,7 +79,11 @@
 
 	var/list/datum/bioware = list()
 
-	var/static/list/can_ride_typecache = typecacheof(list(/mob/living/carbon/human))
+	var/static/list/can_ride_typecache = typecacheof(list(
+		/mob/living/carbon/human,
+		/mob/living/simple_animal/hostile,
+		/mob/living/carbon/human/species/goblin,
+	))
 	var/lastpuke = 0
 	var/last_fire_update
 	var/account_id
@@ -98,6 +102,19 @@
 
 	var/canseebandits = FALSE
 
+	//Familytree datum
+	//I dont know how to do UI huds so this will have to do for now.
+	var/family_UI = FALSE
+	var/mob/living/carbon/spouse_mob
+	var/image/spouse_indicator
+	var/setspouse
+	var/gender_choice_pref = ANY_GENDER
+	var/familytree_pref = FAMILY_NONE
+	var/datum/heritage/family_datum
+	var/list/temp_ui_list = list()
+	var/xenophobe = FALSE
+	var/restricted_species = null
+
 	var/marriedto
 
 	var/has_stubble = TRUE
@@ -108,16 +125,23 @@
 	var/funeral = FALSE // Whether the body has received rites or not.
 
 	var/datum/devotion/devotion = null // Used for cleric_holder for priests
+	var/datum/family_member/family_member_datum
 	var/datum/inspiration/inspiration = null
 
 	var/headshot_link = null
 	var/flavortext = null
 	var/ooc_notes = null
 	var/ooc_extra
+	var/ooc_extra_img
+	var/ooc_extra_img_link
+	var/rumour = null
+	var/noble_gossip = null
 	var/song_title
 	var/song_artist
 	var/received_resident_key = FALSE
 	var/nsfwflavortext = null
+	var/nsfw_ooc_extra_img
+	var/nsfw_ooc_extra_img_link
 	var/erpprefs = null
 
 	var/list/img_gallery = list()
@@ -151,7 +175,8 @@
 	/// Assoc list of culinary preferences of the mob
 	var/list/culinary_preferences = list()
 
-	var/datum/charflaw/charflaw
+	var/datum/charflaw/charflaw  // Legacy single vice (kept for compatibility)
+	var/list/datum/charflaw/vices = list()  // Multiple vices system
 
 	// curse list and cooldown
 	var/list/curses = list()

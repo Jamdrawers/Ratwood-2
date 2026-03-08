@@ -94,6 +94,10 @@
 /obj/structure/table/CanPass(atom/movable/mover, turf/target)
 	if(istype(mover) && (mover.pass_flags & PASSTABLE))
 		return 1
+	if(isliving(mover))
+		var/mob/living/M = mover
+		if(M.movement_type & FLYING)
+			return 1
 	if(mover.throwing)
 		return 1
 	if(locate(/obj/structure/table) in get_turf(mover))
@@ -180,8 +184,8 @@
 				if(!click_params || !click_params["icon-x"] || !click_params["icon-y"])
 					return
 				//Clamp it so that the icon never moves more than 16 pixels in either direction (thus leaving the table turf)
-				I.pixel_x = initial(I.pixel_x) += CLAMP(text2num(click_params["icon-x"]) - 16, -(world.icon_size/2), world.icon_size/2)
-				I.pixel_y = initial(I.pixel_y) += CLAMP(text2num(click_params["icon-y"]) - 16, -(world.icon_size/2), world.icon_size/2)
+				I.pixel_x = initial(I.pixel_x) += CLAMP(text2num(click_params["icon-x"]) - 16, -(world.icon_size/2), world.icon_size/2) + pixel_x
+				I.pixel_y = initial(I.pixel_y) += CLAMP(text2num(click_params["icon-y"]) - 16, -(world.icon_size/2), world.icon_size/2) + pixel_y
 				return 1
 
 	return ..()
@@ -225,8 +229,8 @@
 				if(!click_params || !click_params["icon-x"] || !click_params["icon-y"])
 					return
 				//Clamp it so that the icon never moves more than 16 pixels in either direction (thus leaving the table turf)
-				I.pixel_x = initial(I.pixel_x) += CLAMP(text2num(click_params["icon-x"]) - 16, -(world.icon_size/2), world.icon_size/2)
-				I.pixel_y = initial(I.pixel_y) += CLAMP(text2num(click_params["icon-y"]) - 16, -(world.icon_size/2), world.icon_size/2)
+				I.pixel_x = initial(I.pixel_x) += CLAMP(text2num(click_params["icon-x"]) - 16, -(world.icon_size/2), world.icon_size/2) + pixel_x
+				I.pixel_y = initial(I.pixel_y) += CLAMP(text2num(click_params["icon-y"]) - 16, -(world.icon_size/2), world.icon_size/2) + pixel_y
 				return 1
 
 /obj/structure/table/deconstruct(disassembled = TRUE, wrench_disassembly = 0)
@@ -256,7 +260,7 @@
 	climb_offset = 10
 	buildstack = /obj/item/grown/log/tree/small
 
-/obj/structure/table/wood/crafted/Initialize()
+/obj/structure/table/wood/crafted/Initialize(mapload)
 	. = ..()
 	icon_state = "tablewood1"
 
@@ -453,7 +457,7 @@
 		/obj/structure/table/wood/fancy/royalblue)
 	var/smooth_icon = 'icons/obj/smooth_structures/fancy_table.dmi' // see Initialize()
 
-/obj/structure/table/wood/fancy/Initialize()
+/obj/structure/table/wood/fancy/Initialize(mapload)
 	. = ..()
 	// Needs to be set dynamically because table smooth sprites are 32x34,
 	// which the editor treats as a two-tile-tall object. The sprites are that
@@ -543,6 +547,10 @@
 /obj/structure/rack/CanPass(atom/movable/mover, turf/target)
 	if(src.density == 0) //Because broken racks -Agouri |TODO: SPRITE!|
 		return 1
+	if(isliving(mover))
+		var/mob/living/M = mover
+		if(M.movement_type & FLYING)
+			return 1
 	if(istype(mover) && (mover.pass_flags & PASSTABLE))
 		return 1
 	else
@@ -578,8 +586,8 @@
 				if(!click_params || !click_params["icon-x"] || !click_params["icon-y"])
 					return
 				//Clamp it so that the icon never moves more than 16 pixels in either direction (thus leaving the table turf)
-				W.pixel_x = initial(W.pixel_x) + CLAMP(text2num(click_params["icon-x"]) - 16, -(world.icon_size/2), world.icon_size/2)
-				W.pixel_y = initial(W.pixel_y) + CLAMP(text2num(click_params["icon-y"]) - 16, -(world.icon_size/2), world.icon_size/2)
+				W.pixel_x = initial(W.pixel_x) + CLAMP(text2num(click_params["icon-x"]) - 16, -(world.icon_size/2), world.icon_size/2) + pixel_x
+				W.pixel_y = initial(W.pixel_y) + CLAMP(text2num(click_params["icon-y"]) - 16, -(world.icon_size/2), world.icon_size/2) + pixel_y
 				return 1
 
 /obj/structure/rack/attack_paw(mob/living/user)
@@ -601,6 +609,7 @@
 	icon_state = "shelf"
 	density = FALSE
 	climbable = FALSE
+	climb_offset = 0
 	dir = SOUTH
 	pixel_y = 32
 
@@ -608,15 +617,18 @@
 	icon = 'icons/roguetown/misc/structure.dmi'
 	icon_state = "shelf_big"
 	climbable = FALSE
+	climb_offset = 0
 	dir = SOUTH
 	pixel_y = 16
 
 /obj/structure/rack/rogue/shelf/biggest
 	icon_state = "shelf_biggest"
+	climb_offset = 0
 	pixel_y = 0
 
 /obj/structure/rack/rogue/shelf/notdense // makes the wall mounted one less weird in a way, got downside of offset when loaded again tho
 	density = FALSE
+	climb_offset = 0
 	pixel_y = 24
 
 // Necessary to avoid a critical bug with disappearing weapons.
@@ -627,8 +639,8 @@
 				var/list/click_params = params2list(params)
 				if(!click_params || !click_params["icon-x"] || !click_params["icon-y"])
 					return
-				W.pixel_x = initial(W.pixel_x) + CLAMP(text2num(click_params["icon-x"]) - 16, -(world.icon_size/2), world.icon_size/2)
-				W.pixel_y = initial(W.pixel_y) + CLAMP(text2num(click_params["icon-y"]) - 16, -(world.icon_size/2), world.icon_size/2)
+				W.pixel_x = initial(W.pixel_x) + CLAMP(text2num(click_params["icon-x"]) - 16, -(world.icon_size/2), world.icon_size/2) + pixel_x
+				W.pixel_y = initial(W.pixel_y) + CLAMP(text2num(click_params["icon-y"]) - 16, -(world.icon_size/2), world.icon_size/2) + pixel_y
 				return 1
 	else
 		. = ..()
@@ -645,7 +657,7 @@
 	buckle_requires_restraints = 1
 	var/mob/living/carbon/human/patient = null
 
-/obj/structure/table/optable/Initialize()
+/obj/structure/table/optable/Initialize(mapload)
 	. = ..()
 
 /obj/structure/table/optable/tablepush(mob/living/user, mob/living/pushed_mob)

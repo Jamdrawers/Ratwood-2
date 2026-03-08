@@ -8,6 +8,12 @@ GLOBAL_VAR_INIT(year_integer, text2num(year)) // = 2013???
 		to_chat(usr, span_notice("Usable blood that yields Vitae and total blood is not the same thing. It takes some time for blood to become nourishing for us."))
 		return
 
+	if(href_list["task"] == "open_language_menu")
+		if(!ismob(usr))
+			return
+		var/datum/language_holder/H = get_language_holder()
+		H.open_language_menu(usr)
+
 	if(href_list["task"] == "view_headshot")
 		if(!ismob(usr))
 			return
@@ -49,9 +55,11 @@ GLOBAL_VAR_INIT(year_integer, text2num(year)) // = 2013???
 		if(do_after(usr, time_taken, needhand = TRUE, target = src))
 			if(QDELETED(I) || QDELETED(L) || !L.remove_embedded_object(I))
 				return
-			L.receive_damage(I.embedding.embedded_unsafe_removal_pain_multiplier*I.w_class)//It hurts to rip it out, get surgery you dingus.
+			var/hort = FALSE
+			hort = L.receive_damage(I.embedding.embedded_unsafe_removal_pain_multiplier*I.w_class)//It hurts to rip it out, get surgery you dingus.
 			usr.put_in_hands(I)
-			emote("pain", TRUE)
+			if (hort)
+				emote("pain", TRUE)
 			playsound(loc, 'sound/foley/flesh_rem.ogg', 100, TRUE, -2)
 			if(usr == src)
 				usr.visible_message("<span class='notice'>[usr] rips [I] out of [usr.p_their()] [L.name]!</span>", "<span class='notice'>I successfully remove [I] from my [L.name].</span>")
@@ -140,6 +148,19 @@ GLOBAL_VAR_INIT(year_integer, text2num(year)) // = 2013???
 				to_chat(usr, span_notice("This person social standing is equivalent to <EM>[rank_name]</EM>, they are my equal."))
 			if(social_rank < examiner_rank)
 				to_chat(usr, span_notice("This person social standing is equivalent to <EM>[rank_name]</EM>, they are my lesser."))
+			if(family_datum)
+				var/datum/family_member/FM = family_datum.GetMemberForPerson(src)
+				var/spousetext = ""
+				if(FM && FM.spouses.len)
+					var/list/spouse_list = list()
+					for(var/datum/family_member/S in FM.spouses)
+						if(S.person)
+							spouse_list += S.person.real_name
+					if(spouse_list.len)
+						spousetext = jointext(spouse_list, ", ")
+				to_chat(usr, span_notice("They are a member of house[family_datum.housename].[spousetext ? " Married to [spousetext]." : ""]"))
+
+
 
 	if(href_list["reveal_cosmetic"])
 		if(mind && mind.cosmetic_class_title)
@@ -477,6 +498,29 @@ GLOBAL_VAR_INIT(year_integer, text2num(year)) // = 2013???
 		else
 			user.visible_message("[user] fails to assess [src]!")
 		return
+
+	if(href_list["task"] == "view_rumours_gossip")
+		if(!ismob(usr))
+			return
+		var/msg = ""
+		if(rumour && length(rumour))
+			var/rumour_display = rumour
+			rumour_display = html_encode(rumour_display)
+			rumour_display = parsemarkdown_basic(rumour_display, hyperlink = TRUE)
+			msg += "<b>You recall what you heard around Town about [src]...</b><br>[rumour_display]"
+		if(((HAS_TRAIT(usr, TRAIT_NOBLE)) || observer_privilege) && length(noble_gossip))
+			if(msg)
+				msg += "<br><br>"
+			var/gossip_display = noble_gossip
+			gossip_display = html_encode(gossip_display)
+			gossip_display = parsemarkdown_basic(gossip_display, hyperlink = TRUE)
+			msg += "<b>You recall what the other Blue-bloods hushed about [src]...</b><br>[gossip_display]"
+		if(msg)
+			to_chat(usr, "<span class='info'>[msg]</span>")
+		else //Edge-case of there being ONLY noble gossip, but we aren't a noble.
+			to_chat(usr, "<span class='info'>Any tales of intrigue of this one are reserved to the nobility...</span>")
+		return
+
 	return ..() //end of this massive fucking chain. TODO: make the hud chain not spooky. - Yeah, great job doing that. - I made it worse sorry guys.
 
 //Sorry colorblind folks...
@@ -577,7 +621,7 @@ GLOBAL_VAR_INIT(year_integer, text2num(year)) // = 2013???
 
 	return str*/
 
-/proc/skilldiff_report(var/input)
+/proc/skilldiff_report(input)
 	switch (input)
 		if(-6)
 			return "<font color = '#ff4ad2'>I know nothing. They -- everything</font>"

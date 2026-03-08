@@ -9,7 +9,7 @@
 	export_price = 100
 	importexport_amt = 1
 
-/obj/item/roguebin/crackers/Initialize()
+/obj/item/roguebin/crackers/Initialize(mapload)
 	. = ..()
 	new /obj/item/reagent_containers/food/snacks/rogue/crackerscooked(src)
 	new /obj/item/reagent_containers/food/snacks/rogue/crackerscooked(src)
@@ -34,7 +34,7 @@
 	export_price = 100
 	importexport_amt = 1
 
-/obj/structure/closet/crate/chest/steward/redpotion/Initialize()
+/obj/structure/closet/crate/chest/steward/redpotion/Initialize(mapload)
 	. = ..()
 	new /obj/item/reagent_containers/glass/bottle/rogue/healthpot(src)
 	new /obj/item/reagent_containers/glass/bottle/rogue/healthpot(src)
@@ -49,7 +49,7 @@
 	export_price = 400		//Expensive, 200 each roughly. Four uses total, as only 5u needed to reverse rot. Each bottle is 10u.
 	importexport_amt = 1
 
-/obj/structure/closet/crate/chest/steward/rotpotion/Initialize()
+/obj/structure/closet/crate/chest/steward/rotpotion/Initialize(mapload)
 	. = ..()
 	new /obj/item/reagent_containers/glass/bottle/alchemical/rogue/rotcure(src)
 	new /obj/item/reagent_containers/glass/bottle/alchemical/rogue/rotcure(src)
@@ -61,7 +61,7 @@
 	export_price = 500
 	importexport_amt = 1
 
-/obj/structure/closet/crate/chest/steward/knight/Initialize()
+/obj/structure/closet/crate/chest/steward/knight/Initialize(mapload)
 	. = ..()
 	new /obj/item/clothing/head/roguetown/helmet/heavy/knight(src)
 	new /obj/item/clothing/gloves/roguetown/plate(src)
@@ -82,12 +82,13 @@
 	export_price = 250
 	importexport_amt = 1
 
-/obj/structure/closet/crate/chest/steward/warden/Initialize()
+/obj/structure/closet/crate/chest/steward/warden/Initialize(mapload)
 	. = ..()
 	new /obj/item/clothing/cloak/wardencloak(src)
 	new /obj/item/storage/keyring/guard(src)
 	new /obj/item/clothing/suit/roguetown/armor/leather/studded/warden(src)
 	new /obj/item/rogueweapon/stoneaxe/woodcut/wardenpick(src)
+	new /obj/item/rogueweapon/huntingknife/idagger/warden_machete(src)
 	new /obj/item/gun/ballistic/revolver/grenadelauncher/bow/recurve/warden(src)
 
 /datum/roguestock/import/manatarms
@@ -97,7 +98,7 @@
 	export_price = 250
 	importexport_amt = 1
 
-/obj/structure/closet/crate/chest/steward/manatarms/Initialize()
+/obj/structure/closet/crate/chest/steward/manatarms/Initialize(mapload)
 	. = ..()
 	new /obj/item/clothing/head/roguetown/helmet/bascinet(src)
 	new /obj/item/clothing/under/roguetown/chainlegs(src)
@@ -118,7 +119,7 @@
 	export_price = 300
 	importexport_amt = 1
 
-/obj/structure/closet/crate/chest/steward/crossbow/Initialize()
+/obj/structure/closet/crate/chest/steward/crossbow/Initialize(mapload)
 	. = ..()
 	new /obj/item/gun/ballistic/revolver/grenadelauncher/crossbow(src)
 	new /obj/item/gun/ballistic/revolver/grenadelauncher/crossbow(src)
@@ -134,7 +135,7 @@
 	export_price = 100
 	importexport_amt = 1
 
-/obj/structure/closet/crate/chest/steward/saigabuck/Initialize()
+/obj/structure/closet/crate/chest/steward/saigabuck/Initialize(mapload)
 	. = ..()
 	new /mob/living/simple_animal/hostile/retaliate/rogue/saiga/saigabuck/tame/saddled(src)
 
@@ -145,7 +146,7 @@
 	export_price = 300
 	importexport_amt = 1
 
-/obj/structure/closet/crate/chest/steward/volfcrate/Initialize()
+/obj/structure/closet/crate/chest/steward/volfcrate/Initialize(mapload)
 	. = ..()
 	new /mob/living/simple_animal/hostile/retaliate/rogue/wolf(src)
 
@@ -156,7 +157,7 @@
 	export_price = 1000
 	importexport_amt = 1
 
-/obj/structure/closet/crate/chest/steward/bearcrate/Initialize()
+/obj/structure/closet/crate/chest/steward/bearcrate/Initialize(mapload)
 	. = ..()
 	new /mob/living/simple_animal/hostile/retaliate/rogue/direbear(src)
 
@@ -167,7 +168,7 @@
 	export_price = 500
 	importexport_amt = 1
 
-/obj/structure/closet/crate/chest/steward/horsecrate/Initialize()
+/obj/structure/closet/crate/chest/steward/horsecrate/Initialize(mapload)
 	. = ..()
 	switch(rand(1,3))
 		if(1)
@@ -184,7 +185,7 @@
 	export_price = 1500
 	importexport_amt = 1
 
-/obj/structure/closet/crate/chest/steward/ponycrate/Initialize()
+/obj/structure/closet/crate/chest/steward/ponycrate/Initialize(mapload)
 	. = ..()
 	var/mob/living/simple_animal/hostile/retaliate/rogue/horse/male/pony
 	switch(rand(1,3))
@@ -203,7 +204,7 @@
 	export_price = 100
 	importexport_amt = 1
 
-/obj/structure/closet/crate/chest/steward/cow/Initialize()
+/obj/structure/closet/crate/chest/steward/cow/Initialize(mapload)
 	. = ..()
 	new /mob/living/simple_animal/hostile/retaliate/rogue/cow(src)
 
@@ -214,7 +215,7 @@
 	export_price = 100
 	importexport_amt = 1
 
-/obj/structure/closet/crate/chest/steward/bull/Initialize()
+/obj/structure/closet/crate/chest/steward/bull/Initialize(mapload)
 	. = ..()
 	new /mob/living/simple_animal/hostile/retaliate/rogue/bull(src)
 
@@ -225,7 +226,7 @@
 	export_price = 100
 	importexport_amt = 1
 
-/obj/structure/closet/crate/chest/steward/goat/Initialize()
+/obj/structure/closet/crate/chest/steward/goat/Initialize(mapload)
 	. = ..()
 	new /mob/living/simple_animal/hostile/retaliate/rogue/goat(src)
 
@@ -236,7 +237,7 @@
 	export_price = 100
 	importexport_amt = 1
 
-/obj/structure/closet/crate/chest/steward/goatmale/Initialize()
+/obj/structure/closet/crate/chest/steward/goatmale/Initialize(mapload)
 	. = ..()
 	new /mob/living/simple_animal/hostile/retaliate/rogue/goatmale(src)
 
@@ -247,7 +248,7 @@
 	export_price = 50
 	importexport_amt = 1
 
-/obj/structure/closet/crate/chest/steward/chicken/Initialize()
+/obj/structure/closet/crate/chest/steward/chicken/Initialize(mapload)
 	. = ..()
 	new /mob/living/simple_animal/hostile/retaliate/rogue/chicken(src)
 
@@ -258,7 +259,7 @@
 	export_price = 100
 	importexport_amt = 1
 
-/obj/structure/closet/crate/chest/steward/farmequip/Initialize()
+/obj/structure/closet/crate/chest/steward/farmequip/Initialize(mapload)
 	. = ..()
 	new /obj/item/rogueweapon/hoe(src)
 	new /obj/item/rogueweapon/pitchfork(src)
@@ -274,7 +275,7 @@
 	export_price = 100
 	importexport_amt = 1
 
-/obj/structure/closet/crate/chest/steward/blacksmith/Initialize()
+/obj/structure/closet/crate/chest/steward/blacksmith/Initialize(mapload)
 	. = ..()
 	new /obj/item/rogueweapon/hammer/iron(src)
 	new /obj/item/rogueweapon/tongs(src)
@@ -299,7 +300,7 @@
 	export_price = 60
 	importexport_amt = 1
 
-/obj/structure/closet/crate/chest/steward/craftsman/Initialize()
+/obj/structure/closet/crate/chest/steward/craftsman/Initialize(mapload)
 	. = ..()
 	new /obj/item/rogueweapon/hammer/wood(src)
 	new /obj/item/rogueweapon/chisel(src)
@@ -312,7 +313,7 @@
 	export_price = 150
 	importexport_amt = 1
 
-/obj/structure/closet/crate/chest/steward/glasscrate/Initialize()
+/obj/structure/closet/crate/chest/steward/glasscrate/Initialize(mapload)
 	. = ..()
 	new /obj/item/natural/glass(src)
 	new /obj/item/natural/glass(src)
@@ -327,14 +328,14 @@
 	export_price = 150
 	importexport_amt = 1
 
-/obj/structure/closet/crate/chest/steward/tailor/Initialize()
+/obj/structure/closet/crate/chest/steward/tailor/Initialize(mapload)
 	. = ..()
 	new /obj/item/rogueweapon/huntingknife/scissors/steel(src)
 	new /obj/item/needle(src)
 	new /obj/item/grown/log/tree/small(src)
 	new /obj/item/grown/log/tree/small(src)
 	new /obj/item/natural/bundle/fibers(src)
-	new /obj/item/grown/log/tree/stick(src)	
+	new /obj/item/grown/log/tree/stick(src)
 	new /obj/item/grown/log/tree/stick(src)
 
 /datum/roguestock/import/keyringsset
@@ -344,7 +345,7 @@
 	export_price = 100
 	importexport_amt = 1
 
-/obj/structure/closet/crate/chest/steward/keyringsset/Initialize()
+/obj/structure/closet/crate/chest/steward/keyringsset/Initialize(mapload)
 	. = ..()
 	new /obj/item/storage/keyring/guardcastle(src)
 	new /obj/item/storage/keyring/guardcastle(src)
@@ -358,7 +359,7 @@
 	export_price = 800
 	importexport_amt = 1
 
-/obj/structure/closet/crate/chest/steward/alcoholset/Initialize()
+/obj/structure/closet/crate/chest/steward/alcoholset/Initialize(mapload)
 	. = ..()
 	new /obj/item/reagent_containers/glass/bottle/rogue/beer/gronnmead(src)
 	new /obj/item/reagent_containers/glass/bottle/rogue/beer/nred(src)
@@ -381,7 +382,7 @@
 	export_price = 310
 	importexport_amt = 1
 
-/obj/structure/closet/crate/chest/steward/minecarttracks/Initialize()
+/obj/structure/closet/crate/chest/steward/minecarttracks/Initialize(mapload)
 	. = ..()
 	for(var/i = 1 to 100)
 		new /obj/item/rotation_contraption/minecart_rail(src)
@@ -395,7 +396,7 @@
 	export_price = 362
 	importexport_amt = 1
 
-/obj/structure/closet/crate/chest/steward/rotationalnetwork/Initialize()
+/obj/structure/closet/crate/chest/steward/rotationalnetwork/Initialize(mapload)
 	. = ..()
 	for(var/i = 1 to 10)
 		new /obj/item/rotation_contraption/large_cog(src)
@@ -415,7 +416,7 @@
 	export_price = 75
 	importexport_amt = 1
 
-/obj/structure/closet/crate/chest/steward/waterwheels/Initialize()
+/obj/structure/closet/crate/chest/steward/waterwheels/Initialize(mapload)
 	. = ..()
 	for(var/i = 1 to 5)
 		new /obj/item/rotation_contraption/waterwheel(src)
@@ -427,7 +428,7 @@
 	export_price = 40
 	importexport_amt = 1
 
-/obj/structure/closet/crate/chest/steward/stoneblocks/Initialize()
+/obj/structure/closet/crate/chest/steward/stoneblocks/Initialize(mapload)
 	. = ..()
 	for(var/i = 1 to 20)
 		new /obj/item/natural/stoneblock(src)
@@ -439,7 +440,7 @@
 	export_price = 60
 	importexport_amt = 1
 
-/obj/structure/closet/crate/chest/steward/planks/Initialize()
+/obj/structure/closet/crate/chest/steward/planks/Initialize(mapload)
 	. = ..()
 	for(var/i = 1 to 20)
 		new /obj/item/natural/wood/plank(src)

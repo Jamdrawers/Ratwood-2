@@ -5,7 +5,7 @@
 	faction = "Station"
 	total_positions = 1
 	spawn_positions = 1
-	allowed_races = RACES_NO_CONSTRUCT
+	allowed_races = RACES_TOLERATED_UP
 	allowed_sexes = list(MALE, FEMALE)
 	allowed_ages = list(AGE_ADULT, AGE_MIDDLEAGED, AGE_OLD)
 	tutorial = "Your lineage is noble, and generations of strong, loyal knights have come before you. You served your time \
@@ -123,7 +123,8 @@
 	H.verbs |= list(
 		/mob/living/carbon/human/proc/request_outlaw,
 		/mob/proc/haltyell,
-		/mob/living/carbon/human/mind/proc/setorders
+		/mob/living/carbon/human/mind/proc/setorders,
+		/mob/living/carbon/human/proc/take_squire
 	)
 	H.adjust_blindness(-3)
 	if(H.mind)

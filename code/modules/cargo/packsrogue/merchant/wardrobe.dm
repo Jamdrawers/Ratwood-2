@@ -56,28 +56,28 @@
 
 /datum/supply_pack/rogue/wardrobe/cloaks/raincloak
 	name = "Raincloak"
-	cost = 20
+	cost = 15
 	contains = list(
 					/obj/item/clothing/cloak/raincloak/blue,
 				)
 
 /datum/supply_pack/rogue/wardrobe/suits/dressgen
-	name = "Dress"
-	cost = 20
+	name = "Simple Dress"
+	cost = 15
 	contains = list(
 					/obj/item/clothing/suit/roguetown/shirt/dress/gen,
 				)
 
 /datum/supply_pack/rogue/wardrobe/suits/robes
 	name = "Robes"
-	cost = 30
+	cost = 20
 	contains = list(
 					/obj/item/clothing/suit/roguetown/shirt/robe,
 				)
 
 /datum/supply_pack/rogue/wardrobe/suits/formal
 	name = "Formal Silks"
-	cost = 20
+	cost = 30
 	contains = list(
 					/obj/item/clothing/suit/roguetown/shirt/undershirt/puritan,
 				)
@@ -145,10 +145,4 @@
 					/obj/item/clothing/mask/rogue/exoticsilkmask,
 				)
 
-/datum/supply_pack/rogue/wardrobe/reinforced_hood
-	name = "Reinforced Hood"
-	cost = 120//It's armour. Quite good, given layering, too. Someone else can adjust this.
-	contains = list(
-					/obj/item/clothing/head/roguetown/roguehood/reinforced,
-				)
 

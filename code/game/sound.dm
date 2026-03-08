@@ -106,7 +106,7 @@
 	pixel_y = -218
 
 /*
-/obj/effect/temp_visual/soundping/Initialize()
+/obj/effect/temp_visual/soundping/Initialize(mapload)
 	. = ..()
 	animate(src, alpha = 0, time = duration, easing = EASE_IN)
 */
@@ -205,7 +205,8 @@
 
 	if(repeat && istype(repeat, /datum/looping_sound))
 		var/datum/looping_sound/D = repeat
-		if(src in D.thingshearing) //we are already hearing this loop
+		var/datum/weakref/our_ref = WEAKREF(src)
+		if(our_ref in D.thingshearing) //we are already hearing this loop
 			if(client.played_loops[D])
 				var/sound/DS = client.played_loops[D]["SOUND"]
 				if(DS)
@@ -220,7 +221,7 @@
 						if(client.played_loops[D]["MUTESTATUS"]) //we have sound so turn this off
 							client.played_loops[D]["MUTESTATUS"] = null
 		else
-			D.thingshearing += src
+			D.thingshearing += our_ref
 			client.played_loops[D] = list()
 			client.played_loops[D]["SOUND"] = S
 			client.played_loops[D]["VOL"] = S.volume
@@ -326,7 +327,7 @@
 	UNTIL(SSticker.login_music) //wait for SSticker init to set the login music
 
 	if(prefs && (prefs.toggles & SOUND_LOBBY))
-		SEND_SOUND(src, sound(SSticker.login_music, repeat = 1, wait = 0, volume = prefs.musicvol, channel = CHANNEL_LOBBYMUSIC)) // MAD JAMS
+		SEND_SOUND(src, sound(SSticker.login_music, repeat = 1, wait = 0, volume = prefs.lobbymusicvol, channel = CHANNEL_LOBBYMUSIC)) // MAD JAMS
 
 /proc/get_rand_frequency()
 	return rand(43100, 45100) //Frequency stuff only works with 45kbps oggs.

@@ -1,5 +1,3 @@
-
-
 //NOTE: Breathing happens once per FOUR TICKS, unless the last breath fails. In which case it happens once per ONE TICK! So oxyloss healing is done once per 4 ticks while oxyloss damage is applied once per tick!
 
 // bitflags for the percentual amount of protection a piece of clothing which covers the body part offers.
@@ -44,7 +42,7 @@
 
 	if(mind)
 		mind.sleep_adv.add_stress_cycle(get_stress_amount())
-		for(var/datum/antagonist/A in mind.antag_datums)
+		for(var/datum/antagonist/A as anything in mind.antag_datums)
 			A.on_life(src)
 
 	handle_vamp_dreams()
@@ -72,8 +70,16 @@
 	handle_heart()
 	update_stamina()
 	update_energy()
-	if(charflaw && !charflaw.ephemeral && mind)
+	
+	// Process all vices
+	if(mind && length(vices))
+		for(var/datum/charflaw/vice in vices)
+			if(!vice.ephemeral)
+				vice.flaw_on_life(src)
+	// Legacy single vice support
+	else if(charflaw && !charflaw.ephemeral && mind)
 		charflaw.flaw_on_life(src)
+	
 	if(health <= 0)
 		adjustOxyLoss(0.5)
 	if(mode == NPC_AI_OFF && !client && !HAS_TRAIT(src, TRAIT_NOSLEEP))
@@ -108,7 +114,7 @@
 		return
 
 	if(mind)
-		for(var/datum/antagonist/A in mind.antag_datums)
+		for(var/datum/antagonist/A as anything in mind.antag_datums)
 			A.on_life(src)
 
 	. = ..()
@@ -175,8 +181,12 @@
 //				coverfeet = TRUE
 	if(locations & HEAD)
 		if(!coverhead && patron?.type != /datum/patron/divine/abyssor) //abyssor friends don't care about a bit of water!!!
-			if(!isaxian(src) && !islamia(src))//if you aren't an abyssor spawn creature
-				add_stress(/datum/stressevent/coldhead)
+			if(!is_holding_item_of_type(/obj/item/rogueweapon/mace/parasol))
+				if(!isaxian(src) && !islamia(src))//if you aren't an abyssor spawn creature
+					add_stress(/datum/stressevent/coldhead)
+	if(HAS_TRAIT(src, TRAIT_NOBLE)) // Allows nobles who are holding a parasol & its raining to get a mood buff
+		if(is_holding_item_of_type(/obj/item/rogueweapon/mace/parasol/noble)) 
+			add_stress(/datum/stressevent/parasolrain)
 //	if(locations & FEET)
 //		if(!coverfeet && patron?.type != /datum/patron/divine/abyssor)
 //			if(!isaxian(src) && !islamia(src))
@@ -202,7 +212,7 @@
 			mask_sound = pick('sound/items/confessormask1.ogg', 'sound/items/confessormask2.ogg', 'sound/items/confessormask3.ogg',
 							'sound/items/confessormask4.ogg', 'sound/items/confessormask5.ogg', 'sound/items/confessormask6.ogg',
 							'sound/items/confessormask7.ogg', 'sound/items/confessormask8.ogg', 'sound/items/confessormask9.ogg',
-					 		'sound/items/confessormask10.ogg')
+							'sound/items/confessormask10.ogg')
 			playsound(src, mask_sound, 90, FALSE, 4, 0)
 			return
 

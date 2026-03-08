@@ -87,6 +87,10 @@
 
 	if(intenty.masteritem)
 		attacker_skill = U.get_skill_level(intenty.masteritem.associated_skill)
+
+		if(intenty.sharpness_penalty)
+			intenty.masteritem.remove_bintegrity(intenty.sharpness_penalty)
+
 		prob2defend -= (attacker_skill * 20)
 		if((intenty.masteritem.wbalance == WBALANCE_SWIFT) && (user.STASPD > src.STASPD)) //enemy weapon is quick, so get a bonus based on spddiff
 			var/spdmod = ((user.STASPD - src.STASPD) * 10)
@@ -236,10 +240,14 @@
 			var/dam2take = round((get_complex_damage(AB,user,used_weapon.blade_dulling)/2),1)
 			if(dam2take)
 				var/intdam = used_weapon.max_blade_int ? INTEG_PARRY_DECAY : INTEG_PARRY_DECAY_NOSHARP
+				var/sharp_loss = SHARPNESS_ONHIT_DECAY
 				if(used_weapon == offhand)
 					intdam = INTEG_PARRY_DECAY_NOSHARP
+				if(istype(user.rmb_intent, /datum/rmb_intent/strong))
+					sharp_loss += STRONG_SHP_BONUS
+					intdam += STRONG_INTG_BONUS
 				used_weapon.take_damage(intdam, BRUTE, used_weapon.d_type)
-				used_weapon.remove_bintegrity(SHARPNESS_ONHIT_DECAY, user)
+				used_weapon.remove_bintegrity(sharp_loss, user)
 
 			if(mind && user.mind && HAS_TRAIT(src, TRAIT_COMBAT_AWARE))
 				var/text = "[bodyzone2readablezone(user.zone_selected)]..."

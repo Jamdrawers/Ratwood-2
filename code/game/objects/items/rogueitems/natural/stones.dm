@@ -144,7 +144,7 @@ GLOBAL_LIST_INIT(stone_personality_descs, list(
 	sharpening_factor = 12
 	spark_chance = 35
 
-/obj/item/natural/stone/Initialize()
+/obj/item/natural/stone/Initialize(mapload)
 	. = ..()
 	stone_lore()
 
@@ -181,7 +181,7 @@ GLOBAL_LIST_INIT(stone_personality_descs, list(
 	sharpening_factor = 21
 	spark_chance = 80
 
-/obj/item/natural/whetstone/Initialize()
+/obj/item/natural/whetstone/Initialize(mapload)
 	. = ..()
 	var/static/list/slapcraft_recipe_list = list(
 		/datum/crafting_recipe/roguetown/survival/peasantry/thresher/whetstone,
@@ -332,6 +332,15 @@ GLOBAL_LIST_INIT(stone_personality_descs, list(
 		return
 	else if(istype(W, /obj/item/rogueweapon/chisel/assembly))
 		to_chat(user, span_warning("You most use both hands to chisel blocks."))
+	else if(user.used_intent.type == /datum/intent/wing/shred && !user.cmode || user.used_intent.type == /datum/intent/wing/cut && !user.cmode)
+		playsound(src.loc, pick('sound/items/sharpen_long1.ogg','sound/items/sharpen_long2.ogg'), 100, TRUE)
+		user.visible_message(span_notice("[user] sharpens [W]!"))
+		W.add_bintegrity(12, user)
+		if(prob(35))
+			var/datum/effect_system/spark_spread/S = new()
+			var/turf/front = get_step(user,user.dir)
+			S.set_up(1, 1, front)
+			S.start()
 	else
 		..()
 
@@ -396,7 +405,7 @@ GLOBAL_LIST_INIT(stone_personality_descs, list(
 	attacked_sound = 'sound/foley/hit_rock.ogg'
 
 
-/obj/item/natural/rock/Initialize()
+/obj/item/natural/rock/Initialize(mapload)
 	icon_state = "stonebig[rand(1,2)]"
 	..()
 
@@ -517,7 +526,7 @@ GLOBAL_LIST_INIT(stone_personality_descs, list(
 	desc = "Wait, this shouldn't be here?"
 	icon_state = "stonerandom"
 
-/obj/item/natural/rock/random/Initialize()
+/obj/item/natural/rock/random/Initialize(mapload)
 	. = ..()
 	var/obj/item/natural/rock/theboi = pick(list(
 		/obj/item/natural/rock/gold,

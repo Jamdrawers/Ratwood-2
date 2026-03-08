@@ -72,7 +72,7 @@
 	return TRUE
 
 
-/obj/item/rogueweapon/scabbard/proc/eat_sword(mob/living/user, obj/A)
+/obj/item/rogueweapon/scabbard/proc/eat_sword(mob/living/user, obj/A, sheathing_from_belt = FALSE)
 	if(!weapon_check(user, A))
 		return FALSE
 	if(obj_broken)
@@ -90,10 +90,11 @@
 	sheathed = A
 	update_icon(user)
 
-	user.visible_message(
-		span_notice("[user] sheathes [A] into [src]."),
-		span_notice("I sheathe [A] into [src].")
-	)
+	if(!sheathing_from_belt)
+		user.visible_message(
+			span_notice("[user] sheathes [A] into [src]."),
+			span_notice("I sheathe [A] into [src].")
+		)
 
 	playsound(src, sheathe_sound, 100, TRUE)
 	return TRUE
@@ -550,6 +551,15 @@
 	valid_blade = /obj/item/rogueweapon/sword/long/kriegmesser/ssangsudo
 	can_parry = FALSE
 
+/obj/item/rogueweapon/scabbard/sword/kazengun/noparry/loadout
+	name = "ceremonial scabbard"
+	desc = "A simple wooden scabbard, trimmed with bronze. Unlike its steel cousins, this one cannot parry."
+	valid_blade = /obj/item/rogueweapon/sword
+	invalid_blades = list(
+		/obj/item/rogueweapon/sword/long/exe,
+		/obj/item/rogueweapon/sword/long/exe/astrata,
+		/obj/item/rogueweapon/sword/long/martyr
+	)
 
 /obj/item/rogueweapon/scabbard/sword/kazengun/steel
 	name = "hwang scabbard"

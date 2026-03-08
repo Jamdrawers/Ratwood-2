@@ -73,7 +73,7 @@
 	if(!do_after(user, time_to_use, target = user))
 		to_chat(user, span_warning("I need to focus..."))
 		return
-	
+
 	var/success_chance = 0
 
 	var/break_on_fail = FALSE
@@ -143,12 +143,18 @@
 	if (target == null)
 		return
 
+//You're once more warned and the trait prevents scrying. It also tells you WHO is trying to scry you.
+	if(HAS_TRAIT(target, TRAIT_ANTISCRYING))
+		to_chat(user, span_warning("I peer into the ball, but an impenetrable fog shrouds [target.real_name]."))
+		to_chat(target, span_warning("My arcyne shroud shrieks in alarm! I can clearly see [user.real_name] staring into the fog!"))
+		return
+
 	if(!prob(success_chance))
 		on_failure(user, target, failure_severity)
 		if(break_on_fail)
 			failure_break(user)
 		return
-	
+
 	playsound(src, 'sound/magic/whiteflame.ogg', 100, TRUE)
 	scry(user, target)
 
@@ -354,8 +360,8 @@ Necra's Censer
 ============*/
 /*
 - Cleans in an area around the person after
-  a do_after call, infinite uses. Should aid
-  the morticians with cleaning the town.
+	a do_after call, infinite uses. Should aid
+	the morticians with cleaning the town.
 */
 
 /obj/item/necra_censer
@@ -378,8 +384,56 @@ Necra's Censer
 
 /obj/item/necra_censer/attack_self(mob/user)
 	if(do_after(user, 3 SECONDS))
-		playsound(user.loc,  'sound/items/censer_use.ogg', 100)
+		playsound(user.loc, 'sound/items/censer_use.ogg', 100)
 		user.visible_message(span_info("[user.name] lifts up their arm and swings the chain on \the [name] around lightly."))
 		var/datum/effect_system/smoke_spread/smoke/necra_censer/S = new
 		S.set_up(2, user.loc)
 		S.start()
+
+/obj/item/circuitus_scroll
+	name = "Circuitus Scroll"
+	desc = "A scroll prepared for use in the art of Circuitus. Write an incantation upon this scroll and perform Circuitus while holding it to perform the spell written."
+	icon = 'icons/roguetown/items/misc.dmi'
+	icon_state = "scroll"
+	w_class = WEIGHT_CLASS_TINY
+	max_integrity = 30
+	pickup_sound = 'sound/blank.ogg'
+	drop_sound = 'sound/foley/dropsound/paper_drop.ogg'
+	grind_results = list(/datum/reagent/cellulose = 3)
+	color = "#A7C7E7"
+	throw_range = 1
+	throw_speed = 1
+	throwforce = 0
+	grid_height = 64
+	grid_width = 32
+	dropshrink = 0.6
+	resistance_flags = FLAMMABLE
+	var/spell_info
+
+/obj/item/circuitus_scroll/attack_self(mob/living/user)
+	if(!spell_info)
+		spell_info = stripped_input(user, "Write words of power.", "Incantation", "", 512)
+		return
+
+	if(alert("Read or re-write scroll?",,"Read","Re-Write")!="Read")
+		spell_info = stripped_input(user, "Write words of power.", "Incantation", "", 512)
+		return
+	else
+		to_chat(user, "The scroll reads: [spell_info]")
+
+/obj/item/memory_string
+	name = "memory string"
+	icon = 'icons/roguetown/items/natural.dmi'
+	icon_state = "fibers"
+	possible_item_intents = list(/datum/intent/use)
+	desc = "A memory string. For use in the art of circuitus, as a means to store iotas."
+	force = 0
+	throwforce = 0
+	obj_flags = null
+	color = "#A7C7E7"
+	firefuel = 5 MINUTES
+	resistance_flags = FLAMMABLE
+	max_integrity = 20
+	w_class = WEIGHT_CLASS_TINY
+	sellprice = 2
+	var/iota

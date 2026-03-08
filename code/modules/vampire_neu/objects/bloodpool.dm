@@ -28,7 +28,7 @@
 	)
 	var/sunstolen = FALSE
 
-/obj/structure/vampire/bloodpool/Initialize()
+/obj/structure/vampire/bloodpool/Initialize(mapload)
 	. = ..()
 	set_light(3, 3, 20, l_color = LIGHT_COLOR_BLOOD_MAGIC)
 
@@ -242,7 +242,6 @@
 		contributors += user
 
 	to_chat(user, span_greentext("Contributed [contribution] vitae to [display_name]. ([paid_amount]/[total_cost])"))
-	make_tracker_effects(user.loc, bloodpool, 1, "soul", 3, /obj/effect/tracker/drain, 1)
 
 	if(paid_amount >= total_cost)
 		bloodpool.complete_project(type)

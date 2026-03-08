@@ -13,7 +13,7 @@
 	throw_speed = 2
 	var/knockdown = 0
 
-/obj/item/net/Initialize()
+/obj/item/net/Initialize(mapload)
 	. = ..()
 	RegisterSignal(src, COMSIG_ITEM_DROPPED, PROC_REF(on_drop))
 
@@ -29,6 +29,7 @@
 			M.update_inv_legcuffed()
 			if(M.has_status_effect(/datum/status_effect/debuff/netted))
 				M.remove_status_effect(/datum/status_effect/debuff/netted)
+		forceMove(M.loc)
 
 /obj/item/net/throw_at(atom/target, range, speed, mob/thrower, spin=1, diagonals_first = 0, datum/callback/callback)
 	if(!..())
@@ -58,4 +59,4 @@
 // Failsafe in case the item somehow ends up being destroyed
 /obj/item/net/Destroy()
 	remove_effect()
-	return ..()	
+	return ..()

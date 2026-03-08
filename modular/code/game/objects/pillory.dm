@@ -27,7 +27,7 @@
 	base_icon = "pillory_reinforced"
 
 
-/obj/structure/pillory/Initialize()
+/obj/structure/pillory/Initialize(mapload)
 	LAZYINITLIST(buckled_mobs)
 	. = ..()
 
@@ -129,7 +129,7 @@
 				//H.cut_overlays()
 				H.update_body_parts_head_only()
 				switch(H.dna.species.name)
-					if ("Dwarf", "Kobold", "Goblin", "Verminvolk")
+					if ("Dwarf", "Kobold", "Goblin", "Critterkin")
 						H.set_mob_offsets("bed_buckle", _x = 0, _y = PILLORY_HEAD_OFFSET)
 				icon_state = "[base_icon]-over"
 				update_icon()
