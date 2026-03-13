@@ -15,6 +15,7 @@
 	experimental_inhand = FALSE
 	drop_sound = 'sound/foley/coinphy (1).ogg'
 	dropshrikn = 0.7
+	nudist_approved = TRUE
 
 /obj/item/clothing/ring/silver
 	name = "silver ring"

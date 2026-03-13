@@ -34,8 +34,8 @@
 	"Half-Pig", "Half-Boar", "Half-Rabbit", "Half-Horse", "Half-Donkey",
 	"Half-Hyena", "Half-Deer", "Half-Bear", "Half-Panda", "Half-Coyote",
 	"Half-Moose", "Half-Jackal", "Half-Panther", "Half-Lynx", "Half-Leopard",
-	"Half-Monkey", "Half-Bird", "Half-Seal", "Half-Bat", "Half-Otter", "Half-Cow",
-	"Half-Bull", "Half-Bee", "Half-Lizard", "Half-Monster"
+	"Half-Monkey", "Half-Bird", "Half-Seal", "Half-Frog", "Half-Bat", "Half-Otter", "Half-Cow",
+	"Half-Bull", "Half-Bee", "Half-Lizard", "Half-Insect", "Half-Spider", "Half-Monster"
 	)
 
 	species_traits = list(EYECOLOR,HAIR,FACEHAIR,LIPS,STUBBLE,OLDGREY,MUTCOLORS_PARTSONLY)
@@ -47,6 +47,7 @@
 		/obj/item/bodypart/taur/dragon,
 		/obj/item/bodypart/taur/noodle,
 		/obj/item/bodypart/taur/horse,
+		/obj/item/bodypart/taur/goat,
 		/obj/item/bodypart/taur/deer,
 		/obj/item/bodypart/taur/redpanda,
 		/obj/item/bodypart/taur/rat,
@@ -59,7 +60,8 @@
 		/obj/item/bodypart/taur/centipede,
 		/obj/item/bodypart/taur/sloog,
 		/obj/item/bodypart/taur/ant,
-		/obj/item/bodypart/taur/wasp
+		/obj/item/bodypart/taur/wasp,
+		/obj/item/bodypart/taur/insect
 	)
 	default_features = MANDATORY_FEATURE_LIST
 	use_skintones = TRUE
@@ -204,6 +206,7 @@
 		"Naledi" = SKIN_COLOR_NALEDI,
 		"Naledi South" = SKIN_COLOR_NALEDI_LIGHT,
 		"Kazengun" = SKIN_COLOR_KAZENGUN,
+		"Czwarteki" = SKIN_COLOR_CZWARTEKI,
 	)
 
 /datum/species/demihuman/on_species_gain(mob/living/carbon/C, datum/species/old_species)

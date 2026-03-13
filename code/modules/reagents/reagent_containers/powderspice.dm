@@ -176,7 +176,7 @@
 	volume = 1
 	sellprice = 0
 
-/obj/item/reagent_containers/powder/rocknut/Initialize()
+/obj/item/reagent_containers/powder/rocknut/Initialize(mapload)
 	. = ..()
 	var/static/list/slapcraft_recipe_list = list(
 		/datum/crafting_recipe/roguetown/survival/rocknutdry,
@@ -453,7 +453,7 @@
 	sellprice = 30
 
 /atom/movable/screen/fullscreen/herozium
-	icon = 'icons/roguetown/maniac/fullscreen_wakeup.dmi'
+	icon = 'icons/roguetown/maniac/fullscreen_wakeup_lossy_compression.dmi'
 	icon_state = "wake_up"
 	plane = FLOOR_PLANE
 	layer = ABOVE_OPEN_TURF_LAYER
