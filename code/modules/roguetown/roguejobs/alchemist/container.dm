@@ -172,7 +172,7 @@
 	icon = 'icons/obj/alcohol.dmi'
 	icon_state = "red_wine"
 	list_reagents = list(/datum/reagent/consumable/ethanol/wine = 50)
-	desc = "A bottle that contains a generic red-wine, likely from Raneshen. It has a red-clay cork-seal."
+	desc = "A bottle that contains a generic red-wine, likely from Zybantium. It has a red-clay cork-seal."
 
 /obj/item/reagent_containers/glass/bottle/rogue/wine/sourwine
 	name = "Bottle of Grenzelhoft Sour"
@@ -208,6 +208,13 @@
 	icon_state = "valmora_blue"
 	list_reagents = list(/datum/reagent/consumable/ethanol/elfblue = 50)
 	desc = "A bottle gilded with a golden cork-seal. This is the legendary Valmora Blue from the Vineyard of Valmora, headed by a sainted Dark-Elf swordsmaster. This bottle would swoon Gods over!"
+
+/obj/item/reagent_containers/glass/bottle/rogue/luxwine
+	name = "Bottle of Luxintenebre"
+	icon = 'icons/obj/alcohol.dmi'
+	icon_state = "luxwine"
+	list_reagents = list(/datum/reagent/consumable/ethanol/luxwine = 50)
+	desc = "A regal-looking bottle with an avantyne cork-seal. Faint whispers of somebody's darkest secrets can be heard coming from the bottle."
 
 //AZURE DRINKS
 /obj/item/reagent_containers/glass/bottle/rogue/beer/jagdtrunk
@@ -333,7 +340,7 @@
 
 /obj/item/reagent_containers/glass/bottle/claybottle/wine
 	list_reagents = list(/datum/reagent/consumable/ethanol/wine = 75)
-	desc = "A clay bottle that contains a generic red-wine, likely from Raneshen. It has a red-clay cork-seal."
+	desc = "A clay bottle that contains a generic red-wine, likely from Zybantium. It has a red-clay cork-seal."
 
 /obj/item/reagent_containers/glass/bottle/claybottle/water
 	list_reagents = list(/datum/reagent/water = 75)
@@ -357,4 +364,4 @@
 
 /obj/item/reagent_containers/glass/bottle/rogue/emberwine
 	list_reagents = list(/datum/reagent/consumable/ethanol/beer/emberwine = 24)
-	desc = "A bottle with an unmarked, tannin-tinted cork-seal. Zybantu red or another such cheap wine, in all likelihood."
+	desc = "A bottle with an unmarked, tannin-tinted cork-seal. Zybantine red or another such cheap wine, in all likelihood."

@@ -35,6 +35,10 @@ GLOBAL_LIST_EMPTY(loadout_items)
 	name = "Farkle Dice Container"
 	path = /obj/item/storage/pill_bottle/dice/farkle
 
+/datum/loadout_item/gaming_dice
+	name = "Gaming Dice Container"
+	path = /obj/item/storage/pill_bottle/dice
+
 /datum/loadout_item/tarot_deck
 	name = "Tarot Deck"
 	path = /obj/item/toy/cards/deck/tarot
@@ -467,6 +471,10 @@ GLOBAL_LIST_EMPTY(loadout_items)
 	name = "Raised Sandals"
 	path = /obj/item/clothing/shoes/roguetown/armor/rumaclan
 
+/datum/loadout_item/simpleshoes
+	name = "Simple Shoes"
+	path = /obj/item/clothing/shoes/roguetown/simpleshoes
+
 //SHIRTS
 /datum/loadout_item/longcoat
 	name = "Longcoat"
@@ -623,7 +631,7 @@ GLOBAL_LIST_EMPTY(loadout_items)
 /datum/loadout_item/loincloth
 	name = "Loincloth"
 	path = /obj/item/clothing/under/roguetown/loincloth
-	
+
 /datum/loadout_item/tights
 	name = "Cloth Tights"
 	path = /obj/item/clothing/under/roguetown/tights/black
@@ -780,6 +788,14 @@ GLOBAL_LIST_EMPTY(loadout_items)
 	path = /obj/item/storage/belt/rogue/leather/shalal
 
 // BELTS
+/datum/loadout_item/leather
+	name = "Leather Belt"
+	path = /obj/item/storage/belt/rogue/leather
+
+/datum/loadout_item/leather_black
+	name = "Black Leather Belt"
+	path = /obj/item/storage/belt/rogue/leather/black
+
 /datum/loadout_item/belt_cloth
 	name = "Cloth Sash"
 	path = /obj/item/storage/belt/rogue/leather/sash
@@ -1071,7 +1087,7 @@ GLOBAL_LIST_EMPTY(loadout_items)
 //==========================
 // TRIUMPH LOADOUT ITEMS
 //==========================
-// 
+//
 // IMPORTANT INFORMATION ABOUT LOADOUT ITEMS:
 // All items selected from the loadout system receive the following automatic modifications:
 // - ARMOR: Set to ARMOR_PADDED_BAD (basic padded values) and ARMOR_INT_CHEST_LIGHT_BASE max integrity
@@ -1082,7 +1098,7 @@ GLOBAL_LIST_EMPTY(loadout_items)
 // - WEAPON DEFENSE: Reduced by 50% (wdefense halved)
 // - SMELT RESULT: Set to ash (cannot be smelted for materials)
 // - EXAMINATION: Items show as reproductions when examined
-// 
+//
 // These modifications ensure loadout items provide utility and customization
 // without bypassing game progression or economy balance.
 // without bypassing game progression or economy balance.
@@ -1464,7 +1480,7 @@ GLOBAL_LIST_EMPTY(loadout_items)
 // CLOTHING - ARMOR (Alphabetically Ordered)
 /datum/loadout_item/tri_desert_coat
 	name = "Desert Coat"
-	path = /obj/item/clothing/suit/roguetown/armor/gambeson/heavy/raneshen
+	path = /obj/item/clothing/suit/roguetown/armor/gambeson/heavy/zyb
 	triumph_cost = 3
 
 /datum/loadout_item/tri_duelist_coat
@@ -1557,6 +1573,10 @@ GLOBAL_LIST_EMPTY(loadout_items)
 	path = /obj/item/clothing/suit/roguetown/armor/leather/bikini
 	triumph_cost = 3
 
+/datum/loadout_item/corset
+	name = "Corset"
+	path = /obj/item/clothing/suit/roguetown/armor/corset
+
 /datum/loadout_item/tri_moose_hood
 	name = "Moose Hood (Shaman)"
 	path = /obj/item/clothing/head/roguetown/helmet/leather/shaman_hood
@@ -1597,14 +1617,14 @@ GLOBAL_LIST_EMPTY(loadout_items)
 	path = /obj/item/clothing/suit/roguetown/armor/leather/studded/psyaltrist
 	triumph_cost = 3
 
-/datum/loadout_item/tri_raneshen_coat
-	name = "Raneshen Coat"
-	path = /obj/item/clothing/suit/roguetown/armor/leather/heavy/coat/raneshen
+/datum/loadout_item/tri_zyb_coat
+	name = "Desert Coat"
+	path = /obj/item/clothing/suit/roguetown/armor/leather/heavy/coat/zyb
 	triumph_cost = 3
 
-/datum/loadout_item/tri_raneshen_gambeson
-	name = "Raneshen Gambeson"
-	path = /obj/item/clothing/suit/roguetown/armor/gambeson/heavy/raneshen
+/datum/loadout_item/tri_zyb_gambeson
+	name = "Desert Gambeson"
+	path = /obj/item/clothing/suit/roguetown/armor/gambeson/heavy/zyb
 	triumph_cost = 3
 
 /datum/loadout_item/tri_shamanic_coat
@@ -1638,9 +1658,9 @@ GLOBAL_LIST_EMPTY(loadout_items)
 	path = /obj/item/clothing/head/roguetown/roguehood/pontifex
 	triumph_cost = 2
 
-/datum/loadout_item/tri_raneshen_hijab
-	name = "Raneshen Hijab"
-	path = /obj/item/clothing/head/roguetown/roguehood/shalal/hijab/raneshen
+/datum/loadout_item/tri_zyb_hijab
+	name = "Desert Hijab"
+	path = /obj/item/clothing/head/roguetown/roguehood/shalal/hijab/zyb
 	triumph_cost = 2
 
 
@@ -1747,9 +1767,9 @@ GLOBAL_LIST_EMPTY(loadout_items)
 	path = /obj/item/clothing/under/roguetown/trou/leather/pontifex
 	triumph_cost = 2
 
-/datum/loadout_item/tri_raneshen_pants
-	name = "Raneshen Pants"
-	path = /obj/item/clothing/under/roguetown/trou/leather/pontifex/raneshen
+/datum/loadout_item/tri_zyb_pants
+	name = "Zybantine Pants"
+	path = /obj/item/clothing/under/roguetown/trou/leather/pontifex/zyb
 	triumph_cost = 2
 
 
@@ -2132,3 +2152,12 @@ GLOBAL_LIST_EMPTY(loadout_items)
 	name = "Vocal Talisman"
 	path = /obj/item/rogue/instrument/vocals
 	triumph_cost = 1
+
+
+// Unique stuff that doesn't quite fit anywhere else.
+
+/datum/loadout_item/kazengunite_smithing_manual
+	name = "Kajutsu no Densho"
+	desc = "A Kazengunite smithing manual. Unlocks kazengunite armor and weapon recipes at the anvil when read — requires knowledge of Kazengunese. "
+	path = /obj/item/book/granter/trait/kazengunite_smith
+	triumph_cost = 3
