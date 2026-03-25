@@ -21119,6 +21119,9 @@
 	pixel_x = 0;
 	pixel_y = 10
 	},
+/obj/machinery/light/rogue/campfire/fireplace{
+	pixel_y = 32
+	},
 /turf/open/floor/rogue/cobble,
 /area/rogue/indoors/town/dwarfin)
 "ern" = (
@@ -22152,6 +22155,9 @@
 "eBX" = (
 /obj/item/bedsheet/rogue/fabric,
 /obj/structure/bed/rogue/inn,
+/obj/machinery/light/rogue/campfire/fireplace{
+	pixel_y = 32
+	},
 /turf/open/floor/carpet/royalblack,
 /area/rogue/indoors/town/dwarfin)
 "eCa" = (
@@ -22479,9 +22485,6 @@
 	},
 /obj/item/bedsheet/rogue/fabric_double{
 	dir = 1
-	},
-/obj/structure/fluff/walldeco/rpainting/crown{
-	pixel_y = 32
 	},
 /turf/open/floor/carpet/royalblack,
 /area/rogue/indoors/town/dwarfin)
@@ -48838,6 +48841,12 @@
 /obj/structure/flora/roguegrass/swampweed,
 /turf/open/floor/rogue/AzureSand,
 /area/rogue/outdoors/beach)
+"kcK" = (
+/obj/structure/fireaxecabinet/south{
+	pixel_x = -32
+	},
+/turf/open/floor/carpet/royalblack,
+/area/rogue/indoors/town/dwarfin)
 "kcL" = (
 /turf/open/floor/rogue/ruinedwood/turned,
 /area/rogue/under/cave/skeletoncrypt)
@@ -66104,12 +66113,9 @@
 /area/rogue/under/town/basement)
 "nDB" = (
 /obj/structure/mineral_door/wood/donjon{
-	dir = 4;
 	locked = 1;
 	lockid = "dungeon";
-	name = "oubliette"
-	},
-/obj/effect/decal/cleanable/blood/tracks{
+	name = "The Salt Mines";
 	dir = 4
 	},
 /turf/open/floor/rogue/tile,
@@ -91399,10 +91405,9 @@
 	first_time_text = "The Grove"
 	})
 "sNy" = (
-/obj/structure/fireaxecabinet/south{
-	pixel_x = -32
+/obj/structure/fluff/walldeco/rpainting/crown{
+	pixel_y = 32
 	},
-/obj/structure/fluff/wallclock/r,
 /turf/open/floor/rogue/woodturned,
 /area/rogue/indoors/town/dwarfin)
 "sNz" = (
@@ -107895,6 +107900,9 @@
 /area/rogue/indoors/town/garrison)
 "wda" = (
 /obj/structure/table/wood,
+/obj/machinery/light/rogue/campfire/fireplace{
+	pixel_y = 32
+	},
 /turf/open/floor/rogue/woodturned,
 /area/rogue/indoors/town/dwarfin)
 "wdb" = (
@@ -114948,6 +114956,10 @@
 /obj/effect/spawner/lootdrop/roguetown/sewers,
 /turf/open/floor/rogue/concrete,
 /area/rogue/under/cave)
+"xzW" = (
+/obj/structure/fluff/wallclock/r,
+/turf/open/floor/carpet/royalblack,
+/area/rogue/indoors/town/dwarfin)
 "xzX" = (
 /turf/closed/wall/mineral/rogue/decostone/long/east_west,
 /area/rogue/indoors/cave)
@@ -200234,7 +200246,7 @@ uuS
 fQL
 uuS
 wqC
-uuS
+gEY
 uGH
 uGH
 urh
@@ -339977,7 +339989,7 @@ lwu
 nBS
 vAw
 vAw
-gIT
+nCh
 erk
 kCv
 aeh
@@ -453890,7 +453902,7 @@ lel
 vaz
 lvw
 lvw
-lvw
+vaz
 vmi
 iVE
 iWa
@@ -454342,7 +454354,7 @@ vuk
 lvw
 kCN
 xVL
-vaz
+lvw
 vmi
 iVE
 iWa
@@ -454787,14 +454799,14 @@ lwu
 vmi
 vmi
 lvw
-aeh
+kcK
 nWn
 uZh
 lel
 gtR
 pmk
 ung
-lvw
+cNB
 vmi
 iVE
 iWa
@@ -455245,8 +455257,8 @@ lvw
 fDr
 lvw
 xAs
-aeh
-cNB
+xzW
+lvw
 vmi
 iVE
 iWa
@@ -455691,11 +455703,11 @@ lwu
 vmi
 vmi
 kXy
-kXy
+nCh
 wda
 lvw
 wMe
-lvw
+nCh
 eBX
 kXy
 kXy
