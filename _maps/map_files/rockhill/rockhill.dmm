@@ -94148,7 +94148,6 @@
 /turf/open/floor/rogue/cobblerock,
 /area/rogue/outdoors/beach/harbor)
 "wqp" = (
-/obj/item/clothing/suit/roguetown/armor/hcorset,
 /obj/structure/closet/crate/roguecloset/dark{
 	keylock = 1;
 	locked = 1;
@@ -94156,10 +94155,11 @@
 	name = "Specialty Harness";
 	pixel_x = -4
 	},
-/obj/item/clothing/gloves/roguetown/harms,
-/obj/item/clothing/mask/rogue/hblinders,
-/obj/item/clothing/head/roguetown/hbit,
-/obj/item/clothing/shoes/roguetown/armor/hlegs,
+/obj/item/clothing/gloves/roguetown/leather/horsey,
+/obj/item/clothing/head/roguetown/horsey,
+/obj/item/clothing/mask/rogue/horsey,
+/obj/item/clothing/shoes/roguetown/boots/horsey,
+/obj/item/clothing/suit/roguetown/armor/leather/studded/bikini/horsey,
 /turf/open/floor/rogue/cobble/mossy,
 /area/rogue/indoors/town/bath)
 "wqD" = (

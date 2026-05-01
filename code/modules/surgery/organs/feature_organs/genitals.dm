@@ -123,18 +123,16 @@
 
 /obj/item/organ/vagina/proc/be_impregnated(mob/living/carbon/human/father)
 	if(!owner)
-		return
+		return FALSE
 	if(owner.stat == DEAD)
-		return
-	if(isseelie(owner))
-		to_chat(owner, span_love("Despite the surge of warmth filling me, I can't get pregnant."))
-		return
+		return FALSE
 	if(pregnant)
 		to_chat(owner, span_love("I feel a surge of warmth in my belly again..."))
-		return
+		return FALSE
 	to_chat(owner, span_love("I feel a surge of warmth in my belly, I’m definitely pregnant!"))
 	pregnant = TRUE
 	//TODO add a way to trigger lactating when pregnancy happens
+	return TRUE
 
 /obj/item/organ/breasts
 	name = "breasts"
