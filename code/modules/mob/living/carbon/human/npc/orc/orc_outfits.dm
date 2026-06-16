@@ -32,6 +32,15 @@
 			r_hand = /obj/item/rogueweapon/shield/wood // Help preserve integrity
 		if(3)
 			l_hand = /obj/item/rogueweapon/mace/cudgel/copper
+	belt = /obj/item/storage/belt/rogue/leather/rope
+	switch(rand(1, 100))
+		if(1 to 50)
+			beltr = /obj/item/storage/belt/rogue/pouch/coins/poor/
+		if(51 to 95)
+			beltr = null
+		if(96 to 100)
+			beltr = /obj/item/storage/belt/rogue/pouch/treasure/
+
 	H.STASTR = 11
 	H.STASPD = 8
 	H.STACON = 11
@@ -70,6 +79,19 @@
 			l_hand = /obj/item/rogueweapon/greataxe
 		if(5)
 			l_hand = /obj/item/rogueweapon/pick/militia
+	belt = /obj/item/storage/belt/rogue/leather/rope
+	if(prob(5))
+		beltl = /obj/item/reagent_containers/glass/bottle/alchemical/healthpot
+	switch(rand(1, 100))
+		if(1 to 50)
+			beltr = /obj/item/storage/belt/rogue/pouch/coins/poor/
+		if(1 to 95)
+			beltr = null
+		if(96 to 100)
+			beltr = /obj/item/storage/belt/rogue/pouch/treasure/
+	if(prob(5))
+		id = /obj/item/clothing/ring/gold
+
 	H.STASTR = 12 // GAGGER GAGGER GAGGER
 	H.STASPD = 8
 	H.STACON = 12
@@ -98,6 +120,19 @@
 	neck = /obj/item/clothing/neck/roguetown/coif
 	mask = /obj/item/clothing/mask/rogue/facemask
 	shoes = /obj/item/clothing/shoes/roguetown/boots/leather/reinforced
+	belt = /obj/item/storage/belt/rogue/leather/rope
+	if(prob(5))
+		beltl = /obj/item/reagent_containers/glass/bottle/alchemical/healthpot
+	switch(rand(1, 100))
+		if(1 to 50)
+			beltr = /obj/item/storage/belt/rogue/pouch/coins/poor/
+		if(51 to 95)
+			beltr = null
+		if(96 to 100)
+			beltr = /obj/item/storage/belt/rogue/pouch/treasure/
+	if(prob(5))
+		id = /obj/item/clothing/ring/gold
+
 	var/wepchoice = rand(1, 2)
 	switch(wepchoice)
 		if(1)
@@ -130,12 +165,25 @@
 	neck = /obj/item/clothing/neck/roguetown/chaincoif/iron
 	mask = /obj/item/clothing/mask/rogue/facemask
 	shoes = /obj/item/clothing/shoes/roguetown/boots/leather/reinforced
+	belt = /obj/item/storage/belt/rogue/leather/
+	if(prob(30))
+		beltl = /obj/item/reagent_containers/glass/bottle/alchemical/healthpot
+	switch(rand(1, 100))
+		if(1 to 50)
+			beltr = /obj/item/storage/belt/rogue/pouch/coins/poor/
+		if(51 to 95)
+			beltr = null
+		if(96 to 100)
+			beltr = /obj/item/storage/belt/rogue/pouch/treasure/
+	if(prob(50))
+		id = /obj/item/clothing/ring/gold
+
 	var/wepchoice = rand(1, 6)
 	switch(wepchoice)
 		if(1)
 			l_hand = /obj/item/rogueweapon/halberd/bardiche
 		if(2)
-			l_hand = /obj/item/rogueweapon/halberd
+			l_hand = /obj/item/rogueweapon/greatsword/zwei
 		if(3)
 			l_hand = /obj/item/rogueweapon/greataxe
 		if(4)

@@ -8,7 +8,7 @@
 	var/cog_accept = TRUE
 
 
-    // === CONTRAPTION CORE BEHAVIOR ===
+// === CONTRAPTION CORE BEHAVIOR ===
 /obj/item/clothing/gloves/roguetown/contraption/proc/battery_collapse(obj/O, mob/living/user)
 	to_chat(user, span_info("The [accepted_power_source.name] powering [src] fizzles into nothing!"))
 	playsound(src, pick('sound/combat/hits/onmetal/grille (1).ogg','sound/combat/hits/onmetal/grille (2).ogg'), 100, FALSE)
@@ -44,7 +44,8 @@
 	var/datum/beam/current_beam = null
 	var/active = FALSE
 	var/cooldowny
-
+	sewrepair = FALSE
+	anvilrepair = /datum/skill/craft/armorsmithing
 
 
 /obj/item/clothing/gloves/roguetown/contraption/voltic/attackby(obj/item/I, mob/user, params)
@@ -84,7 +85,7 @@
 		user.visible_message(span_warning("[src] settles down."))
 		user.update_inv_wear_id()
 
-    // === VOLTIC ZAP ===
+// === VOLTIC ZAP ===
 /obj/item/clothing/gloves/roguetown/contraption/voltic/proc/activate(mob/living/user)
 	if (!user)
 		return

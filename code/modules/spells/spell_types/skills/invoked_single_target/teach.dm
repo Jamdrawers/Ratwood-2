@@ -9,6 +9,7 @@
 	chargetime = 0
 	recharge_time = 30 SECONDS
 	antimagic_allowed = TRUE
+	range = 2
 
 /obj/effect/proc_holder/spell/invoked/teach/cast(list/targets, mob/user = usr)
 	. = ..()
@@ -37,25 +38,24 @@
 	/datum/skill/misc/lockpicking,
 	/datum/skill/labor/lumberjacking,
 
-    /datum/skill/craft/masonry,
-    /datum/skill/labor/mining,
-    /datum/skill/misc/music,
-    /datum/skill/misc/medicine,
+	/datum/skill/craft/masonry,
+	/datum/skill/labor/mining,
+	/datum/skill/misc/music,
+	/datum/skill/misc/medicine,
 
 
 
-    /datum/skill/craft/sewing,
-    /datum/skill/craft/smelting,
+	/datum/skill/craft/sewing,
+	/datum/skill/craft/smelting,
 	/datum/skill/misc/sneaking,
 	/datum/skill/misc/stealing,
 	/datum/skill/misc/swimming,
 
 	/datum/skill/craft/tanning,
 	/datum/skill/misc/tracking,
-	/datum/skill/craft/traps,
 
 	/datum/skill/misc/reading,
-    /datum/skill/misc/riding,
+	/datum/skill/misc/riding,
 
 	/datum/skill/craft/weaponsmithing,
 
@@ -72,7 +72,7 @@
 	/datum/language/kazengunese,
 	/datum/language/orcish,
 	/datum/language/otavan	
-    )
+	)
 	for(var/i = 1, i <= skill_choices.len, i++)
 		var/datum/skill/learn_item = skill_choices[i]
 		if((L.get_skill_level(learn_item) < SKILL_LEVEL_NOVICE) && !(learn_item in list(/datum/language/aavnic, /datum/language/celestial, /datum/language/draconic, /datum/language/dwarvish, /datum/language/elvish, /datum/language/etruscan, /datum/language/grenzelhoftian, /datum/language/gronnic, /datum/language/hellspeak, /datum/language/kazengunese, /datum/language/orcish, /datum/language/otavan)))

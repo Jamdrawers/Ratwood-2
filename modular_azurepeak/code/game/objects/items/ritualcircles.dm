@@ -111,8 +111,78 @@
 
 /obj/structure/ritualcircle/xylix
 	name = "Rune of Trickery"
+	desc = "A Holy Rune of Xylix. The air feels untrustworthy."
 	icon_state = "xylix_chalky"
-	desc = "A Holy Rune of Xylix. You can hear the wind, and distant bells, in the distance."
+	var/trickeryrites = list("Rite of the Pratfall", "Stagehand's Silence")
+
+/obj/structure/ritualcircle/xylix/attack_hand(mob/living/user)
+	if(!istype(user.patron, /datum/patron/divine/xylix))
+		to_chat(user, span_smallred("I don't know the proper rites for this..."))
+		return
+
+	if(!HAS_TRAIT(user, TRAIT_RITUALIST))
+		to_chat(user, span_smallred("I don't know the proper rites for this..."))
+		return
+
+	if(user.has_status_effect(/datum/status_effect/debuff/ritesexpended))
+		to_chat(user, span_smallred("I have performed enough rituals for the day..."))
+		return
+
+	var/riteselection = input(user, "Rituals of Trickery", src) as null|anything in trickeryrites
+	switch(riteselection)
+		if("Rite of the Pratfall")
+			if(!do_after(user, 40))
+				return
+			user.say("Hehe! Tippy toes and tumbling woes...")
+			playsound(loc, 'sound/misc/clownedhehe.ogg', 90, FALSE)
+
+			if(!do_after(user, 40))
+				return
+			user.say("Hoohoo! Step with care, or embrace the air!")
+			playsound(loc, 'sound/misc/clownedhohoho.ogg', 90, FALSE)
+
+			if(!do_after(user, 30))
+				return
+			user.say("Hahaha! Your slippery fate awaits every move! A pratfall a day keeps the dignity away!")
+			playsound(loc, 'sound/magic/decoylaugh.ogg', 90, FALSE)
+
+			icon_state = "xylix_active"
+			loc.visible_message(span_warning("[user] traces a mocking sigil upon the rune."))
+
+			for(var/mob/living/M in range(1, src))
+				M.apply_status_effect(/datum/status_effect/buff/xylix_pratfall)
+
+			user.apply_status_effect(/datum/status_effect/debuff/ritesexpended)
+			addtimer(CALLBACK(src, PROC_REF(reset_rune)), 120)
+
+		if("Stagehand's Silence")
+			if(!do_after(user, 50))
+				return
+			user.say("I CALL UPON THE MANY-FACED TRAGEDIAN!!")
+			playsound(loc, 'sound/misc/clownedhehe.ogg', 90, FALSE)
+
+			if(!do_after(user, 50))
+				return
+			user.say("PLAY YOUR HARP- LET EACH STRING DEAFEN MY FOES!!")
+			playsound(loc, 'sound/misc/clownedhohoho.ogg', 90, FALSE)
+
+			if(!do_after(user, 50))
+				return
+			user.say("--ON WITH THE SHOW!!")
+			to_chat(user, span_cultsmall("Every play needs its stagehands. Xylix will quicken the slow, speed your sneaking, and quiet your footsteps... for a time."))
+			playsound(loc, 'sound/magic/mockery.ogg', 90, FALSE, -1)
+			icon_state = "xylix_active"
+			stagehands_silence()
+			user.apply_status_effect(/datum/status_effect/debuff/ritesexpended)
+			addtimer(CALLBACK(src, PROC_REF(reset_rune)), 120)
+
+/obj/structure/ritualcircle/xylix/proc/stagehands_silence()
+	var/list/ritualtargets = view(1, loc)
+	for(var/mob/living/carbon/human/target in ritualtargets)
+		target.apply_status_effect(/datum/status_effect/buff/stagehands_silence)
+
+/obj/structure/ritualcircle/xylix/proc/reset_rune()
+	icon_state = "xylix_chalky"
 
 /obj/structure/ritualcircle/ravox
 	name = "Rune of Justice"
@@ -174,7 +244,7 @@
 	name = "Rune of Beasts"
 	desc = "A Holy Rune of Dendor. Becoming one with nature is to connect with ones true instinct."
 	icon_state = "dendor_chalky"
-	var/bestialrites = list("Rite of the Lesser Wolf")
+	var/bestialrites = list("Rite of the Lesser Wolf", "Borrowed Madness", "Spider Kinship")
 
 /obj/structure/ritualcircle/dendor/attack_hand(mob/living/user)
 	if(!..())
@@ -208,18 +278,103 @@
 							user.apply_status_effect(/datum/status_effect/debuff/ritesexpended)
 							spawn(120)
 								icon_state = "dendor_chalky"
+		if("Borrowed Madness")
+			if(do_after(user, 50))
+				user.say("I pray for strength...")
+				playsound(loc, 'sound/vo/mobs/vw/idle (1).ogg', 100, FALSE, -1)
+				if(do_after(user, 50))
+					user.say("I pray for pain...")
+					playsound(loc, 'sound/vo/mobs/vw/idle (4).ogg', 100, FALSE, -1)
+					if(do_after(user, 50))
+						loc.visible_message(span_warning("[user] produces an eerie sound as they titter quietly, softly weeping. Their body twitches ever so slightly..."))
+						playsound(loc, 'sound/vo/mobs/vw/bark (1).ogg', 100, FALSE, -1)
+						if(do_after(user, 30))
+							icon_state = "dendor_active"
+							loc.visible_message(span_warning("[user] suddenly snaps their head upward, letting out a twisted howl!"))
+							playsound(loc, 'sound/vo/mobs/wwolf/howl (2).ogg', 100, FALSE, -1)
+							borrowedmadness(src)
+							user.apply_status_effect(/datum/status_effect/debuff/ritesexpended)
+							spawn(120)
+								icon_state = "dendor_chalky"
+		if("Spider Kinship")
+			if(do_after(user, 50))
+				user.say("I call to the ruthless wilds,")
+				playsound(loc, 'sound/vo/mobs/spider/idle (1).ogg', 100, FALSE, -1)
+				if(do_after(user, 50))
+					user.say("... grant me an agile form of your dominion..!")
+					playsound(loc, 'sound/vo/mobs/spider/idle (3).ogg', 100, FALSE, -1)
+					if(do_after(user, 30))
+						icon_state = "dendor_active"
+						loc.visible_message(span_warning("[user] seizes up, suddenly covered in a mess of silky webs, which then slough away into a sticky pile!"))
+						playsound(loc, 'sound/vo/mobs/spider/pain.ogg', 100, FALSE, -1)
+						spiderkinship(src)
+						user.apply_status_effect(/datum/status_effect/debuff/ritesexpended)
+						spawn(120)
+							icon_state = "dendor_chalky"
 
 /obj/structure/ritualcircle/dendor/proc/lesserwolf(src)
 	var/ritualtargets = view(1, loc)
 	for(var/mob/living/carbon/human/target in ritualtargets)
 		target.apply_status_effect(/datum/status_effect/buff/lesserwolf)
 
+/obj/structure/ritualcircle/dendor/proc/borrowedmadness(src)
+	var/ritualtargets = view(1, loc)
+	for(var/mob/living/carbon/human/target in ritualtargets)
+		if(!istype(target.patron, /datum/patron/divine/dendor))
+			to_chat(target, span_warning("The ritual's power does not recognize me..."))
+			continue
+		to_chat(target, span_userdanger("Do you like hurting other people?"))
+		target.flash_fullscreen("redflash3")
+		target.emote("agony")
+		target.Unconscious(200)
+		target.Knockdown(200)
+		var/obj/effect/proc_holder/spell/self/wildshape/ws = target.mind?.get_spell(/obj/effect/proc_holder/spell/self/wildshape)
+		if(ws)
+			var/form_path = /mob/living/carbon/human/species/wildshape/dendormole
+			if(!(form_path in ws.possible_shapes))
+				ws.possible_shapes += form_path
+				to_chat(target, span_notice("The Moss Crawler form stirs within my soul..."))
+				addtimer(CALLBACK(src, PROC_REF(remove_ritual_form), target, form_path), 30 MINUTES)
+		else
+			to_chat(target, span_warning("I lack the Beast Form ability to channel this power..."))
+
+/obj/structure/ritualcircle/dendor/proc/spiderkinship(src)
+	var/ritualtargets = view(1, loc)
+	for(var/mob/living/carbon/human/target in ritualtargets)
+		if(!istype(target.patron, /datum/patron/divine/dendor))
+			to_chat(target, span_warning("The ritual's power does not recognize me..."))
+			continue
+		to_chat(target, span_userdanger("The webs of madness and nature whisper to me. The webs are eternal. Long live the Nest!"))
+		target.flash_fullscreen("redflash3")
+		target.emote("agony")
+		target.Unconscious(100)
+		target.Knockdown(200)
+		var/obj/effect/proc_holder/spell/self/wildshape/ws = target.mind?.get_spell(/obj/effect/proc_holder/spell/self/wildshape)
+		if(ws)
+			var/form_path = /mob/living/carbon/human/species/wildshape/mirecrawler
+			if(!(form_path in ws.possible_shapes))
+				ws.possible_shapes += form_path
+				to_chat(target, span_notice("The Mire Crawler form stirs within my soul..."))
+				addtimer(CALLBACK(src, PROC_REF(remove_ritual_form), target, form_path), 30 MINUTES)
+		else
+			to_chat(target, span_warning("I lack the Beast Form ability to channel this power..."))
+
+/// Removes a temporary ritual form from the druid's Beast Form wheel when the duration expires.
+/obj/structure/ritualcircle/dendor/proc/remove_ritual_form(mob/living/carbon/human/target, form_path)
+	if(QDELETED(target) || !target.mind)
+		return
+	var/obj/effect/proc_holder/spell/self/wildshape/ws = target.mind.get_spell(/obj/effect/proc_holder/spell/self/wildshape)
+	if(ws && (form_path in ws.possible_shapes))
+		ws.possible_shapes -= form_path
+		to_chat(target, span_warning("The borrowed form fades from my soul..."))
+
+
 
 /obj/structure/ritualcircle/malum
 	name = "Rune of Forge"
 	desc = "A Holy Rune of Malum. A hammer and heat, to fix any imperfections with."
 	icon_state = "malum_chalky"
-var/forgerites = list("Ritual of Blessed Reforgance")
+	var/forgerites = list("Ritual of Blessed Reforgance")
 
 /obj/structure/ritualcircle/malum/attack_hand(mob/living/user)
 	if(!..())
@@ -397,7 +552,7 @@ var/forgerites = list("Ritual of Blessed Reforgance")
 		var/current_athletics = user.get_skill_level(/datum/skill/misc/athletics)
 		if(current_skill < 4)
 			user.adjust_skillrank_up_to(skill_to_teach, 4)
-			to_chat(user, span_notice("Knowledge of [skill_to_teach] floods your mind!"))
+			to_chat(user, span_notice("Knowledge of [skill_to_teach.name] floods your mind!"))
 		if(current_athletics < 6)
 			user.adjust_skillrank_up_to(/datum/skill/misc/athletics, 6)
 			to_chat(user, span_notice("Your endurance swells!"))
@@ -477,7 +632,7 @@ var/forgerites = list("Ritual of Blessed Reforgance")
 	rune_type = /obj/structure/active_abyssor_rune/tidal
 	upgraded_rune_type = null
 
-/obj/item/abyssal_marker/volatile/Initialize()
+/obj/item/abyssal_marker/volatile/Initialize(mapload)
 	. = ..()
 	creation_time = world.time
 	var/area/A = get_area(src)
@@ -554,7 +709,7 @@ var/forgerites = list("Ritual of Blessed Reforgance")
 /obj/structure/active_abyssor_rune/greater
 	spire_type = /obj/structure/crystal_spire/greater
 
-/obj/structure/active_abyssor_rune/Initialize()
+/obj/structure/active_abyssor_rune/Initialize(mapload)
 	. = ..()
 	addtimer(CALLBACK(src, .proc/spawn_spire), spawn_time)
 	src.visible_message(span_userdanger("A glowing, pulsating rune etches itself into the ground. Reality cracks visibly around it! Something is coming!"))
@@ -605,7 +760,7 @@ var/forgerites = list("Ritual of Blessed Reforgance")
 	max_fiends = 0
 	turf_to_use = /turf/open/water/ocean/deep
 
-/obj/structure/crystal_spire/Initialize()
+/obj/structure/crystal_spire/Initialize(mapload)
 	. = ..()
 	spawn_fiends(1, initial_fiend)
 
@@ -939,9 +1094,6 @@ var/forgerites = list("Ritual of Blessed Reforgance")
 		target.visible_message(span_danger("[target] is unmade by divine magic! The Toll is accepted, and [target] is dragged to ever-death!"), span_userdanger("I'm unmade by divine magic!"))
 		target.gib()
 		return
-	if(alert(target, "A Toll is being offered for your soul, BREAK FREE?", "Revival", "I need to wake up", "Don't let me go") != "I need to wake up")
-		target.visible_message(span_notice("Nothing happens. They are not being let go."))
-		return
 	target.adjustOxyLoss(-target.getOxyLoss()) //Ye Olde CPR
 	if(!target.revive(full_heal = FALSE))
 		to_chat(user, span_warning("Nothing happens."))
@@ -1027,7 +1179,7 @@ var/forgerites = list("Ritual of Blessed Reforgance")
 	desc = "A Holy Rune of Eora. A gentle warmth and joy spreads across your soul."
 	icon_state = "eora_chalky"
 
-	var/peacerites = list("Rite of Pacification")
+	var/peacerites = list("Rite of Pacification", "Rite of the Open Hearth")
 
 /obj/structure/ritualcircle/eora/attack_hand(mob/living/user)
 	if((user.patron?.type) != /datum/patron/divine/eora)
@@ -1054,6 +1206,35 @@ var/forgerites = list("Ritual of Blessed Reforgance")
 							user.apply_status_effect(/datum/status_effect/debuff/ritesexpended)
 							spawn(120)
 								icon_state = "eora_chalky"
+		if("Rite of the Open Hearth")
+			var/onrune = view(1, loc)
+			var/list/folksonrune = list()
+			for(var/mob/living/carbon/human/persononrune in onrune)
+				if(HAS_TRAIT(persononrune, TRAIT_EXTEROCEPTION))//Only works on Eorans
+					folksonrune += persononrune
+			if(!folksonrune.len)
+				to_chat(user, span_warning("There are no Eorans on the rune to perform this rite on."))
+				return
+			var/target = input(user, "Choose a host") as null|anything in folksonrune
+			if(!target)
+				return
+			user.say("I stand before you Mother to beg your ear and swear an oath!!")
+			if(!do_after(user, 5 SECONDS))
+				return
+			user.say("To stoke no anguish! To cause no pain!!")
+			if(!do_after(user, 5 SECONDS))
+				return
+			user.say("To mend what is frayed and redeem what has strayed!!")
+			if(!do_after(user, 5 SECONDS))
+				return
+			user.say("To shelter the lost and warm the forgotten!!")
+			if(!do_after(user, 5 SECONDS))
+				return
+			icon_state = "eora_active"
+			user.apply_status_effect(/datum/status_effect/debuff/ritesexpended)
+			eoranaura(target)
+			spawn(120)
+				icon_state = "eora_chalky"
 
 /obj/structure/ritualcircle/eora/proc/pacify(src)
 	var/ritualtargets = view(0, loc)
@@ -1061,6 +1242,14 @@ var/forgerites = list("Ritual of Blessed Reforgance")
 		loc.visible_message(span_warning("[target] sways like windchimes in the wind..."))
 		target.visible_message(span_green("I feel the burdens of my heart lifting. Something feels very wrong... I don't mind at all..."))
 		target.apply_status_effect(/datum/status_effect/buff/pacify)
+
+/obj/structure/ritualcircle/eora/proc/eoranaura(mob/living/carbon/human/target)
+	loc.visible_message(span_good("[target]'s form becomes enveloped in calming aura."))
+	spawn(20)
+		target.apply_status_effect(/datum/status_effect/eoranaura)
+		playsound(target, 'sound/magic/eora_bless.ogg', 90, FALSE, -1)
+		to_chat(target, span_boldred("I can do no HARM."))
+		ADD_TRAIT(target, TRAIT_PACIFISM, TRAIT_MIRACLE)
 
 
 
@@ -1071,7 +1260,7 @@ var/forgerites = list("Ritual of Blessed Reforgance")
 	name = "Rune of Progress"
 	desc = "A Holy Rune of ZIZO. Progress at any cost."
 	icon_state = "zizo_chalky"
-	var/zizorites = list("Rite of Armaments", "Rite of the Dark Crystal", "Conversion", "Path of Rituos")
+	var/zizorites = list("Rite of Armaments", "Rite of the Dark Crystal", "Conversion")
 
 /obj/structure/ritualcircle/zizo/attack_hand(mob/living/user)
 	if(!..())
@@ -1160,37 +1349,6 @@ var/forgerites = list("Ritual of Blessed Reforgance")
 			zizoconversion(target) // removed CD bc it's gonna be coal to sit there and wait for it to go off rite cooldown, this one is purely social in its nature
 			spawn(120)
 				icon_state = "zizo_chalky"
-		if("Path of Rituos")
-			if(!Adjacent(user))
-				to_chat(user, "You must stand close to the rune to receive Zizo's blessing.")
-				return
-			var/list/valids_on_rune = list()
-			for(var/mob/living/carbon/human/peep in range(0, loc))
-				if(HAS_TRAIT(peep, TRAIT_CABAL))
-					valids_on_rune += peep
-			if(!valids_on_rune.len)
-				loc.visible_message(span_cult("THE RITE REJECTS ONE NOT OF THE CABAL!"))
-				return
-			var/mob/living/carbon/human/target = input(user, "Choose a host") as null|anything in valids_on_rune
-			if(!target || QDELETED(target) || target.loc != loc)
-				return
-			if(!do_after(user, 5 SECONDS))
-				return
-			user.say("ZIZO! ZIZO! DAME OF PROGRESS!!")
-			if(!do_after(user, 5 SECONDS))
-				return
-			user.say("ZIZO! ZIZO! HEED MY CALL!!")
-			if(!do_after(user, 5 SECONDS))
-				return
-			user.say("ZIZO! ZIZO! STRIP OUR BONE OF ANY FLESH!!")
-			if(!do_after(user, 5 SECONDS))
-				return
-			icon_state = "zizo_active"
-			rituosbone(target)
-			user.apply_status_effect(/datum/status_effect/debuff/ritesexpended)
-			spawn(120)
-				icon_state = "zizo_chalky"
-
 
 /obj/structure/ritualcircle/zizo/proc/zizoarmaments(mob/living/carbon/human/target)
 	if(!HAS_TRAIT(target, TRAIT_CABAL))
@@ -1226,87 +1384,16 @@ var/forgerites = list("Ritual of Blessed Reforgance")
 	pants = /obj/item/clothing/under/roguetown/platelegs/zizo
 	shoes = /obj/item/clothing/shoes/roguetown/boots/armor/zizo
 	gloves = /obj/item/clothing/gloves/roguetown/plate/zizo
-	head = /obj/item/clothing/head/roguetown/helmet/heavy/zizo
 	backr = /obj/item/rogueweapon/sword/long/zizo
 	neck = /obj/item/clothing/neck/roguetown/bevor
 	H.mind.AddSpell(new /obj/effect/proc_holder/spell/invoked/mending/lesser)
-
-
-/obj/structure/ritualcircle/zizo/proc/rituosbone(mob/living/carbon/human/target)
-	if(!target || QDELETED(target) || target.loc != loc)
-		to_chat(usr, "Selected target is not on the rune! [target.p_they(TRUE)] must be directly on top of the rune to receive Zizo's blessing.")
-		return
-	if (!HAS_TRAIT(target, TRAIT_CABAL))
-		loc.visible_message(span_cult("THE RITE REJECTS ONE NOT OF THE CABAL!"))
-		return
-	if (target.mob_biotypes & MOB_UNDEAD)
-		loc.visible_message(span_cult("YOU HAVE NO MORE LYFE TO GIVE, FOR YOUR HEART DOES NOT BEAT!"))
-		return
-	if (target.mind?.has_antag_datum(/datum/antagonist/vampire))
-		loc.visible_message(span_cult("YOU HAVE NO MORE LYFE TO GIVE, FOR YOUR HEART DOES NOT BEAT, CHILDE OF KAIN!"))
-		return
-	if (target.mind?.has_antag_datum(/datum/antagonist/werewolf/lesser))
-		loc.visible_message(span_cult("YOU ARE CURSED BY DENDOR, UNDESERVING OF UNLYFE!"))
-		return
-	target.Stun(60)
-	target.Knockdown(60)
-	to_chat(target, span_userdanger("UNIMAGINABLE PAIN!"))
-	target.emote("Agony")
-	playsound(loc, 'sound/misc/astratascream.ogg', 50)
-	loc.visible_message(span_cult("The pallor of the grave descends across [target]'s skin in a wave of arcyne energy... Then, their flesh is flayed, revealing a ghastly bone, blood splattering all around them."))
-	spawn(20)
-		playsound(loc, 'sound/combat/dismemberment/dismem (6).ogg', 50)
-		playsound(target, 'sound/health/slowbeat.ogg', 50)
-		target.mind?.RemoveSpell(new /obj/effect/proc_holder/spell/targeted/touch/prestidigitation) // gotta remove presiistitititginanon if you had one to avoid getting double
-		ADD_TRAIT(target, TRAIT_NOHUNGER, "[type]")
-		ADD_TRAIT(target, TRAIT_NOBREATH, "[type]")
-		ADD_TRAIT(target, TRAIT_NOPAIN, "[type]")
-		ADD_TRAIT(target, TRAIT_TOXIMMUNE, "[type]")
-		ADD_TRAIT(target, TRAIT_STEELHEARTED, "[type]")
-		ADD_TRAIT(target, TRAIT_INFINITE_STAMINA, "[type]")
-		ADD_TRAIT(target, TRAIT_BLOODLOSS_IMMUNE, "[type]")
-		ADD_TRAIT(target, TRAIT_LIMBATTACHMENT, "[type]")
-		ADD_TRAIT(target, TRAIT_EASYDISMEMBER, "[type]")
-		if (!HAS_TRAIT(target, TRAIT_ARCYNE_T3) && !HAS_TRAIT(target, TRAIT_ARCYNE_T4) || HAS_TRAIT(target, TRAIT_ARCYNE_T2))
-			REMOVE_TRAIT(target, TRAIT_ARCYNE_T2, "[type]")
-			ADD_TRAIT(target, TRAIT_ARCYNE_T3, "[type]")
-		if(!HAS_TRAIT(target, TRAIT_OVERTHERETIC))
-			ADD_TRAIT(target, TRAIT_OVERTHERETIC, TRAIT_MIRACLE)
-		target.dna.species.species_traits |= NOBLOOD
-		target.change_stat("speed", -1)
-		target.change_stat("constitution", -2)
-		var/arcyne_level = target.get_skill_level(/datum/skill/magic/arcane) // mages get better spellcasting skill, still no access to the greater fireball sloppp, should they??
-		if (arcyne_level >= 3)
-			target.adjust_skillrank(/datum/skill/magic/arcane, 1, TRUE)
-		else
-			target.adjust_skillrank(/datum/skill/magic/arcane, 3, TRUE)
-		target.mind?.AddSpell(new /obj/effect/proc_holder/spell/targeted/touch/prestidigitation) // gotta remove if you already have it fuck?
-		target.mind?.adjust_spellpoints(18)
-		target.mob_biotypes |= MOB_UNDEAD
-		spawn(40)
-			to_chat(target, span_purple("They are ignorant, backwards, without hope. You. You will be powerful."))
-		var/obj/item/bodypart/no_penis = target.getorganslot(ORGAN_SLOT_PENIS)
-		if(no_penis)
-			qdel(no_penis)
-		var/obj/item/bodypart/no_vagina = target.getorganslot(ORGAN_SLOT_VAGINA)
-		if(no_vagina)
-			qdel(no_vagina)
-		var/obj/item/bodypart/no_balls = target.getorganslot(ORGAN_SLOT_TESTICLES)
-		if(no_balls)
-			qdel(no_balls)
-		var/obj/item/bodypart/no_breasts = target.getorganslot(ORGAN_SLOT_BREASTS)
-		if(no_breasts)
-			qdel(no_breasts)
-		var/list/body_parts = target.bodyparts.Copy()
-		for(var/obj/item/bodypart/part in body_parts)
-			part.skeletonize(FALSE)
-		target.update_body_parts()
-		var/list/eyes_replaced = target.internal_organs.Copy()
-		var/obj/item/organ/eyes/eyes = target.getorganslot(eyes_replaced) // #define ORGAN_SLOT_PENIS "penis" ORGAN_SLOT_TESTICLES "testicles" ORGAN_SLOT_BREASTS "breasts" ORGAN_SLOT_VAGINA "vagina" do I wanna bother
-		eyes = new /obj/item/organ/eyes/night_vision/zombie
-		eyes.Insert(target)
-		target.update_body_parts()
-		target.ritual_skeletonization = TRUE
+	var/helmets = list("BARBUTE - VISORED", "FROGMOUTH - NECK PROTECTION")
+	var/helmet_choice = input(H, "Choose your helmet.", "PROTECTION FROM THE LADY") as anything in helmets
+	switch(helmet_choice)
+		if("BARBUTE - VISORED")
+			head = /obj/item/clothing/head/roguetown/helmet/heavy/zizo
+		if("FROGMOUTH - NECK PROTECTION")
+			head = /obj/item/clothing/head/roguetown/helmet/heavy/frogmouth/zizo
 
 /obj/structure/ritualcircle/zizo/proc/zizoconversion(mob/living/carbon/human/target)
 	if(!target || QDELETED(target) || target.loc != loc)
@@ -1859,7 +1946,7 @@ var/forgerites = list("Ritual of Blessed Reforgance")
 	name = "Rune of Hedonism"
 	desc = "A Holy Rune of Baotha. Relief for the broken hearted."
 	icon_state = "baotha_chalky"
-	var/baotharites = list("Conversion", "Unholy Boon of Fertility")
+	var/baotharites = list("Conversion", "Unholy Boon of Fertility", "Rite of Armaments")
 
 /obj/structure/ritualcircle/baotha/attack_hand(mob/living/user)
 	if((user.patron?.type) != /datum/patron/inhumen/baotha)
@@ -1916,10 +2003,35 @@ var/forgerites = list("Ritual of Blessed Reforgance")
 					if(do_after(user, 50))
 						user.say("Let them burn for thee alone!")
 						if(do_after(user, 50))
-							icon_state = "baotha_active" 
+							icon_state = "baotha_active"
 							baothablessing(target)
 							spawn(120)
 								icon_state = "baotha_chalky"
+		if("Rite of Armaments")
+			var/onrune = view(1, loc)
+			var/list/folksonrune = list()
+			for(var/mob/living/carbon/human/persononrune in onrune)
+				if(HAS_TRAIT(persononrune, TRAIT_DEPRAVED))
+					folksonrune += persononrune
+			var/target = input(user, "Choose a host") as null|anything in folksonrune
+			if(!target)
+				return
+			if(!do_after(user, 5 SECONDS))
+				return
+			user.say("Lady, my Lady...")
+			if(!do_after(user, 5 SECONDS))
+				return
+			user.say("Wrap thee in darkness, swaddle thee in cold bliss, and armor thee in desire...")
+			if(!do_after(user, 5 SECONDS))
+				return
+			user.say("Let all those who look upon me see thy beauty and despair!!")
+			if(!do_after(user, 5 SECONDS))
+				return
+			icon_state = "baotha_active"
+			user.apply_status_effect(/datum/status_effect/debuff/ritesexpended)
+			baothaarmor(target)
+			spawn(120)
+				icon_state = "baotha_active"
 
 /obj/structure/ritualcircle/baotha/proc/baothaconversion(mob/living/carbon/human/target)
 	if(!target || QDELETED(target) || target.loc != loc)
@@ -1992,6 +2104,11 @@ var/forgerites = list("Ritual of Blessed Reforgance")
 		loc.visible_message(span_cult("[target] moans and shivers on top of the rune. Lashes of purple flame dance across their lower abdomen as a new marking appears against their form."))
 		spawn(20)
 			var/mutable_appearance/marking_overlay = mutable_appearance('icons/roguetown/misc/baotha_marking.dmi', "marking_[target.gender == "male" ? "m" : "f"]", -BODY_LAYER)
+			if(isdwarf(target) || isgoblinp(target) || iskobold(target) || iscritter(target))
+				if(target.gender == MALE)
+					marking_overlay.pixel_y -= 6
+				else
+					marking_overlay.pixel_y -= 4
 			target.add_overlay(marking_overlay)
 			target.update_body_parts()
 			playsound(target, 'sound/health/fastbeat.ogg', 60)
@@ -2009,6 +2126,29 @@ var/forgerites = list("Ritual of Blessed Reforgance")
 		target.emote("Agony")
 		target.apply_damage(100, BRUTE, BODY_ZONE_CHEST)
 		loc.visible_message(span_cult("[target] is violently thrashing atop the rune, writhing, as they dare to defy Baotha."))
+
+/obj/structure/ritualcircle/baotha/proc/baothaarmor(mob/living/carbon/human/target)
+	if(!HAS_TRAIT(target, TRAIT_DEPRAVED))
+		loc.visible_message(span_cult("THE RITE REJECTS ONE NOT OF HER LOVE"))
+		return
+	target.Stun(60)
+	target.Knockdown(60)
+	to_chat(target, span_userdanger("DELECTABLE PAIN!"))
+	target.emote("Agony")
+	playsound(loc, 'sound/combat/newstuck.ogg', 50)
+	if(HAS_TRAIT(target, TRAIT_INFINITE_STAMINA) || (target.mob_biotypes & MOB_UNDEAD))
+		loc.visible_message(span_cult("Great hooks come from the rune, embedding into [target]'s ankles, pulling them onto the rune. Then, into their wrists. As their black, rotten lux is torn from their chest, the very essence of their body surges to form it into armor. "))
+		target.Paralyze(120)
+	else
+		loc.visible_message(span_cult("Great hooks come from the rune, embedding into [target]'s ankles, pulling them onto the rune. Then, into their wrists. Their lux is torn from their chest, and reforms into armor. "))
+	spawn(20)
+		playsound(loc, 'sound/combat/hits/onmetal/grille (2).ogg', 50)
+		target.equipOutfit(/datum/outfit/job/roguetown/baothaarmor)
+		target.apply_status_effect(/datum/status_effect/debuff/devitalised)
+		if(!HAS_TRAIT(target, TRAIT_OVERTHERETIC))
+			ADD_TRAIT(target, TRAIT_OVERTHERETIC, TRAIT_MIRACLE)
+		spawn(40)
+			to_chat(target, span_purple("All will love you and despair."))
 
 //TIME FOR THE ONE. Exclusive to ABSOLVERS. Allowing conversion, deconversion and removal of rite armour.
 //'Lesser' expenditure allows us to have a stopgap to this, while not entirely making poultice farming useless.

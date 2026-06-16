@@ -1,6 +1,6 @@
 /obj/item/merctoken
 	name = "writ of commendation"
-	desc = "A small, palm-fitting bound scroll - a writ of commendation for a mercenary in the Duchy of Rotwood Vale."
+	desc = "A small, palm-fitting bound scroll - a writ of commendation for a mercenary of the Realm."
 	icon_state = "merctoken"
 	icon = 'modular_azurepeak/icons/clothing/mercmedals.dmi'
 	lefthand_file = 'icons/mob/inhands/misc/food_lefthand.dmi'
@@ -32,7 +32,7 @@
 				signeejob = user.mind.assigned_role
 				visible_message("<span class='warning'>[user] writes their name down on the token.</span>")
 				playsound(src, 'sound/items/write.ogg', 100, FALSE)
-				desc = "A small, palm-fitting bound scroll that can be sent by mail to the Guild. Most of the fine print is unintelligible, save for one bold SIGNEE: [signee], [signeejob] of Rotwood Vale."
+				desc = "A small, palm-fitting bound scroll that can be sent by mail to the Guild. Most of the fine print is unintelligible, save for one bold SIGNEE: [signee], [signeejob] of The Realm."
 				signed = 1
 				return
 		else
@@ -58,7 +58,7 @@
 
 /obj/item/clothing/neck/roguetown/luckcharm/mercmedal/blackoak
 	name = "guardian's seedpouch"
-	desc = "A pouch, sealed tight, bearing the acorn of an oak native to the vale. May your end be a new beginning for Rotwood Vale."
+	desc = "A pouch, sealed tight, bearing the acorn of an oak native to the vale. May your end be a new beginning for the Realm."
 	icon_state = "blackoak_pouch"
 
 /obj/item/clothing/neck/roguetown/luckcharm/mercmedal/condottiero
@@ -69,7 +69,7 @@
 
 /obj/item/clothing/neck/roguetown/luckcharm/mercmedal/desertrider
 	name = "desert rider's sash"
-	desc = "A luxuriant golden chain worn about the shoulders or neck, a sign of high honor in distant Raneshan. Some claim these are a testament to the origins of the Desert Riders in distant slave-fighting pits, but \
+	desc = "A luxuriant golden chain worn about the shoulders or neck, a sign of high honor in distant Zybantium. Some claim these are a testament to the origins of the Desert Riders in distant slave-fighting pits, but \
 	others think them marks of favor from the highest echelons of the Empire. The desert riders confirm neither rumour."
 	icon_state = "rider_sash"
 
@@ -87,7 +87,7 @@
 
 /obj/item/clothing/neck/roguetown/luckcharm/mercmedal/atgervi
 	name = "northmanne's idol"
-	desc = "A humble token of tightly-wound canvas, fur, and wood. A piece of home, clutched tight against the chest. Feel its heart beat in tyme with your own. Even here, in the distant vale, \
+	desc = "A humble token of tightly-wound canvas, fur, and wood. A piece of home, clutched tight against the chest. Feel its heart beat in tyme with your own. Even here, in this distant realm, \
 	the gods walk, and they walk with you."
 	icon_state = "atgervi_idol"
 
@@ -132,3 +132,15 @@
 	name = "petrified larvae charm"
 	desc = "The husk of a desiccated beespider larva, passed down within the ranks of those whose names have been struck from dark elven history. The old tyranny's uprooting would be their last act of true valor."
 	icon_state = "spider"
+
+/obj/item/clothing/neck/roguetown/luckcharm/mercmedal/oathmarked
+	name = "writ of service"
+	desc = "An old, decaying scroll of some sort. Marked with odd stains and liable to tear if you're too rough."
+	icon_state = "oathmarked_writ"
+
+/obj/item/clothing/neck/roguetown/luckcharm/mercmedal/oathmarked/examine(mob/user)
+	. = ..()
+	if(isdracon(user))
+		. += "<small>With the destruction of an old empire, came a great sadness. A profound longing for what was lost. \
+		No greater is this felt than by those who'd lyved it, such as the ones who carry this now. A relic of daes gone by. \
+		<br>Where were you, when it all came to an end? Are you not the <b>hero</b>?</small>"

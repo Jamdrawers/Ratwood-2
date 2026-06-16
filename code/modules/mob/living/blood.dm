@@ -15,7 +15,7 @@
 		to_chat(src, span_warning("The blood soaks through my bandage."))
 
 /mob/living/carbon/monkey/handle_blood()
-	if((bodytemperature <= TCRYO) || HAS_TRAIT(src, TRAIT_HUSK)) //cryosleep or husked people do not pump the blood.
+	if(HAS_TRAIT(src, TRAIT_HUSK)) //husked people do not pump the blood.
 		return
 	//Blood regeneration if there is some space
 	if(blood_volume < BLOOD_VOLUME_NORMAL)
@@ -24,7 +24,7 @@
 			adjustOxyLoss(round((BLOOD_VOLUME_NORMAL - blood_volume) * 0.02, 1))
 
 /mob/living/proc/handle_blood()
-	if((bodytemperature <= TCRYO) || HAS_TRAIT(src, TRAIT_HUSK)) //cryosleep or husked people do not pump the blood.
+	if(HAS_TRAIT(src, TRAIT_HUSK)) //husked people do not pump the blood.
 		return
 
 	blood_volume = min(blood_volume, BLOOD_VOLUME_MAXIMUM)
@@ -79,7 +79,7 @@
 
 // Takes care blood loss and regeneration
 /mob/living/carbon/handle_blood()
-	if((bodytemperature <= TCRYO) || HAS_TRAIT(src, TRAIT_HUSK)) //cryosleep or husked people do not pump the blood.
+	if(HAS_TRAIT(src, TRAIT_HUSK)) //husked people do not pump the blood.
 		return
 
 	blood_volume = min(blood_volume, BLOOD_VOLUME_MAXIMUM)
@@ -211,6 +211,9 @@
 		return FALSE
 	if(!iscarbon(src) && !HAS_TRAIT(src, TRAIT_SIMPLE_WOUNDS))
 		return FALSE
+
+	if(bodytemperature <= TCRYO) //cold blood is viscous, bleeds slower
+		amt *= 0.5
 
 	//For each CON above 10, we bleed slower.
 	//Consequently, for each CON under 10 we bleed faster.
@@ -396,6 +399,29 @@
 		return
 	new /obj/effect/decal/cleanable/blood/splatter(T)
 	T?.pollute_turf(/datum/pollutant/metallic_scent, 30)
+
+
+//to add splatters of blood onto nearby walls. When provided a certain force amount, also increases the range at which blood can appear on the walls.
+//spill_amount also increases the amount of times to try and spill more blood; Particularly to give better feedback to dismembering something.
+/mob/living/proc/add_splatter_wall(mob/M, turf/T, force, spill_amount)
+	var/force_distance = force / 10
+	if(force <= 0) //If the force doesn't do enough damage then dont do anything.
+		return
+	if(!iscarbon(src))
+		if(!HAS_TRAIT(src, TRAIT_SIMPLE_WOUNDS))
+			return
+	if(!get_blood_id())
+		return
+	if(!T)
+		T = get_turf(src)
+	for(var/turf/closed/w in orange(abs(force_distance), T))
+		var/loc = get_step(T, M)
+		new /obj/effect/decal/cleanable/blood/splatter/walls(loc)
+		if(spill_amount > 0)
+			spill_amount--
+			continue
+		else
+			break
 
 /mob/living/proc/add_drip_floor(turf/T, amt)
 	if(!iscarbon(src))

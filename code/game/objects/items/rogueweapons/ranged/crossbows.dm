@@ -29,6 +29,7 @@
 	obj_flags = UNIQUE_RENAME
 	damfactor = 1.2
 	accfactor = 1.1
+	damage_from_perception = FALSE
 
 /obj/item/gun/ballistic/revolver/grenadelauncher/crossbow/getonmobprop(tag)
 	. = ..()
@@ -47,14 +48,15 @@
 	chargedrain = 0 //no drain to aim a crossbow
 	basetime = 20
 
-/datum/intent/shoot/crossbow/can_charge()
+/datum/intent/shoot/crossbow/can_charge(atom/clicked_object)
 	if(mastermob)
 		if(mastermob.get_num_arms(FALSE) < 2)
 			return FALSE
 		if(mastermob.get_inactive_held_item())
 			return FALSE
+		if(istype(clicked_object, /obj/item/quiver) && istype(mastermob.get_active_held_item(), /obj/item/gun/ballistic))
+			return FALSE
 	return TRUE
-
 
 /datum/intent/shoot/crossbow/get_chargetime()
 	if(mastermob && chargetime)
@@ -79,13 +81,13 @@
 	basetime = 20
 	chargedrain = 0
 
-
-
-/datum/intent/arc/crossbow/can_charge()
+/datum/intent/arc/crossbow/can_charge(atom/clicked_object)
 	if(mastermob)
 		if(mastermob.get_num_arms(FALSE) < 2)
 			return FALSE
 		if(mastermob.get_inactive_held_item())
+			return FALSE
+		if(istype(clicked_object, /obj/item/quiver) && istype(mastermob.get_active_held_item(), /obj/item/gun/ballistic))
 			return FALSE
 	return TRUE
 
@@ -160,10 +162,12 @@
 		BB.bonus_accuracy += (user.get_skill_level(/datum/skill/combat/crossbows) * 5) // +5 per XBow level.'
 		BB.armor_penetration *= penfactor
 		BB.damage *= damfactor
+
+		if(damage_from_perception)
+			if(user.STAPER > 10)
+				BB.damage *= (user.STAPER / 10)
+
 	cocked = FALSE
-	if(user.has_status_effect(/datum/status_effect/buff/clash) && ishuman(user))
-		var/mob/living/carbon/human/H = user
-		H.bad_guard(span_warning("I can't focus on my Guard and loose bolts! This drains me!"), cheesy = TRUE)
 	..()
 
 /obj/item/gun/ballistic/revolver/grenadelauncher/crossbow/update_icon()
@@ -204,6 +208,8 @@
 	movingreload = TRUE
 	slot_flags = ITEM_SLOT_BACK | ITEM_SLOT_HIP
 	penfactor = 0.5		//Bolts have 50 pen, this decreases to 25. Should only pen armor with less than 67 protection.
+	damage_from_perception = TRUE
+
 
 //Pseudo-Arbalest. This thing is intended to be fuckhuge, but it's using a temp sprite.
 //Retains an identical damage to the standard crossbow. The pen is what makes this.

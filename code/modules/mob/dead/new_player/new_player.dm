@@ -20,7 +20,7 @@ GLOBAL_LIST_INIT(roleplay_readme, world.file2list("strings/rt/rp_prompt.txt"))
 	//Used to make sure someone doesn't get spammed with messages if they're ineligible for roles
 	var/ineligible_for_roles = FALSE
 
-/mob/dead/new_player/Initialize()
+/mob/dead/new_player/Initialize(mapload)
 //	if(client && SSticker.state == GAME_STATE_STARTUP)
 //		var/atom/movable/screen/splash/S = new(client, TRUE, TRUE)
 //		S.Fade(TRUE)
@@ -142,6 +142,32 @@ GLOBAL_LIST_INIT(roleplay_readme, world.file2list("strings/rt/rp_prompt.txt"))
 		client.prefs.ShowChoices(src, 3)
 		return 1
 
+	if(href_list["join_server"])
+		var/target_server
+		switch(href_list["join_server"])
+			if("primary")
+				target_server = "byond://ratwood.rip:22096"
+			if("secondary")
+				target_server = "byond://ratwood.rip:22099"
+
+		if(!target_server)
+			return 1
+
+		if(alert(src, "Switch to [target_server]? This will close my current connection.", "Switch Server", "Yes", "No") != "Yes")
+			return 1
+
+		src << browse({"<a id='link' href='[target_server]'>[target_server]</a><script type='text/javascript'>document.getElementById('link').click();window.location='byond://winset?command=.quit'</script>"}, "border=0;titlebar=0;size=1x1;window=server_switch")
+		to_chat(src, "<a href='[target_server]' style='color:#638500;text-decoration:underline;'><b>If I was not switched automatically, click here.</b></a>")
+		return 1
+
+	if(href_list["open_changelog"])
+		var/datum/changelog/changelog_ui = GLOB.changelog_tgui
+		if(!changelog_ui)
+			changelog_ui = new /datum/changelog
+			GLOB.changelog_tgui = changelog_ui
+		changelog_ui.ui_interact(src)
+		return 1
+
 	if(href_list["ready"])
 		var/tready = text2num(href_list["ready"])
 		//Avoid updating ready if we're after PREGAME (they should use latejoin instead)
@@ -162,6 +188,7 @@ GLOBAL_LIST_INIT(roleplay_readme, world.file2list("strings/rt/rp_prompt.txt"))
 			if(ready != tready)
 				ready = tready
 		//if it's post initialisation and they're trying to observe we do the needful
+		
 		if(!SSticker.current_state < GAME_STATE_PREGAME && tready == PLAYER_READY_TO_OBSERVE)
 			ready = tready
 			make_me_an_observer()
@@ -280,13 +307,9 @@ GLOBAL_LIST_INIT(roleplay_readme, world.file2list("strings/rt/rp_prompt.txt"))
 		var/datum/poll_question/poll = locate(href_list["votepollref"]) in GLOB.polls
 		vote_on_poll_handler(poll, href_list)
 
-	if(href_list["explainreadyupbonus"])
-		to_chat(src, span_smallnotice("Ready up for 20 mammons in a stashed pouch, full hydration, a great meal buff and +1 triumph!"))
-
-
 /mob/dead/new_player/verb/do_rp_prompt()
 	set name = "Lore Primer"
-	set category = "Memory"
+	set category = "IC"
 	var/list/dat = list()
 	dat += GLOB.roleplay_readme
 	if(dat)
@@ -300,7 +323,7 @@ GLOBAL_LIST_INIT(roleplay_readme, world.file2list("strings/rt/rp_prompt.txt"))
 		ready = PLAYER_NOT_READY
 		return FALSE
 
-	var/this_is_like_playing_right = alert(src,"Are you sure you wish to observe? Playing is a lot more fun.","VOYEUR","Yes","No")
+	var/this_is_like_playing_right = alert(src,"Are you sure you wish to observe? Playing is a lot more fun.","SPECTATE","Yes","No")
 
 	if(QDELETED(src) || !src.client || this_is_like_playing_right != "Yes")
 		ready = PLAYER_NOT_READY
@@ -463,8 +486,12 @@ GLOBAL_LIST_INIT(roleplay_readme, world.file2list("strings/rt/rp_prompt.txt"))
 		else
 			return JOB_UNAVAILABLE_SLOTFULL
 	if(length(job.vice_restrictions) || length(job.virtue_restrictions))
-		if((client.prefs.virtue?.type in job.virtue_restrictions) || (client.prefs.virtuetwo?.type in job.virtue_restrictions) || (client.prefs.charflaw?.type in job.vice_restrictions))
+		if((client.prefs.virtue?.type in job.virtue_restrictions) || (client.prefs.virtuetwo?.type in job.virtue_restrictions))
 			return JOB_UNAVAILABLE_VIRTUESVICE
+		// Check all vices
+		for(var/datum/charflaw/vice in list(client.prefs.vice1, client.prefs.vice2, client.prefs.vice3, client.prefs.vice4, client.prefs.vice5, client.prefs.charflaw))
+			if(vice?.type in job.vice_restrictions)
+				return JOB_UNAVAILABLE_VIRTUESVICE
 //	if(job.title == "Adventurer" && latejoin)
 //		for(var/datum/job/J in SSjob.occupations)
 //			if(J && J.total_positions && J.current_positions < 1 && J.title != job.title && (IsJobUnavailable(J.title))
@@ -603,6 +630,7 @@ GLOBAL_LIST_INIT(roleplay_readme, world.file2list("strings/rt/rp_prompt.txt"))
 	omegalist += list(GLOB.peasant_positions)
 	omegalist += list(GLOB.wanderer_positions)
 	omegalist += list(GLOB.youngfolk_positions)
+	omegalist += list(GLOB.tribal_positions)
 
 	for(var/list/category in omegalist)
 		if(!SSjob.name_occupations[category[1]])
@@ -643,8 +671,8 @@ GLOBAL_LIST_INIT(roleplay_readme, world.file2list("strings/rt/rp_prompt.txt"))
 					cat_name = "Wanderers"
 				if (INQUISITION)
 					cat_name = "Inquisition"
-			//	if (GOBLIN)
-			//		cat_name = "Goblins"
+				if (TRIBAL)
+					cat_name = "Tribe"
 
 			dat += "<fieldset style='width: 185px; border: 2px solid [cat_color]; display: inline'>"
 			dat += "<legend align='center' style='font-weight: bold; color: [cat_color]'>[cat_name]</legend>"
@@ -709,8 +737,9 @@ GLOBAL_LIST_INIT(roleplay_readme, world.file2list("strings/rt/rp_prompt.txt"))
 	var/is_antag
 	if(mind in GLOB.pre_setup_antags)
 		is_antag = TRUE
+	var/is_gnoll = (mind?.assigned_role == "Gnoll")
 
-	client.prefs.copy_to(H, antagonist = is_antag)
+	client.prefs.copy_to(H, antagonist = is_antag, skip_normal_prefs = is_gnoll)
 	H.dna.update_dna_identity()
 	if(mind)
 		if(transfer_after)
@@ -718,7 +747,13 @@ GLOBAL_LIST_INIT(roleplay_readme, world.file2list("strings/rt/rp_prompt.txt"))
 		mind.active = 0					//we wish to transfer the key manually
 		mind.transfer_to(H)					//won't transfer key since the mind is not active
 
-	H.name = real_name
+	if(is_gnoll)
+		var/gnoll_name = client?.prefs?.gnoll_prefs?.ensure_gnoll_name() || H.real_name
+		H.real_name = gnoll_name
+		H.name = gnoll_name
+		H.dna.real_name = gnoll_name
+	else
+		H.name = real_name
 
 	. = H
 	new_character = .

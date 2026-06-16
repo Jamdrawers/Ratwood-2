@@ -167,13 +167,6 @@
 		emote(copytext_char(message, 2), intentional = !forced, custom_me = TRUE)
 		return 1
 
-/mob/proc/check_whisper(message, forced)
-	if(copytext_char(message, 1, 2) == "+")
-		var/text = copytext(message, 2)
-		var/boldcheck = findtext_char(text, "+")	//Check for a *second* + in the text, implying the message is meant to have something formatted as bold (+text+)
-		whisper(copytext_char(message, boldcheck ? 1 : 2),sanitize = FALSE)//already sani'd
-		return 1
-
 ///Check if the mob has a hivemind channel
 /mob/proc/hivecheck()
 	return 0
@@ -183,13 +176,13 @@
 	return LINGHIVE_NONE
 
 /**
-  * Get the mode of a message
-  *
-  * Result can be
-  * * MODE_WHISPER (Quiet speech)
-  * * MODE_HEADSET (Common radio channel)
-  * * A department radio (lots of values here)
-  */
+ * Get the mode of a message
+ *
+ * Result can be
+ * * MODE_WHISPER (Quiet speech)
+ * * MODE_HEADSET (Common radio channel)
+ * * A department radio (lots of values here)
+ */
 /mob/proc/get_message_mode(message)
 	var/key = copytext_char(message, 1, 2)
 	if(key == "#")
@@ -199,5 +192,5 @@
 	else if(key == "%")
 		return MODE_SING
 	else if(length(message) > 2 && (key in GLOB.department_radio_prefixes))
-		var/key_symbol = lowertext(copytext_char(message, 2, 3))
+		var/key_symbol = LOWER_TEXT(copytext_char(message, 2, 3))
 		return GLOB.department_radio_keys[key_symbol]

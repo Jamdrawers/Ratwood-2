@@ -9,7 +9,7 @@
 	possible_item_intents = list(INTENT_GENERIC)
 	force = 10
 	throwforce = 10
-	slot_flags = ITEM_SLOT_MOUTH|ITEM_SLOT_HIP|ITEM_SLOT_NECK|ITEM_SLOT_RING
+	slot_flags = ITEM_SLOT_MOUTH|ITEM_SLOT_HIP|ITEM_SLOT_NECK|ITEM_SLOT_RING|ITEM_SLOT_GLOVES
 	obj_flags = null
 	icon = 'icons/roguetown/items/misc.dmi'
 	w_class = WEIGHT_CLASS_SMALL
@@ -17,11 +17,14 @@
 	muteinmouth = TRUE
 	var/listening = TRUE
 	var/speaking = TRUE
+	var/disguised = FALSE
+	dropshrink = 0.7
+
 	sellprice = 0
 	grid_width = 32
 	grid_height = 32
 
-/obj/item/mattcoin/Initialize()
+/obj/item/mattcoin/Initialize(mapload)
 	. = ..()
 	become_hearing_sensitive()
 	update_icon()
@@ -43,7 +46,46 @@
 		return FALSE
 	. = ..()
 
+/obj/item/mattcoin/attack_self(mob/living/user)
+	. = ..()
+
+	if(user.restrained() || user.incapacitated())
+		to_chat(user, span_warning("I cannot use this while restrained or incapacitated!"))
+		return FALSE
+
+	if(disguised)
+		if(alert(user, "Revert disguise?", "Disguise", "Yes", "No") == "Yes")
+			name = "rontz ring"
+			icon = 'icons/roguetown/items/misc.dmi'
+			icon_state = "mattcoin"
+			disguised = FALSE
+			update_icon()
+		return FALSE
+
+	var/icon/J = new('icons/roguetown/clothing/bandit_rings.dmi')
+
+	var/list/istates = list()
+
+	for(var/icon_s in J.IconStates())
+		if(findtext(icon_s, "mattcoin_"))
+			istates += replacetext(icon_s, "mattcoin_", "")
+
+	var/picked_name = input(user, "Choose a Disguise", "ROGUETOWN") as null|anything in sortList(istates)
+	if(!picked_name)
+		return
+
+	icon = 'icons/roguetown/clothing/bandit_rings.dmi'
+	icon_state = "mattcoin_[picked_name]"
+
+	name = replacetext(picked_name, "_", " ")
+	disguised = TRUE
+
+	update_icon()
+
 /obj/item/mattcoin/attack_right(mob/living/carbon/human/user)
+	if(user.restrained() || user.incapacitated())
+		to_chat(user, span_warning("I cannot use this while restrained or incapacitated!"))
+		return
 	user.changeNext_move(CLICK_CD_INTENTCAP)
 	var/input_text = input(user, "Enter your message:", "Message")
 	if(input_text)
@@ -58,6 +100,9 @@
 
 /obj/item/mattcoin/MiddleClick(mob/user)
 	if(.)
+		return
+	if(user.restrained() || user.incapacitated())
+		to_chat(user, span_warning("I cannot use this while restrained or incapacitated!"))
 		return
 	user.changeNext_move(CLICK_CD_INTENTCAP)
 	playsound(loc, 'sound/misc/coindispense.ogg', 100, FALSE, -1)

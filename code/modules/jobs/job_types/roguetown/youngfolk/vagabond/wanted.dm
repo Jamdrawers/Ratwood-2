@@ -1,5 +1,6 @@
 /datum/advclass/vagabond_wanted
 	name = "Wanted"
+	examine_name = "Beggar"
 	tutorial = "The long arm of the law reaches out for you - are you slippery enough to evade its grip this time, or is your head destined to end up in an Excidium's maw?"
 	allowed_sexes = list(MALE, FEMALE)
 	allowed_races = RACES_ALL_KINDS
@@ -55,5 +56,5 @@
 			if ("Massive")
 				bounty_total = rand(150, 200)
 	
-		add_bounty(H.real_name, race, gender, descriptor_height, descriptor_body, descriptor_voice, bounty_total, FALSE, my_crime, "The Justiciary of Rotwood")
-		to_chat(H, span_notice("I'm on the run from the law, and there's a [lowertext(bounty_amount)] sum of mammons out on my head... better lay low."))
+		add_bounty(H.real_name, race, gender, descriptor_height, descriptor_body, descriptor_voice, bounty_total, FALSE, my_crime, "The Justiciary of [SSmapping.map_adjustment.realm_name]")
+		to_chat(H, span_notice("I'm on the run from the law, and there's a [LOWER_TEXT(bounty_amount)] sum of mammons out on my head... better lay low."))

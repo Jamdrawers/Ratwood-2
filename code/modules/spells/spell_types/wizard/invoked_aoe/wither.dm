@@ -24,13 +24,18 @@
 	var/strikerange = 14 // how many tiles the strike can reach
 	var/damage = 40
 
+/obj/effect/proc_holder/spell/invoked/wither/miracle
+	cost = 0
+	spell_tier = 0
+	associated_skill = /datum/skill/magic/holy
+
 /obj/effect/proc_holder/spell/invoked/wither/cast(list/targets, mob/user = usr)
 	var/turf/T = get_turf(targets[1])
 
 	var/turf/source_turf = get_turf(user)
-	
+
 	if(T.z != user.z)
-		to_chat(span_warning("You can't cast this spell on a different z-level!"))
+		to_chat(user, span_warning("You can't cast this spell on a different z-level!"))
 		return FALSE
 
 	var/list/affected_turfs = getline(source_turf, T)
@@ -46,7 +51,7 @@
 		addtimer(CALLBACK(src, PROC_REF(strike), affected_turf), wait = tile_delay)
 	return TRUE
 
-/obj/effect/proc_holder/spell/invoked/wither/proc/strike(var/turf/damage_turf)
+/obj/effect/proc_holder/spell/invoked/wither/proc/strike(turf/damage_turf)
 	new /obj/effect/temp_visual/wither_actual(damage_turf)
 	playsound(damage_turf, 'sound/magic/shadowstep_destination.ogg', 50)
 	for(var/mob/living/L in damage_turf.contents)
@@ -66,7 +71,7 @@
 	duration = 1 SECONDS
 	layer = MASSIVE_OBJ_LAYER
 	alpha = 70
-	
+
 
 /obj/effect/temp_visual/wither_actual
 	icon = 'icons/effects/effects.dmi'
@@ -80,4 +85,4 @@
 	if(duration_override)
 		duration = duration_override
 	. = ..() // Call parent AFTER setting duration
-	
+

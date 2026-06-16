@@ -20,6 +20,8 @@
 	var/target_height
 	var/target_voice
 	var/target_voice_prefix
+	var/target_hidden_voice
+	var/target_hidden_voice_prefix
 	var/amount
 	var/reason
 	var/employer
@@ -39,6 +41,9 @@
 	// Main Menu
 	var/list/choices = list("Consult Bounties", "Set Bounty", "Print List of Bounties", "Remove Bounty", "Collect Change")
 	var/selection = input(user, "The Excidium listens", src) as null|anything in choices
+
+	if(!Adjacent(user, src)) // User can move while selecting, sanity check
+		return
 
 	switch(selection)
 
@@ -82,11 +87,25 @@
 		bounty_found = TRUE
 
 	if(bounty_found)
-		var/datum/browser/popup = new(user, "BOUNTIES", "", 500, 300)
+		var/datum/browser/popup = new(user, "BOUNTIES", "", 500, 300, src)
 		popup.set_content(consult_menu)
 		popup.open()
+		RegisterSignal(user, COMSIG_MOVABLE_MOVED, PROC_REF(user_moved))
 	else
 		say("No bounties are currently active.")
+
+/// Subscribes to COMSIG_MOVABLE_MOVED to prevent the user from having bounty screen open when not adjacent to the machine
+/obj/structure/roguemachine/bounty/proc/user_moved(mob/former_user)
+	SIGNAL_HANDLER
+
+	if(!istype(former_user))
+		return
+
+	if(Adjacent(former_user, src))
+		return
+
+	UnregisterSignal(former_user, COMSIG_MOVABLE_MOVED)
+	former_user << browse(null, "window=BOUNTIES")
 
 /obj/structure/roguemachine/bounty/proc/remove_bounty(mob/living/carbon/human/user)
 	var/list/bounty_list = list()
@@ -111,7 +130,7 @@
 			scom_announce("The bounty posting on [target_name] has been removed.")
 			message_admins("[ADMIN_LOOKUPFLW(user)] has removed the bounty on [ADMIN_LOOKUPFLW(target_name)]")
 			return
-	say("Error. Bounty no longer active.") 
+	say("Error. Bounty no longer active.")
 
 ///Sets a bounty on a target player through user input.
 ///@param user: The player setting the bounty.
@@ -193,20 +212,20 @@
 	new_bounty.reason = reason
 	new_bounty.employer = employer_name
 	new_bounty.target_race = race
-	new_bounty.target_height = lowertext(descriptor_height)
-	new_bounty.target_body = lowertext(descriptor_body)
+	new_bounty.target_height = LOWER_TEXT(descriptor_height)
+	new_bounty.target_body = LOWER_TEXT(descriptor_body)
 	if(descriptor_body == "Average" || descriptor_body == "Athletic")
 		var/bro_unreal = "an "
-		new_bounty.target_body_prefix = lowertext(bro_unreal += descriptor_body)
+		new_bounty.target_body_prefix = LOWER_TEXT(bro_unreal += descriptor_body)
 	else
 		var/bro_real = "a "
-		new_bounty.target_body_prefix = lowertext(bro_real += descriptor_body)
+		new_bounty.target_body_prefix = LOWER_TEXT(bro_real += descriptor_body)
 	if(descriptor_voice == "Ordinary" || descriptor_voice == "Androgynous")
 		var/bro_unreal = "an "
-		new_bounty.target_voice_prefix = lowertext(bro_unreal += descriptor_voice)
+		new_bounty.target_voice_prefix = LOWER_TEXT(bro_unreal += descriptor_voice)
 	else
 		var/bro_real = "a "
-		new_bounty.target_voice_prefix = lowertext(bro_real += descriptor_voice)
+		new_bounty.target_voice_prefix = LOWER_TEXT(bro_real += descriptor_voice)
 	if(gender == MALE)
 		new_bounty.target_body_type = "masculine"
 	else
@@ -223,28 +242,60 @@
 		new_bounty_noface.target_body_type = "masculine"
 	else
 		new_bounty_noface.target_body_type = "feminine"
-	new_bounty_noface.target_height = lowertext(descriptor_height)
+	new_bounty_noface.target_height = LOWER_TEXT(descriptor_height)
 	if(descriptor_body == "Average" || descriptor_body == "Athletic")
 		var/bro_unreal = "an "
-		new_bounty_noface.target_body_prefix = lowertext(bro_unreal += descriptor_body)
+		new_bounty_noface.target_body_prefix = LOWER_TEXT(bro_unreal += descriptor_body)
 	else
 		var/bro_real = "a "
-		new_bounty_noface.target_body_prefix = lowertext(bro_real += descriptor_body)
+		new_bounty_noface.target_body_prefix = LOWER_TEXT(bro_real += descriptor_body)
 	if(descriptor_voice == "Ordinary" || descriptor_voice == "Anrdogynous")
 		var/bro_unreal = "an "
-		new_bounty_noface.target_voice_prefix = lowertext(bro_unreal += descriptor_voice)
+		new_bounty_noface.target_voice_prefix = LOWER_TEXT(bro_unreal += descriptor_voice)
 	else
 		var/bro_real = "a "
-		new_bounty_noface.target_voice_prefix = lowertext(bro_real += descriptor_voice)
-	new_bounty_noface.target_voice = lowertext(descriptor_voice)
-	new_bounty_noface.target_body = lowertext(descriptor_body)
-	//new_bounty_noface.target_voice = lowertext(descriptor_voice)
+		new_bounty_noface.target_voice_prefix = LOWER_TEXT(bro_real += descriptor_voice)
+	new_bounty_noface.target_voice = LOWER_TEXT(descriptor_voice)
+	new_bounty_noface.target_body = LOWER_TEXT(descriptor_body)
+	//new_bounty_noface.target_voice = LOWER_TEXT(descriptor_voice)
 	new_bounty_noface.bandit = bandit_status
 	new_bounty_noface.reason = reason
 	new_bounty_noface.employer = employer_name
 	//var/list/lines = build_cool_description(get_mob_descriptors(obscure_name, user), target)
 	compose_bounty_noface(new_bounty_noface)
 	GLOB.head_bounties += new_bounty_noface
+
+/proc/add_bounty_obscure(target_realname, race, gender, descriptor_height, descriptor_body, descriptor_voice, amount, bandit_status, reason, employer_name)
+	var/datum/bounty/new_bounty_obscure = new /datum/bounty
+	new_bounty_obscure.target_hidden = target_realname
+	new_bounty_obscure.amount = amount
+	new_bounty_obscure.target_race = race
+	if(gender == MALE)
+		new_bounty_obscure.target_body_type = "masculine"
+	else
+		new_bounty_obscure.target_body_type = "feminine"
+	new_bounty_obscure.target_height = LOWER_TEXT(descriptor_height)
+	if(descriptor_body == "Average" || descriptor_body == "Athletic")
+		var/bro_unreal = "an "
+		new_bounty_obscure.target_body_prefix = LOWER_TEXT(bro_unreal += descriptor_body)
+	else
+		var/bro_real = "a "
+		new_bounty_obscure.target_body_prefix = LOWER_TEXT(bro_real += descriptor_body)
+	if(descriptor_voice == "Ordinary" || descriptor_voice == "Anrdogynous")
+		var/bro_unreal = "an "
+		new_bounty_obscure.target_hidden_voice_prefix = LOWER_TEXT(bro_unreal += descriptor_voice)
+	else
+		var/bro_real = "a "
+		new_bounty_obscure.target_hidden_voice_prefix = LOWER_TEXT(bro_real += descriptor_voice)
+	new_bounty_obscure.target_hidden_voice = LOWER_TEXT(descriptor_voice)
+	new_bounty_obscure.target_body = LOWER_TEXT(descriptor_body)
+	//new_bounty_obscure.target_voice = LOWER_TEXT(descriptor_voice)
+	new_bounty_obscure.bandit = bandit_status
+	new_bounty_obscure.reason = reason
+	new_bounty_obscure.employer = employer_name
+	//var/list/lines = build_cool_description(get_mob_descriptors(obscure_name, user), target)
+	compose_bounty_obscure(new_bounty_obscure)
+	GLOB.head_bounties += new_bounty_obscure
 
 ///Composes a random bounty banner based on the given bounty info.
 ///@param new_bounty:  The bounty datum.
@@ -267,7 +318,7 @@
 /proc/compose_bounty_noface(datum/bounty/new_bounty_noface)
 	switch(rand(1, 3))
 		if(1)
-			new_bounty_noface.banner += "A dire bounty hangs upon the capture of a bandit belonging to the [new_bounty_noface.target_race] race, going by the following description: they are [new_bounty_noface.target_height], of a [new_bounty_noface.target_body_type] build and they have [new_bounty_noface.target_body_prefix] physique. They speak with [new_bounty_noface.target_voice_prefix] voice. They are wanted for '[new_bounty_noface.reason]'.<BR>"
+			new_bounty_noface.banner += "A dire bounty hangs upon the capture of an outlaw belonging to the [new_bounty_noface.target_race] race, going by the following description: they are [new_bounty_noface.target_height], of a [new_bounty_noface.target_body_type] build and they have [new_bounty_noface.target_body_prefix] physique. They speak with [new_bounty_noface.target_voice_prefix] voice. They are wanted for '[new_bounty_noface.reason]'.<BR>"
 			new_bounty_noface.banner += "The patron, [new_bounty_noface.employer], offers [new_bounty_noface.amount] mammons for the task.<BR>"
 		if(2)
 			new_bounty_noface.banner += "The capture of a criminal of [new_bounty_noface.target_race] ancestry. This bounty been authorised by [new_bounty_noface.employer] for '[new_bounty_noface.reason]'. Their description is as follows: they are of a [new_bounty_noface.target_height] height, of a [new_bounty_noface.target_body_type] build, they have [new_bounty_noface.target_body_prefix] physique and they speak with [new_bounty_noface.target_voice_prefix] voice.<BR>"
@@ -276,6 +327,19 @@
 			new_bounty_noface.banner += "[new_bounty_noface.employer] hath offered to pay [new_bounty_noface.amount] mammons for the capture of a criminal of [new_bounty_noface.target_race] ancestry. They've been described to be of a [new_bounty_noface.target_height] stature with [new_bounty_noface.target_body_prefix] physique with a [new_bounty_noface.target_body_type] build. Their voice is [new_bounty_noface.target_voice].<BR>"
 			new_bounty_noface.banner += "By reason of the following: '[new_bounty_noface.reason]'.<BR>"
 	new_bounty_noface.banner += "--------------<BR>"
+
+/proc/compose_bounty_obscure(datum/bounty/new_bounty_obscure)
+	switch(rand(1, 3))
+		if(1)
+			new_bounty_obscure.banner += "A dire bounty hangs upon the capture of an outlaw belonging to the [new_bounty_obscure.target_race] race, going by the following description: they are [new_bounty_obscure.target_height], of a [new_bounty_obscure.target_body_type] build and they have [new_bounty_obscure.target_body_prefix] physique. They are wanted for '[new_bounty_obscure.reason]'.<BR>"
+			new_bounty_obscure.banner += "The patron, [new_bounty_obscure.employer], offers [new_bounty_obscure.amount] mammons for the task.<BR>"
+		if(2)
+			new_bounty_obscure.banner += "The capture of a criminal of [new_bounty_obscure.target_race] ancestry. This bounty been authorised by [new_bounty_obscure.employer] for '[new_bounty_obscure.reason]'. Their description is as follows: they are of a [new_bounty_obscure.target_height] height, of a [new_bounty_obscure.target_body_type] build and they have [new_bounty_obscure.target_body_prefix] physique.<BR>"
+			new_bounty_obscure.banner += "The employer, [new_bounty_obscure.employer], offers [new_bounty_obscure.amount] mammons for the deed, they are to be brought in dead or alive.<BR>"
+		if(3)
+			new_bounty_obscure.banner += "[new_bounty_obscure.employer] hath offered to pay [new_bounty_obscure.amount] mammons for the capture of a criminal of [new_bounty_obscure.target_race] ancestry. They've been described to be of a [new_bounty_obscure.target_height] stature with [new_bounty_obscure.target_body_prefix] physique with a [new_bounty_obscure.target_body_type] build.<BR>"
+			new_bounty_obscure.banner += "By reason of the following: '[new_bounty_obscure.reason]'.<BR>"
+	new_bounty_obscure.banner += "--------------<BR>"
 
 /obj/structure/roguemachine/bounty/proc/print_bounty_scroll(mob/living/carbon/human/user)
 	if(!GLOB.head_bounties.len)
@@ -323,7 +387,8 @@
 
 /obj/structure/chair/freedomchair
 	name = "LIBERTAS"
-	desc = "A chair-shaped machine normally used to place cursed masks onto a prisoner's head. This one's been tampered with, and now does the opposite - re-purposed to remove those wretched iron masks."
+	desc = "A chair-shaped machine normally used to place cursed collars onto a prisoner's neck. \
+	This one's been tampered with, and now does the opposite - re-purposed to remove those wretched iron collars."
 	icon = 'icons/roguetown/misc/machines.dmi'
 	icon_state = "evilchair"
 	blade_dulling = DULLING_BASH
@@ -332,7 +397,7 @@
 	anchored = TRUE
 
 /obj/structure/chair/freedomchair/crafted
-	desc = "A chair-shaped machine normally used to place cursed masks onto a prisoner's head. This one's clearly been tampered with, and looks suspicious."
+	desc = "A chair-shaped machine normally used to place cursed collars onto a prisoner's neck. This one's clearly been tampered with, and looks suspicious."
 
 /obj/structure/chair/freedomchair/crafted/attack_right(mob/living/carbon/human/A)
 	var/mob/living/carbon/human/M = null
@@ -353,16 +418,16 @@
 	playsound(src.loc, 'sound/items/pickgood1.ogg', 100, TRUE, -1)
 	M.Paralyze(3 SECONDS)
 
-	var/obj/item/clothing/mask/old_mask = M.get_item_by_slot(SLOT_WEAR_MASK)
+	var/obj/item/clothing/neck/old_mask = M.get_item_by_slot(SLOT_NECK)
 	if(old_mask)
-		if(istype(old_mask, /obj/item/clothing/mask/rogue/facemask/prisoner))
+		if(istype(old_mask, /obj/item/clothing/neck/roguetown/collar/prisoner))
 			say("ERROR: UNLAWFUL SYSTEM TAMPERING DETECTED... ENGAGING SELF DESTRUCT...")
 			sleep(1 SECONDS)
 			explosion(src, light_impact_range = 1, flame_range = 1)
 			M.dropItemToGround(old_mask, TRUE)
 			qdel(src)
 	else
-		say("ANALYSIS COMPLETE. NO CURSED MASK FOUND. ABORT.")
+		say("ANALYSIS COMPLETE. NO CURSED COLLAR FOUND. ABORT.")
 		return
 
 /obj/structure/chair/freedomchair/attack_right(mob/living/carbon/human/A)
@@ -384,13 +449,13 @@
 	playsound(src.loc, 'sound/items/pickgood1.ogg', 100, TRUE, -1)
 	M.Paralyze(3 SECONDS)
 
-	var/obj/item/clothing/mask/old_mask = M.get_item_by_slot(SLOT_WEAR_MASK)
+	var/obj/item/clothing/neck/old_mask = M.get_item_by_slot(SLOT_NECK)
 	if(old_mask)
-		if(istype(old_mask, /obj/item/clothing/mask/rogue/facemask/prisoner))
-			say("MASK DISCARDED. FREEDOM, AT LAST...")
+		if(istype(old_mask, /obj/item/clothing/neck/roguetown/collar/prisoner))
+			say("COLLAR DISCARDED. FREEDOM, AT LAST...")
 			M.dropItemToGround(old_mask, TRUE)
 	else
-		say("ANALYSIS COMPLETE. NO CURSED MASK FOUND. ABORT.")
+		say("ANALYSIS COMPLETE. NO CURSED COLLAR FOUND. ABORT.")
 		return
 
 /obj/structure/chair/arrestchair
@@ -482,12 +547,12 @@
 		say("A bounty has been sated.")
 		budget2change((reward_amount))
 
-		var/obj/item/clothing/mask/old_mask = M.get_item_by_slot(SLOT_WEAR_MASK)
+		var/obj/item/clothing/neck/old_mask = M.get_item_by_slot(SLOT_NECK)
 		if(old_mask)
 			M.dropItemToGround(old_mask, TRUE)
-		var/obj/item/clothing/mask/rogue/facemask/prisoner/prisonmask = new(get_turf(M))
+		var/obj/item/clothing/neck/roguetown/collar/prisoner/prisonmask = new(get_turf(M))
 		prisonmask.bounty_amount = reward_amount
-		M.equip_to_slot_or_del(prisonmask, SLOT_WEAR_MASK, TRUE)
+		M.equip_to_slot_or_del(prisonmask, SLOT_NECK, TRUE)
 		playsound(src.loc, 'sound/items/beartrap.ogg', 100, TRUE, -1)
 	else
 		say("This skull carries no reward, you fool.")
@@ -565,3 +630,10 @@
 		return
 	new type_to_put(T, floor(zenars_to_put))
 	playsound(T, 'sound/misc/coindispense.ogg', 100, FALSE, -1)
+
+/proc/has_bounty(mob/living/carbon/human/H)
+	for (var/datum/bounty/existing_bounty in GLOB.head_bounties)
+		if (existing_bounty.target == H.real_name)
+			return TRUE
+
+	return FALSE

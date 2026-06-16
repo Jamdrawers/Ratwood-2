@@ -35,8 +35,10 @@
 		if(used.blocksound)
 			playsound(loc, get_armor_sound(used.blocksound, blade_dulling), 100)
 		var/intdamage = damage
+		var/consume_debuff = TRUE
 		// Penetrative damage deals significantly less to the armor. Tentative.
-		if((damage + armor_penetration) > protection)
+		if((damage + armor_penetration) > protection && d_type != "blunt")
+			consume_debuff = FALSE
 			intdamage = (damage + armor_penetration) - protection
 		if(intdamfactor != 1)
 			intdamage *= intdamfactor
@@ -44,12 +46,27 @@
 			if(used.armor?.getRating("blunt") > 0)
 				var/bluntrating = used.armor.getRating("blunt")
 				intdamage -= intdamage * ((bluntrating / 2) / 100)	//Half of the blunt rating reduces blunt damage taken by %-age.
-		if(istype(used_weapon) && used_weapon.is_silver && ((used.smeltresult in list(/obj/item/ingot/aaslag, /obj/item/ingot/aalloy, /obj/item/ingot/purifiedaalloy)) || used.GetComponent(/datum/component/cursed_item)))
+		if(istype(used_weapon) && used_weapon.is_silver && ((used.smeltresult in list(/obj/item/ingot/aaslag, /obj/item/ingot/decrepit, /obj/item/ingot/gilbranze)) || used.GetComponent(/datum/component/cursed_item)))
 			// Blessed silver delivers more int damage against "cursed" alloys, see component for multiplier values
 			var/datum/component/silverbless/bless = used_weapon.GetComponent(/datum/component/silverbless)
 			if(bless.is_blessed)
 				// Apply multiplier if the blessing is active.
 				intdamage = round(intdamage * bless.cursed_item_intdamage)
+
+		if(consume_debuff)	//If this is FALSE, then this is a penetrative hit -- we consume these in bodypart_attacked_by.
+			if(has_status_effect(/datum/status_effect/debuff/exposed))
+				intdamage *= EXPOSED_INTEG_MOD
+				playsound(src, 'sound/combat/exposed_pop.ogg', 100, TRUE)
+				visible_message(span_biginfo("[src] suffers a savage hit to their armor while exposed, sending them reeling!"))
+				remove_status_effect(/datum/status_effect/debuff/exposed)
+				emote("pain", forced = TRUE)
+			else if(has_status_effect(/datum/status_effect/debuff/vulnerable))
+				intdamage *= VULN_INTEG_MOD
+				playsound(src, 'sound/combat/vulnerable_pop.ogg', 100, TRUE)
+				visible_message(span_biginfo("[src] is struck while vulnerable, leaving a dent in their armor!"))
+				remove_status_effect(/datum/status_effect/debuff/vulnerable)
+				emote("groan", forced = TRUE)
+
 		used.take_damage(intdamage, damage_flag = d_type, sound_effect = FALSE, armor_penetration = 100)
 	if(physiology)
 		protection += physiology.armor.getRating(d_type)
@@ -142,22 +159,22 @@
 	return ..(P, def_zone)
 
 /mob/living/carbon/human/proc/check_reflect(def_zone) //Reflection checks for anything in my l_hand, r_hand, or wear_armor based on the reflection chance of the object
-	if(wear_armor)
-		if(wear_armor.IsReflect(def_zone) == 1)
-			return 1
-	for(var/obj/item/I in held_items)
-		if(I.IsReflect(def_zone) == 1)
+	if(wear_armor?.IsReflect(def_zone) == 1)
+		return 1
+	for(var/obj/item/I as anything in held_items)
+		if(I?.IsReflect(def_zone) == 1)
 			return 1
 	return 0
 
 /mob/living/carbon/human/proc/check_shields(atom/AM, damage, attack_text = "the attack", attack_type = MELEE_ATTACK, armor_penetration = 0)
 	var/block_chance_modifier = round(damage / -3)
 
-	for(var/obj/item/I in held_items)
-		if(!istype(I, /obj/item/clothing))
-			var/final_block_chance = I.block_chance - (CLAMP((armor_penetration-I.armor_penetration)/2,0,100)) + block_chance_modifier //So armour piercing blades can still be parried by other blades, for example
-			if(I.hit_reaction(src, AM, attack_text, final_block_chance, damage, attack_type))
-				return TRUE
+	for(var/obj/item/I as anything in held_items)
+		if(!I || istype(I, /obj/item/clothing))
+			continue
+		var/final_block_chance = I.block_chance - (CLAMP((armor_penetration-I.armor_penetration)/2,0,100)) + block_chance_modifier
+		if(I.hit_reaction(src, AM, attack_text, final_block_chance, damage, attack_type))
+			return TRUE
 	if(head)
 		var/final_block_chance = head.block_chance - (CLAMP((armor_penetration-head.armor_penetration)/2,0,100)) + block_chance_modifier
 		if(head.hit_reaction(src, AM, attack_text, final_block_chance, damage, attack_type))
@@ -174,7 +191,7 @@
 		var/final_block_chance = wear_neck.block_chance - (CLAMP((armor_penetration-wear_neck.armor_penetration)/2,0,100)) + block_chance_modifier
 		if(wear_neck.hit_reaction(src, AM, attack_text, final_block_chance, damage, attack_type))
 			return TRUE
-  return FALSE
+	return FALSE
 
 /mob/living/carbon/human/proc/check_block()
 	if(mind)
@@ -189,8 +206,6 @@
 			return spec_return
 	var/obj/item/I
 	var/throwpower = 30
-	if(has_status_effect(/datum/status_effect/buff/clash))
-		bad_guard(span_warning("The thrown object ruins my focus!"))
 	if(istype(AM, /obj/item))
 		I = AM
 		throwpower = I.throwforce
@@ -253,6 +268,15 @@
 	return dna.species.spec_attacked_by(I, user, affecting, used_intent, src, useder)
 
 /mob/living/carbon/human/attack_hand(mob/user)
+	// Check if this person is offering an item to the user
+	if(ishuman(user) && offered_item_ref)
+		var/mob/living/carbon/human/H = user
+		var/obj/offered_item = offered_item_ref.resolve()
+		if(offered_item && H.used_intent.type != INTENT_HARM)
+			var/stealthy = (m_intent == MOVE_INTENT_SNEAK)
+			if(H.try_accept_offered_item(src, offered_item, stealthy))
+				return TRUE
+
 	if(..())	//to allow surgery to return properly.
 		return
 	retaliate(user)
@@ -591,8 +615,8 @@
 
 		inventory_items_to_kill += held_items
 
-	for(var/obj/item/I in inventory_items_to_kill)
-		I.acid_act(acidpwr, acid_volume)
+	for(var/obj/item/I as anything in inventory_items_to_kill)
+		I?.acid_act(acidpwr, acid_volume)
 	return 1
 
 /mob/living/carbon/human/help_shake_act(mob/living/carbon/M)
@@ -643,7 +667,17 @@
 			examination += "[m1] [IsSleeping() ? "asleep" : "unconscious"]."
 	else
 		examination += span_dead("[m1] dead.")
-
+	switch(bodytemperature)
+		if(0 to BODYTEMP_COLD_LEVEL_ONE_MAX)
+			examination += span_biginfo("<font color='#023E8A'> [m1] shivering greatly</font>")
+		if(BODYTEMP_COLD_LEVEL_ONE_MAX to BODYTEMP_NORMAL_MIN)
+			examination += span_biginfo("<font color='#99e6ff'> [m1] shivering</font>")
+		if(BODYTEMP_NORMAL_MIN to BODYTEMP_NORMAL_MAX)
+			examination += span_biginfo("<B>[m1] average temperature.</B>")
+		if(BODYTEMP_NORMAL_MAX to BODYTEMP_HEAT_LEVEL_ONE_MAX)
+			examination += span_biginfo("<font color='#ffff00'> [m1] sweating</font>")
+		if(BODYTEMP_HEAT_LEVEL_ONE_MAX to 600)
+			examination += span_biginfo("<font color='#DC143C?'> [m1] sweating greatly</font>")
 	switch(blood_volume)
 		if(-INFINITY to BLOOD_VOLUME_SURVIVE)
 			examination += span_artery("<B>[m1] extremely anemic.</B>")
@@ -712,6 +746,71 @@
 		to_chat(user, examination.Join("\n"))
 	return examination
 
+/mob/living/carbon/human/proc/get_temperature_state()
+
+	var/atom/movable/screen/temperature/T = hud_used.temperature
+	if(!T)
+		return TEMP_STATE_NORMAL
+
+	switch(T.icon_state)
+		if("tempverycold") return TEMP_STATE_VERY_COLD
+		if("tempcold") return TEMP_STATE_COLD
+		if("tempnormal") return TEMP_STATE_NORMAL
+		if("temphot") return TEMP_STATE_HOT
+		if("tempveryhot") return TEMP_STATE_VERY_HOT
+
+	return TEMP_STATE_NORMAL
+
+/mob/living/carbon/human/proc/check_temperature_state(mob/user = src, silent = FALSE)
+
+	var/list/examination = list("<span class='info'>ø ------------ ø")
+
+	var/m1
+	if(user == src)
+		m1 = "I am"
+		examination += span_notice("Let's see how my body temperature feels.")
+	else
+		m1 = "[p_they(TRUE)] [p_are()]"
+		examination += span_notice("Let's see how [src]'s temperature looks.")
+
+	// Get temperature state
+	var/temp_state = get_temperature_state()
+
+	switch(temp_state)
+
+		if(TEMP_STATE_VERY_COLD)
+			examination += span_danger("<B>[m1] extremely cold!</B>")
+			examination += span_biginfo("- Severe shivering")
+			examination += span_biginfo("- Movement speed reduced")
+			examination += span_biginfo("- Constitution reduced")
+			examination += span_danger("- Risk of frostbite after prolonged exposure")
+
+		if(TEMP_STATE_COLD)
+			examination += span_danger("[m1] cold.")
+			examination += span_biginfo("- Hunger increases faster")
+			examination += span_biginfo("- Occasional shivering")
+
+		if(TEMP_STATE_NORMAL)
+			examination += span_biginfo("[m1] at a comfortable temperature.")
+
+		if(TEMP_STATE_HOT)
+			examination += span_danger("[m1] hot.")
+			examination += span_biginfo("- Thirst increases faster")
+			examination += span_biginfo("- Occasional sweating")
+
+		if(TEMP_STATE_VERY_HOT)
+			examination += span_danger("<B>[m1] extremely hot!</B>")
+			examination += span_biginfo("- Actions take more stamina")
+			examination += span_biginfo("- Stamina recovery takes twice as long")
+			examination += span_danger("- Risk of heatstroke after prolonged exposure")
+
+	examination += "ø ------------ ø</span>"
+
+	if(!silent)
+		to_chat(user, examination.Join("\n"))
+
+	return examination
+
 /mob/living/carbon/human/damage_clothes(damage_amount, damage_type = BRUTE, damage_flag = 0, def_zone)
 	if(damage_type != BRUTE && damage_type != BURN)
 		return
@@ -768,7 +867,7 @@
 		if(leg_clothes)
 			torn_items |= leg_clothes
 
-	for(var/obj/item/I in torn_items)
+	for(var/obj/item/I as anything in torn_items)
 		I.take_damage(damage_amount, damage_type, damage_flag, 0)
 
 /// Helper proc that returns the worn item ref that has the highest rating covering the def_zone (targeted zone) for the d_type (damage type)

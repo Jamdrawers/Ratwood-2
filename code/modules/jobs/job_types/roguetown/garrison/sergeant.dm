@@ -33,21 +33,11 @@
 /datum/job/roguetown/sergeant/after_spawn(mob/living/L, mob/M, latejoin = TRUE)
 	. = ..()
 	if(ishuman(L))
-		var/mob/living/carbon/human/H = L
-		if(ishuman(L))
-			if(istype(H.cloak, /obj/item/clothing/cloak/stabard/surcoat/guard))
-				var/obj/item/clothing/S = H.cloak
-				var/index = findtext(H.real_name, " ")
-				if(index)
-					index = copytext(H.real_name, 1,index)
-				if(!index)
-					index = H.real_name
-				S.name = "sergeant jupon ([index])"
+		addtimer(CALLBACK(L, TYPE_PROC_REF(/mob, cloak_and_title_setup)), 50)
 
 //All skills/traits are on the loadouts. All are identical. Welcome to the stupid way we have to make sub-classes...
 /datum/outfit/job/roguetown/sergeant
 	pants = /obj/item/clothing/under/roguetown/chainlegs
-	cloak = /obj/item/clothing/cloak/stabard/surcoat/guard
 	neck = /obj/item/clothing/neck/roguetown/gorget
 	shoes = /obj/item/clothing/shoes/roguetown/boots/leather/reinforced
 	belt = /obj/item/storage/belt/rogue/leather
@@ -167,12 +157,22 @@
 			to_chat(user, span_alert("I must say something to give an order!"))
 			return
 		if(user.job == "Sergeant")
-			if(!(target.job in list("Man at Arms", "Watchman")))
+			if(!(target.job in list("Man at Arms", "Watchman", "Rookie")))
 				to_chat(user, span_alert("I cannot order one not of my ranks!"))
 				revert_cast()
 				return
 		if(user.job == "Knight Captain")
-			if(!(target.job in list("Knight", "Squire")))
+			if(!(target.job in list("Knight", "Squire", "Man at Arms")))
+				to_chat(user, span_alert("I cannot order one not of my ranks!"))
+				revert_cast()
+				return
+		if(user.job == "Janissary Sergeant")
+			if(!(target.job in list("Janissary", "Rookie")))
+				to_chat(user, span_alert("I cannot order one not of my ranks!"))
+				revert_cast()
+				return
+		if(user.job == "Azeb Agha")
+			if(!(target.job in list("Azeb")))
 				to_chat(user, span_alert("I cannot order one not of my ranks!"))
 				revert_cast()
 				return
@@ -233,12 +233,22 @@
 			to_chat(user, span_alert("I must say something to give an order!"))
 			return
 		if(user.job == "Sergeant")
-			if(!(target.job in list("Man at Arms", "Watchman")))
+			if(!(target.job in list("Man at Arms", "Watchman", "Rookie")))
 				to_chat(user, span_alert("I cannot order one not of my ranks!"))
 				revert_cast()
 				return
 		if(user.job == "Knight Captain")
-			if(!(target.job in list("Knight", "Squire")))
+			if(!(target.job in list("Knight", "Squire", "Man at Arms")))
+				to_chat(user, span_alert("I cannot order one not of my ranks!"))
+				revert_cast()
+				return
+		if(user.job == "Janissary Sergeant")
+			if(!(target.job in list("Janissary", "Rookie")))
+				to_chat(user, span_alert("I cannot order one not of my ranks!"))
+				revert_cast()
+				return
+		if(user.job == "Azeb Agha")
+			if(!(target.job in list("Azeb")))
 				to_chat(user, span_alert("I cannot order one not of my ranks!"))
 				revert_cast()
 				return
@@ -268,12 +278,22 @@
 			to_chat(user, span_alert("I must say something to give an order!"))
 			return
 		if(user.job == "Sergeant")
-			if(!(target.job in list("Man at Arms", "Watchman")))
+			if(!(target.job in list("Man at Arms", "Watchman", "Rookie")))
 				to_chat(user, span_alert("I cannot order one not of my ranks!"))
 				revert_cast()
 				return
 		if(user.job == "Knight Captain")
-			if(!(target.job in list("Knight", "Squire")))
+			if(!(target.job in list("Knight", "Squire", "Man at Arms")))
+				to_chat(user, span_alert("I cannot order one not of my ranks!"))
+				revert_cast()
+				return
+		if(user.job == "Janissary Sergeant")
+			if(!(target.job in list("Janissary", "Rookie")))
+				to_chat(user, span_alert("I cannot order one not of my ranks!"))
+				revert_cast()
+				return
+		if(user.job == "Azeb Agha")
+			if(!(target.job in list("Azeb")))
 				to_chat(user, span_alert("I cannot order one not of my ranks!"))
 				revert_cast()
 				return
@@ -324,18 +344,38 @@
 /obj/effect/proc_holder/spell/invoked/order/hold/cast(list/targets, mob/living/user)
 	. = ..()
 	if(isliving(targets[1]))
-		var/mob/living/target = targets[1]
+		var/mob/living/target = targets[1]//someone remind me to make version for desertmap classes
 		var/msg = user.mind.holdtext
 		if(!msg)
 			to_chat(user, span_alert("I must say something to give an order!"))
 			return
 		if(user.job == "Sergeant")
-			if(!(target.job in list("Man at Arms", "Watchman")))
+			if(!(target.job in list("Man at Arms", "Watchman", "Rookie")))
 				to_chat(user, span_alert("I cannot order one not of my ranks!"))
 				revert_cast()
 				return
 		if(user.job == "Knight Captain")
-			if(!(target.job in list("Knight", "Squire")))
+			if(!(target.job in list("Knight", "Squire", "Man at Arms")))
+				to_chat(user, span_alert("I cannot order one not of my ranks!"))
+				revert_cast()
+				return
+		if(user.job == "Watch Captain")
+			if(!(target.job in list("City Guard", "Rookie", "Watchman")))
+				to_chat(user, span_alert("I cannot order one not of my ranks!"))
+				revert_cast()
+				return
+		if(user.job == "Master Warden")
+			if(!(target.job in list("Warden", "Vanguard")))
+				to_chat(user, span_alert("I cannot order one not of my ranks!"))
+				revert_cast()
+				return
+		if(user.job == "Janissary Sergeant")
+			if(!(target.job in list("Janissary", "Rookie")))
+				to_chat(user, span_alert("I cannot order one not of my ranks!"))
+				revert_cast()
+				return
+		if(user.job == "Azeb Agha")
+			if(!(target.job in list("Azeb")))
 				to_chat(user, span_alert("I cannot order one not of my ranks!"))
 				revert_cast()
 				return
@@ -384,9 +424,6 @@
 		if(target == user)
 			to_chat(user, span_alert("I cannot order myself to be killed!"))
 			return
-		if(HAS_TRAIT(target, TRAIT_CRITICAL_WEAKNESS))
-			to_chat(user, span_alert("They are already vulnerable!"))
-			return
 		user.say("[msg]")
 		target.apply_status_effect(/datum/status_effect/debuff/order/focustarget)
 		return TRUE
@@ -396,7 +433,7 @@
 /datum/status_effect/debuff/order/focustarget
 	id = "focustarget"
 	alert_type = /atom/movable/screen/alert/status_effect/debuff/order/focustarget
-	effectedstats = list(STATKEY_LCK = -2)
+	effectedstats = list(STATKEY_CON = -2)
 	duration = 1 MINUTES
 	var/outline_colour = "#69050a"
 
@@ -409,14 +446,12 @@
 	. = ..()
 	var/filter = owner.get_filter(TARGET_FILTER)
 	to_chat(owner, span_alert("I have been marked for death by a officer!"))
-	ADD_TRAIT(owner, TRAIT_CRITICAL_WEAKNESS, TRAIT_GENERIC)
 	if (!filter)
 		owner.add_filter(TARGET_FILTER, 2, list("type" = "outline", "color" = outline_colour, "alpha" = 200, "size" = 1))
 	return TRUE
 
 /datum/status_effect/debuff/order/focustarget/on_remove()
 	. = ..()
-	REMOVE_TRAIT(owner, TRAIT_CRITICAL_WEAKNESS, TRAIT_GENERIC)
 	owner.remove_filter(TARGET_FILTER)
 
 

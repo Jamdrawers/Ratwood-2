@@ -24,7 +24,7 @@
 	icon_state = "tray_psy"
 	desc = ""
 
-/obj/item/storage/bag/tray/Initialize()
+/obj/item/storage/bag/tray/Initialize(mapload)
 	. = ..()
 	update_icon()
 
@@ -103,6 +103,7 @@
 	w_class = WEIGHT_CLASS_NORMAL
 	resistance_flags = NONE
 	max_integrity = 300
+	dropshrink = 0.8
 	component_type = /datum/component/storage/concrete/grid/meatsack
 
 /obj/item/storage/meatbag/attack_right(mob/user)

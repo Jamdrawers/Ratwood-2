@@ -18,7 +18,7 @@
 				/mob/living/carbon/human/species/human/northern/highwayman/ambush = 20,
 				/mob/living/simple_animal/hostile/retaliate/rogue/troll = 15)
 	converted_type = /area/rogue/outdoors/caves
-	deathsight_message = "root-bound caverns"
+	deathsight_message = "wet root-bound caverns"
 	detail_text = DETAIL_TEXT_UNDERGROVE
 
 /area/rogue/under/cavewet/bogcaves
@@ -62,20 +62,6 @@
 	deathsight_message = "root-bound caverns"
 	detail_text = DETAIL_TEXT_GOBLIN_CAMP
 
-
-/area/rogue/under/cave/rhgoblinencampment
-	name = "goblin encampment"
-	icon_state = "under"
-	first_time_text = "Lost Encampment"
-	ambientsounds = AMB_BASEMENT
-	ambientnight = AMB_BASEMENT
-	droning_sound = 'sound/music/area/gobcamp.ogg'
-	droning_sound_dusk = null
-	droning_sound_night = null
-	converted_type = /area/rogue/outdoors/dungeon1
-	ceiling_protected = TRUE
-	deathsight_message = "root-bound caverns"
-
 /area/rogue/under/cave/skeletoncrypt
 	name = "Skeleton Crypt"
 	icon_state = "under"
@@ -89,15 +75,6 @@
 	ceiling_protected = TRUE
 	deathsight_message = "root-bound caverns"
 	detail_text = DETAIL_TEXT_SKELETON_CRYPT
-
-/area/rogue/under/cavewet/wizarddungeon
-	name = "Abandoned Wizard Tower"
-	first_time_text = "Crumbling Tower"
-	spookysounds = SPOOKY_MYSTICAL
-	spookynight = SPOOKY_MYSTICAL
-	droning_sound = 'sound/music/area/abandonedwizartorium.ogg'
-	droning_sound_dusk = null
-	droning_sound_night = null
 
 /area/rogue/under/cavewet/river
 	name = "Cave River"

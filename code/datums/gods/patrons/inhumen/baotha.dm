@@ -3,6 +3,8 @@
 	domain = "Hedonism, Debauchery, Addiction, Heartbreak"
 	desc = "The Lady of Debauchery was the only snow elf to have survived Zizo's massacre, having been kept by the Naledi as a concubine. Until one dae, She was consumed by Her depravity and addiction, stealing a shard of SYON from Her captors and ascending to godhood. Her followers desire only to experience mind-rotting pleasures."
 	worshippers = "Widows, Gamblers, Addicts, Scorned Lovers, Far-Gone Prostitutes"
+	virtues = "Lust, Gluttony, Thrill-Seeking"
+	sins = "Chastity, Temperance, Gloom"
 	mob_traits = list(TRAIT_DEPRAVED, TRAIT_CRACKHEAD)
 	miracles = list(/obj/effect/proc_holder/spell/targeted/touch/orison					= CLERIC_ORI,
 					/obj/effect/proc_holder/spell/invoked/baothavice					= CLERIC_T0,
@@ -52,12 +54,12 @@
 #define BAOTHA_SUFFERING_DIVIDER 3.535 // max bonus at 50 pain/bleedrate and pain_mod = 1
 
 /datum/patron/inhumen/baotha/on_lesser_heal(
-    mob/living/user,
-    mob/living/target,
-    message_out,
-    message_self,
-    conditional_buff,
-    situational_bonus,
+	mob/living/user,
+	mob/living/target,
+	message_out,
+	message_self,
+	conditional_buff,
+	situational_bonus,
 	is_inhumen
 )
 	*is_inhumen = TRUE

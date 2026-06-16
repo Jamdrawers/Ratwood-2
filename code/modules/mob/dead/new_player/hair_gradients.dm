@@ -1,7 +1,7 @@
 /datum/hair_gradient
 	abstract_type = /datum/hair_gradient
 	var/name
-	var/icon = 'icons/mob/sprite_accessory/hair/hair_gradients.dmi'
+	var/icon = 'icons/mob/sprite_accessory/hair/hair_gradients32x32.dmi'
 	var/icon_state
 
 /datum/hair_gradient/none
@@ -56,3 +56,7 @@
 /datum/hair_gradient/wavy_spike
 	name = "Spiked Wavy"
 	icon_state = "wavy_spiked"
+
+/datum/hair_gradient/streaks
+	name = "Streaked"
+	icon_state = "streaks"

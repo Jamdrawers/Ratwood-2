@@ -18,7 +18,7 @@
 	display_order = JDO_TEMPLAR
 	social_rank = SOCIAL_RANK_MINOR_NOBLE
 	give_bank_account = TRUE
-	job_traits = list(TRAIT_RITUALIST, TRAIT_STEELHEARTED)
+	job_traits = list(TRAIT_RITUALIST, TRAIT_STEELHEARTED, TRAIT_HOLYWARRIOR)
 
 	//No nobility for you, being a member of the clergy means you gave UP your nobility. It says this in many of the church tutorial texts.
 	virtue_restrictions = list(/datum/virtue/utility/noble)
@@ -160,6 +160,9 @@
 	H.dna.species.soundpack_m = new /datum/voicepack/male/knight()
 	var/datum/devotion/C = new /datum/devotion(H, H.patron)
 	C.grant_miracles(H, cleric_tier = CLERIC_T2, passive_gain = CLERIC_REGEN_MINOR, devotion_limit = CLERIC_REQ_2)	//Capped to T2 miracles.
+	//Funny spell time. Why do they get this? Knights get full plate and master weapons skill.
+	//Something for Templars. I had a rant here but you get the simple idea instead.
+	H.mind?.AddSpell(new /obj/effect/proc_holder/spell/invoked/projectile/divineblast)
 
 /datum/outfit/job/roguetown/templar/crusader/choose_loadout(mob/living/carbon/human/H)
 	. = ..()
@@ -177,18 +180,18 @@
 		if(/datum/patron/divine/pestra)
 			weapons += "Plaguebringer Sickles"
 		if(/datum/patron/divine/malum)
-			weapons += "Forgefiend"
-			weapons -= "Longsword"//Forgefiend takes priority.
+			weapons += "Kargrund Maul"
+			weapons -= "Mace"//Kargrund Maul takes priority.
 		if(/datum/patron/divine/dendor)
 			weapons += "Summer Scythe"
 			weapons -= "Spear"//Scythe takes priority.
 		if(/datum/patron/divine/xylix)
 			weapons += "Cackle Lash"
 		if(/datum/patron/divine/ravox)
-			weapons += "Duel Settler"
-			weapons -= "Mace"//Duel Settler takes priority.
+			weapons += "Censure"
+			weapons -= "Longsword"//Censure takes priority.
 		if(/datum/patron/divine/eora)
-			weapons += list("The Heartstring", "Close Caress")
+			weapons += list("The Heartstring", "Close Caress", "Harp Bow (long)", "Harp Bow (short)")
 			weapons -= "Longsword"//Heartstring takes priority.
 		if(/datum/patron/divine/abyssor)
 			weapons += list("Tidecleaver", "Barotrauma")
@@ -235,9 +238,10 @@
 			H.put_in_hands(new /obj/item/rogueweapon/huntingknife/idagger/steel/pestrasickle(H), TRUE)
 			H.adjust_skillrank_up_to(/datum/skill/combat/knives, 4, TRUE) // actually makes them usable for the templar.
 			H.equip_to_slot_or_del(new /obj/item/clothing/suit/roguetown/armor/plate, SLOT_ARMOR, TRUE)
-		if("Forgefiend")
-			H.put_in_hands(new /obj/item/rogueweapon/greatsword/grenz/flamberge/malum(H), TRUE)
-			H.adjust_skillrank(/datum/skill/combat/swords, 1, TRUE)
+		if("Kargrund Maul")
+			H.put_in_hands(new /obj/item/rogueweapon/mace/maul/grand/malum(H), TRUE)
+			H.put_in_hands(new /obj/item/rogueweapon/scabbard/gwstrap(H), FALSE)
+			H.adjust_skillrank(/datum/skill/combat/maces, 1, TRUE)
 			H.equip_to_slot_or_del(new /obj/item/clothing/suit/roguetown/armor/plate, SLOT_ARMOR, TRUE)
 		if("Summer Scythe")
 			H.put_in_hands(new /obj/item/rogueweapon/halberd/bardiche/scythe(H), TRUE)
@@ -248,9 +252,10 @@
 			H.put_in_hands(new /obj/item/rogueweapon/whip/xylix(H), TRUE)
 			H.adjust_skillrank(/datum/skill/combat/whipsflails, 1, TRUE)
 			H.equip_to_slot_or_del(new /obj/item/clothing/suit/roguetown/armor/plate, SLOT_ARMOR, TRUE)
-		if("Duel Settler")
-			H.put_in_hands(new /obj/item/rogueweapon/mace/goden/steel/ravox(H), TRUE)
-			H.adjust_skillrank(/datum/skill/combat/maces, 1, TRUE)
+		if("Censure")
+			H.put_in_hands(new /obj/item/rogueweapon/greatsword/grenz/flamberge/ravox(H), TRUE)
+			H.put_in_hands(new /obj/item/rogueweapon/scabbard/gwstrap(H), FALSE)
+			H.adjust_skillrank(/datum/skill/combat/swords, 1, TRUE)
 			H.equip_to_slot_or_del(new /obj/item/clothing/suit/roguetown/armor/plate, SLOT_ARMOR, TRUE)
 		if("The Heartstring")
 			H.put_in_hands(new /obj/item/rogueweapon/sword/rapier/eora(H), TRUE)
@@ -269,6 +274,30 @@
 			H.put_in_hands(new /obj/item/rogueweapon/sword/long/holysee_lesser(H), TRUE)
 			H.adjust_skillrank(/datum/skill/combat/swords, 1, TRUE)
 			H.equip_to_slot_or_del(new /obj/item/clothing/suit/roguetown/armor/plate, SLOT_ARMOR, TRUE)
+		if("Harp Bow (long)")
+			H.equip_to_slot_or_del(new /obj/item/quiver/arrows, SLOT_BELT_R, TRUE)
+			H.equip_to_slot_or_del(new /obj/item/clothing/suit/roguetown/armor/plate/half, SLOT_ARMOR, TRUE) //Cuirass, not halfplate. Slightly reduced starting armor.
+			H.put_in_hands(new /obj/item/gun/ballistic/revolver/grenadelauncher/bow/longbow/eora(H), TRUE)
+			H.put_in_hands(new /obj/item/rogueweapon/sword/short(H), TRUE)
+			H.adjust_skillrank(/datum/skill/combat/bows, 2, TRUE) //Expert bow, Journeyman otherwise
+			H.adjust_skillrank(/datum/skill/combat/wrestling, -1, TRUE)//Haha... no.
+			H.change_stat(STATKEY_SPD, 1)
+			H.change_stat(STATKEY_PER, 2)
+			H.change_stat(STATKEY_STR, -1)
+			H.change_stat(STATKEY_WIL, -1)
+			H.change_stat(STATKEY_CON, -1)
+		if("Harp Bow (short)")
+			H.equip_to_slot_or_del(new /obj/item/quiver/arrows, SLOT_BELT_R, TRUE)
+			H.equip_to_slot_or_del(new /obj/item/clothing/suit/roguetown/armor/plate/half, SLOT_ARMOR, TRUE) //Cuirass, not halfplate. Slightly reduced starting armor.
+			H.put_in_hands(new /obj/item/gun/ballistic/revolver/grenadelauncher/bow/recurve/eora(H), TRUE)
+			H.put_in_hands(new /obj/item/rogueweapon/sword/short(H), TRUE)
+			H.adjust_skillrank(/datum/skill/combat/bows, 2, TRUE) //Expert bow, Journeyman otherwise
+			H.adjust_skillrank(/datum/skill/combat/wrestling, -1, TRUE)//Haha... no.
+			H.change_stat(STATKEY_SPD, 1)
+			H.change_stat(STATKEY_PER, 2)
+			H.change_stat(STATKEY_STR, -1)
+			H.change_stat(STATKEY_WIL, -1)
+			H.change_stat(STATKEY_CON, -1)
 //Unarmed specific stuff is locked to patrons who have it. RAAAAAAA!!!!!! HEAVY ARMOUR BRUISERS!!!!!!
 		if("Close Caress")
 			H.put_in_hands(new /obj/item/rogueweapon/knuckles/eora(H), TRUE)
@@ -348,6 +377,8 @@
 	if(H.patron?.type == /datum/patron/divine/eora)
 		ADD_TRAIT(H, TRAIT_BEAUTIFUL, TRAIT_GENERIC)
 		ADD_TRAIT(H, TRAIT_EMPATH, TRAIT_GENERIC)
+		H.adjust_skillrank(/datum/skill/craft/sewing, 1, TRUE)
+		H.adjust_skillrank(/datum/skill/craft/cooking, 1, TRUE)
 		H.cmode_music = 'sound/music/cmode/church/combat_eora.ogg'
 	if(H.patron?.type == /datum/patron/divine/malum)
 		H.adjust_skillrank(/datum/skill/craft/blacksmithing, 1, TRUE)

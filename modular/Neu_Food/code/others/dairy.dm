@@ -1,7 +1,7 @@
 /* * * * * * * * * * * * * * *	*
  *								*
  *		Butter & Cheese			*
- *					 			*
+ *								*
  *								*
  * * * * * * * * * * * * * * * 	*/
 
@@ -54,6 +54,7 @@
 	slice_batch = FALSE
 	bitesize = 6
 	slice_sound = TRUE
+	eating_slice = TRUE
 
 /obj/item/reagent_containers/food/snacks/butter/attackby(obj/item/I, mob/living/user, params)
 	update_cooktime(user)
@@ -73,20 +74,6 @@
 		icon_state = "butter[slices_num]"
 	else
 		icon_state = "butter_slice"
-
-/obj/item/reagent_containers/food/snacks/butter/On_Consume(mob/living/eater)
-	..()
-	if(slices_num)
-		if(bitecount == 1)
-			slices_num = 5
-		if(bitecount == 2)
-			slices_num = 4
-		if(bitecount == 3)
-			slices_num = 3
-		if(bitecount == 4)
-			slices_num = 2
-		if(bitecount == 5)
-			changefood(slice_path, eater)
 
 /obj/item/reagent_containers/food/snacks/butterslice
 	icon = 'modular/Neu_Food/icons/others/dairy.dmi'
@@ -125,23 +112,6 @@
 				add_sleep_experience(user, /datum/skill/craft/cooking, user.STAINT)
 				reagents.remove_reagent(/datum/reagent/consumable/milk/salted, 5)
 				new /obj/item/reagent_containers/food/snacks/rogue/cheese(drop_location())
-			return
-
-		var/obj/item/natural/cloth/T = I
-		if(T.wet >= 10)
-			to_chat(user, span_warning("[T] is already soaked!")) //So we dont waste water if its already at max wetness or higher
-			return
-		else
-			var/removereg = /datum/reagent/water
-			if(!reagents.has_reagent(/datum/reagent/water, 5))
-				removereg = /datum/reagent/water/gross
-				if(!reagents.has_reagent(/datum/reagent/water/gross, 5))
-					to_chat(user, span_warning("No water to soak in."))
-					return
-			wash_atom(T)
-			playsound(src, pick('sound/foley/waterwash (1).ogg','sound/foley/waterwash (2).ogg'), 100, FALSE)
-			reagents.remove_reagent(removereg, 5)
-			user.visible_message(span_info("[user] soaks [T] in [src]."))
 			return
 	..()
 
@@ -200,8 +170,13 @@
 
 /obj/item/reagent_containers/food/snacks/rogue/foodbase/cheesewheel/proc/maturing_done()
 	playsound(src.loc, 'modular/Neu_Food/sound/rustle2.ogg', 100, TRUE, -1)
-	new /obj/item/reagent_containers/food/snacks/rogue/cheddar(loc)
-	new /obj/item/natural/cloth(loc)
+	var/obj/item/reagent_containers/food/snacks/rogue/cheddar/cheese = new(loc)
+	var/obj/item/natural/cloth/cloth = new(loc)
+	if(ishuman(loc))
+		var/mob/living/carbon/human/H = loc
+		moveToNullspace() //To free the hand up
+		H.put_in_hands(cheese)
+		H.put_in_hands(cloth)
 	qdel(src)
 
 
@@ -235,6 +210,7 @@
 	slices_num = 6
 	slice_batch = TRUE
 	slice_path = /obj/item/reagent_containers/food/snacks/rogue/cheddarwedge
+	eating_slice = TRUE
 	become_rot_type = /obj/item/reagent_containers/food/snacks/rogue/cheddar/aged
 	slice_sound = TRUE
 
@@ -261,6 +237,7 @@
 	slices_num = 3
 	slice_batch = TRUE
 	slice_path = /obj/item/reagent_containers/food/snacks/rogue/cheddarslice
+	eating_slice = TRUE
 	become_rot_type = /obj/item/reagent_containers/food/snacks/rogue/cheddarwedge/aged
 
 /obj/item/reagent_containers/food/snacks/rogue/cheddarwedge/aged

@@ -151,4 +151,4 @@
 		/datum/crafting_recipe/roguetown/arcana,
 		/datum/crafting_recipe/gemstaff,
 		/datum/runeritual,
-		)
+	)

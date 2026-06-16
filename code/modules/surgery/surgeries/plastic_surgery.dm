@@ -14,12 +14,14 @@
 	name = "Reshape face"
 	implements = list(
 		TOOL_SCALPEL = 70,
+		TOOLTOOL_IMPROVISED_SCALPEL = 50,
 		TOOL_WIRECUTTER = 50,
 		TOOL_SHARP = 35,
 	)
 	possible_locs = list(BODY_ZONE_HEAD)
 	time = 6.4 SECONDS
 	surgery_flags = SURGERY_BLOODY | SURGERY_INCISED | SURGERY_CLAMPED | SURGERY_RETRACTED
+	surgery_flags_blocked = SURGERY_CONSTRUCT
 	skill_min = SKILL_LEVEL_JOURNEYMAN
 	skill_median = SKILL_LEVEL_EXPERT
 

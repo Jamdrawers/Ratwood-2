@@ -2,16 +2,26 @@
 	race = /datum/species/anthromorphsmall
 
 /datum/species/anthromorphsmall
-	name = "Verminvolk"
+	name = "Critterkin"
 	id = "anthromorphsmall"
-	desc = "<b>Verminvolk</b><br>\
+	desc = "<b>Critterkin</b><br>\
 	A race akin to wild-kin, except afflicted with significantly smaller stature. \
-	A bit less respected than their kin due to their closer resemblance to vermin, like the dichotomy between Kobold and Sissean.<br>\
+	Sometimes referred to with the derogatory term 'verminfolk' by those that disrespect the small.<br>\
 	(+1 Speed, Keen Ears Trait)"
 
 	expanded_desc = "A race akin to wild-kin, except afflicted with significantly smaller stature. \
-	A bit less respected than their kin due to their closer resemblance to vermin, like the dichotomy between Kobold and Sissean."
+	Sometimes referred to with the derogatory term 'verminfolk' by those that disrespect the small."
 	default_color = "444"
+
+	use_titles = TRUE
+	race_titles = list(
+	"Catvolk", "Dogvolk", "Volfvolk", "Lionvolk", "Venardvolk", "Tigervolk", "Sheepvolk",
+	"Goatvolk", "Rousvolk", "Possumvolk", "Pigvolk", "Boarvolk", "Rabbitvolk", "Cabbitvolk", "Harevolk", "Horsevolk",
+	"Donkeyvolk", "Hyenavolk", "Deervolk", "Bearvolk", "Pandavolk", "Coyotevolk", "Moosevolk",
+	"Jackalvolk", "Panthervolk", "Lynxvolk", "Leopardvolk", "Monkeyvolk", "Birdvolk", "Sealvolk", "Frogvolk",
+	"Batvolk", "Ottervolk", "Cowvolk", "Bullvolk", "Beevolk", "Monstervolk", "Chimeravolk"
+	)
+
 	species_traits = list(
 		MUTCOLORS,
 		EYECOLOR,
@@ -109,9 +119,13 @@
 		/datum/body_marking/small/nose,
 		/datum/body_marking/small/bangs,
 		/datum/body_marking/small/bun,
+		/datum/body_marking/womb_tattoo,
+		/datum/body_marking/butterfly,
+		/datum/body_marking/waist,
+		/datum/body_marking/diagonal_eyes,
+		/datum/body_marking/wide_eyes,
+		/datum/body_marking/stripes,
 	)
-	stress_examine = TRUE
-	stress_desc = span_red("Filthy vermin...")
 	descriptor_choices = list(
 		/datum/descriptor_choice/trait,
 		/datum/descriptor_choice/stature,

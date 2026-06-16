@@ -31,22 +31,29 @@
 	lockid = "merchant"
 	// Which job can access profit from this vendor
 	var/profit_id = list("Merchant", "Shophand")
+	/// How much % of the base price is added as profit
+	var/profit_margin = 0 // Goldface makes no profit since it's the merchant buying at the best price
+	/// The profit stored in the vendor
+	var/wgain = 0
 	// Where to record value spent
 	var/value_record_key = STATS_GOLDFACE_VALUE_SPENT
 	// True to make sure it bypass all taxes no matter what
 	var/bypass_tax = FALSE
 	var/list/categories = list(
 		"Alcohols",
-		"Apparel",
-		"Consumable",
+		"Food",
+		"Games",
+		"Substances",
 		"Gems",
-		"Instruments",
 		"Luxury",
-		"Livestock",
 		"Cosmetics",
+		"Instruments",
+		"Magic",
+		"Livestock",
 		"Raw Materials",
 		"Seeds",
 		"Tools",
+		"Apparel",
 		"Wardrobe",
 	)
 	var/list/categories_gamer = list(
@@ -59,7 +66,7 @@
 		"Weapons (Ranged)",
 		"Weapons (Iron and Shields)",
 		"Weapons (Steel)",
-		"Weapons (Foreign)",
+		"Weapons (Exotic)",
 	)
 	var/is_public = FALSE // Whether it is a public access vendor.
 	var/extra_fee = 0 // Extra Guild Fees on purchases. Meant to make publicface very unprofitable.
@@ -67,6 +74,7 @@
 /obj/structure/roguemachine/goldface/public
 	name = "SILVERFACE"
 	extra_fee = 0.5
+	profit_margin = 0.5
 	is_public = TRUE
 	locked = FALSE
 	motto = "SILVERFACE - Commerce for all."
@@ -76,16 +84,19 @@
 	categories = list(
 		"Adventuring Supplies",
 		"Alcohols",
-		"Consumable",
+		"Food",
+		"Games",
+		"Substances",
 		"Gems",
 		"Instruments",
 		"Luxury",
+		"Magic",
 		"Livestock",
 		"Cosmetics",
 		"Raw Materials",
 		"Seeds",
 		"Tools",
-		"Weapons (Foreign)",
+		"Weapons (Exotic)",
 	)
 	categories_gamer = list()
 
@@ -121,6 +132,7 @@
 		"Apparel",
 		"Wardrobe",
 		"Armor (Light)",
+		"Imported Armor (Light)",
 	)
 	categories_gamer = list()
 
@@ -141,7 +153,7 @@
 	. = ..()
 	. += span_info("This can be locked by a physician's key")
 
-/obj/structure/roguemachine/goldface/Initialize()
+/obj/structure/roguemachine/goldface/Initialize(mapload)
 	. = ..()
 	update_icon()
 
@@ -177,7 +189,7 @@
 		if(!right_key)
 			to_chat(user, span_warning("Wrong key."))
 			return
-	if(istype(P, /obj/item/roguecoin/aalloy))
+	if(istype(P, /obj/item/roguecoin/gilbranze))
 		return
 	if(istype(P, /obj/item/roguecoin/inqcoin))
 		return
@@ -203,27 +215,27 @@
 			message_admins("silly MOTHERFUCKER [usr.key] IS TRYING TO BUY A [path] WITH THE GOLDFACE")
 			return
 		var/datum/supply_pack/PA = SSmerchant.supply_packs[path]
+		var/profit = ROUND_UP(PA.cost * profit_margin)
 		var/cost = PA.cost + PA.cost * extra_fee
 		var/tax_amt = round(SStreasury.tax_value * PA.cost)
 		if(!(upgrade_flags & UPGRADE_NOTAX) && !bypass_tax)
 			cost = cost + tax_amt
 		cost = round(cost)
-		if(budget >= cost)
-			budget -= cost
-			record_round_statistic(value_record_key, cost)
-			record_round_statistic(STATS_TRADE_VALUE_IMPORTED, cost)
-			if(!(upgrade_flags & UPGRADE_NOTAX) && !bypass_tax)
-				SStreasury.give_money_treasury(tax_amt, "goldface import tax")
-				record_featured_stat(FEATURED_STATS_TAX_PAYERS, human_mob, tax_amt)
-				record_round_statistic(STATS_TAXES_COLLECTED, tax_amt)
-			else
-				record_round_statistic(STATS_TAXES_EVADED, tax_amt)
-		else
+		if(budget < cost)
 			say("Not enough!")
 			return
+		budget -= cost
+		wgain += profit
+		record_round_statistic(value_record_key, cost)
+		record_round_statistic(STATS_TRADE_VALUE_IMPORTED, cost)
+		if(!(upgrade_flags & UPGRADE_NOTAX) && !bypass_tax)
+			SStreasury.give_money_treasury(tax_amt, "goldface import tax")
+			record_featured_stat(FEATURED_STATS_TAX_PAYERS, human_mob, tax_amt)
+			record_round_statistic(STATS_TAXES_COLLECTED, tax_amt)
+		else
+			record_round_statistic(STATS_TAXES_EVADED, tax_amt)
 		var/shoplength = PA.contains.len
-		var/l
-		for(l=1,l<=shoplength,l++)
+		for(var/l=1,l<=shoplength,l++)
 			var/pathi = PA.contains[l]
 			new pathi(get_turf(M))
 	if(href_list["change"])
@@ -237,8 +249,13 @@
 			return
 		if(ishuman(usr))
 			var/mob/living/carbon/human/H = usr
+			if(wgain <= 0)
+				return
 			if(!(H.job in profit_id))
 				return
+			budget2change(wgain, usr)
+			wgain = 0
+
 	if(href_list["secrets"])
 		var/list/options = list()
 		if(upgrade_flags & UPGRADE_NOTAX)
@@ -273,7 +290,11 @@
 	var/canread = user.can_read(src, TRUE)
 	var/contents
 	contents = "<center>[motto]<BR>"
-	contents += "<a href='?src=[REF(src)];change=1'>MAMMON LOADED:</a> [budget]<BR>"
+
+	if(locked)
+		contents += "<a href='?src=[REF(src)];withdrawgain=1'>Stored Profits:</a> [wgain]<BR>"
+	else
+		contents += "<a href='?src=[REF(src)];change=1'>MAMMON LOADED:</a> [budget]<BR>"
 
 	var/mob/living/carbon/human/H = user
 	if(H.job in profit_id)
@@ -336,7 +357,7 @@
 	set_light(0)
 	return ..()
 
-/obj/structure/roguemachine/goldface/Initialize()
+/obj/structure/roguemachine/goldface/Initialize(mapload)
 	. = ..()
 	update_icon()
 

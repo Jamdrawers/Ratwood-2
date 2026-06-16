@@ -9,7 +9,7 @@
 	var/stockpile_index = 1
 	var/datum/withdraw_tab/withdraw_tab = null
 
-/obj/structure/roguemachine/withdraw/Initialize()
+/obj/structure/roguemachine/withdraw/Initialize(mapload)
 	. = ..()
 	SSroguemachine.stock_machines += src
 	withdraw_tab = new(stockpile_index, src)
@@ -19,7 +19,7 @@
 	return ..()
 
 /obj/structure/roguemachine/withdraw/attackby(obj/item/P, mob/user, params)
-	if(istype(P, /obj/item/roguecoin/aalloy))
+	if(istype(P, /obj/item/roguecoin/gilbranze))
 		return
 
 	if(istype(P, /obj/item/roguecoin/inqcoin))	

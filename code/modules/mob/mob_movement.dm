@@ -3,22 +3,22 @@
 	return TRUE				//There's almost no cases where non /living mobs should be used in game as actual mobs, other than ghosts.
 
 /**
-  * If your mob is concious, drop the item in the active hand
-  *
-  * This is a hidden verb, likely for binding with winset for hotkeys
-  */
+ * If your mob is concious, drop the item in the active hand
+ *
+ * This is a hidden verb, likely for binding with winset for hotkeys
+ */
 /client/verb/drop_item()
 	set hidden = 1
 	return
 
 /**
-  * force move the control_object of your client mob
-  *
-  * Used in admin possession and called from the client Move proc
-  * ensures the possessed object moves and not the admin mob
-  *
-  * Has no sanity other than checking density
-  */
+ * force move the control_object of your client mob
+ *
+ * Used in admin possession and called from the client Move proc
+ * ensures the possessed object moves and not the admin mob
+ *
+ * Has no sanity other than checking density
+ */
 /client/proc/Move_object(direct)
 	if(mob && mob.control_object)
 		if(mob.control_object.density)
@@ -29,69 +29,65 @@
 		else
 			mob.control_object.forceMove(get_step(mob.control_object,direct))
 
-#define MOVEMENT_DELAY_BUFFER 0.75
-#define MOVEMENT_DELAY_BUFFER_DELTA 1.25
-
-/**
-  * Move a client in a direction
-  *
-  * Huge proc, has a lot of functionality
-  *
-  * Mostly it will despatch to the mob that you are the owner of to actually move
-  * in the physical realm
-  *
-  * Things that stop you moving as a mob:
-  * * world time being less than your next move_delay
-  * * not being in a mob, or that mob not having a loc
-  * * missing the n and direction parameters
-  * * being in remote control of an object (calls Moveobject instead)
-  * * being dead (it ghosts you instead)
-  *
-  * Things that stop you moving as a mob living (why even have OO if you're just shoving it all
-  * in the parent proc with istype checks right?):
-  * * having incorporeal_move set (calls Process_Incorpmove() instead)
-  * * being grabbed
-  * * being buckled  (relaymove() is called to the buckled atom instead)
-  * * having your loc be some other mob (relaymove() is called on that mob instead)
-  * * Not having MOBILITY_MOVE
-  * * Failing Process_Spacemove() call
-  *
-  * At this point, if the mob is is confused, then a random direction and target turf will be calculated for you to travel to instead
-  *
-  * Now the parent call is made (to the byond builtin move), which moves you
-  *
-  * Some final move delay calculations (doubling if you moved diagonally successfully)
-  *
-  * if mob throwing is set I believe it's unset at this point via a call to finalize
-  *
-  * Finally if you're pulling an object and it's dense, you are turned 180 after the move
-  * (if you ask me, this should be at the top of the move so you don't dance around)
-  *
-  */
 /atom/movable
 	var/facepull = TRUE
 
 /mob
 	facepull = FALSE
 
-/client/Move(n, direct)
+/**
+ * Move a client in a direction
+ *
+ * Huge proc, has a lot of functionality
+ *
+ * Mostly it will despatch to the mob that you are the owner of to actually move
+ * in the physical realm
+ *
+ * Things that stop you moving as a mob:
+ * * world time being less than your next move_delay
+ * * not being in a mob, or that mob not having a loc
+ * * missing the new_loc and direction parameters
+ * * being in remote control of an object (calls Moveobject instead)
+ * * being dead (it ghosts you instead)
+ *
+ * Things that stop you moving as a mob living (why even have OO if you're just shoving it all
+ * in the parent proc with istype checks right?):
+ * * having incorporeal_move set (calls Process_Incorpmove() instead)
+ * * being grabbed
+ * * being buckled  (relaymove() is called to the buckled atom instead)
+ * * having your loc be some other mob (relaymove() is called on that mob instead)
+ * * Not having MOBILITY_MOVE
+ * * Failing Process_Spacemove() call
+ *
+ * At this point, if the mob is is confused, then a random direction and target turf will be calculated for you to travel to instead
+ *
+ * Now the parent call is made (to the byond builtin move), which moves you
+ *
+ * Some final move delay calculations (doubling if you moved diagonally successfully)
+ *
+ * if mob throwing is set I believe it's unset at this point via a call to finalize
+ *
+ * Finally if you're pulling an object and it's dense, you are turned 180 after the move
+ * (if you ask me, this should be at the top of the move so you don't dance around)
+ *
+ */
+/client/Move(new_loc, direct)
 	if(world.time < move_delay) //do not move anything ahead of this check please
 		return FALSE
-	else
-		next_move_dir_add = 0
-		next_move_dir_sub = 0
+	next_move_dir_add = NONE
+	next_move_dir_sub = NONE
 	var/old_move_delay = move_delay
 	move_delay = world.time + world.tick_lag //this is here because Move() can now be called mutiple times per tick
-	if(!mob || !mob.loc)
+	if(!direct || !new_loc)
 		return FALSE
-	if(!n || !direct)
+	if(!mob?.loc)
 		return FALSE
 	if(mob.notransform)
 		return FALSE	//This is sota the goto stop mobs from moving var
 	if(mob.control_object)
 		return Move_object(direct)
 	if(!isliving(mob))
-		return mob.Move(n, direct)
+		return mob.Move(new_loc, direct)
 	else if(HAS_TRAIT(mob, TRAIT_IN_FRENZY) || HAS_TRAIT(mob, TRAIT_MOVEMENT_BLOCKED))
 		return FALSE
 	if(mob.stat == DEAD)
@@ -124,6 +120,12 @@
 	if(mob.remote_control)					//we're controlling something, our movement is relayed to it
 		return mob.remote_control.relaymove(mob, direct)
 
+	// Mounted movement should be relayed before grab logic, otherwise pull checks can block riding.
+	if(mob.buckled)
+		var/mob/buckled_mob = mob
+		if(buckled_mob.get_buckled_animal_mount())
+			return mob.buckled.relaymove(mob, direct)
+
 	if(Process_Grab()) //are we restrained by someone's grip?
 		return
 
@@ -139,7 +141,7 @@
 
 	//We are now going to move
 	var/add_delay = mob.cached_multiplicative_slowdown
-	if(old_move_delay + (add_delay*MOVEMENT_DELAY_BUFFER_DELTA) + MOVEMENT_DELAY_BUFFER > world.time)
+	if(old_move_delay + world.tick_lag > world.time)
 		move_delay = old_move_delay
 	else
 		move_delay = world.time
@@ -154,9 +156,9 @@
 			newdir = angle2dir(dir2angle(direct) + pick(45, -45))
 		if(newdir)
 			direct = newdir
-			n = get_step(L, direct)
+			new_loc = get_step(L, direct)
 
-	var/target_dir = get_dir(L, n)
+	var/target_dir = get_dir(L, new_loc)
 
 	//backpedal and strafe slowdown for quick intent
 	if(L.fixedeye || L.tempfixeye)
@@ -178,7 +180,7 @@
 
 	. = ..()
 
-	if((direct & (direct - 1)) && mob.loc == n) //moved diagonally successfully
+	if((direct & (direct - 1)) && mob.loc == new_loc) //moved diagonally successfully
 		add_delay *= 2
 	mob.set_glide_size(DELAY_TO_GLIDE_SIZE(add_delay))
 	move_delay += add_delay
@@ -214,10 +216,10 @@
 			mob << browse(null, "window=[X]")
 			open_popups -= X
 /**
-  * Checks to see if you're being grabbed and if so attempts to break it
-  *
-  * Called by client/Move()
-  */
+ * Checks to see if you're being grabbed and if so attempts to break it
+ *
+ * Called by client/Move()
+ */
 /client/proc/Process_Grab()
 	if(mob.pulledby)
 		if(mob.pulledby == mob)
@@ -287,18 +289,18 @@
 			return TRUE
 
 /**
-  * Allows mobs to ignore density and phase through objects
-  *
-  * Called by client/Move()
-  *
-  * The behaviour depends on the incorporeal_move value of the mob
-  *
-  * * INCORPOREAL_MOVE_BASIC - forceMoved to the next tile with no stop
-  * * INCORPOREAL_MOVE_SHADOW  - the same but leaves a cool effect path
-  * * INCORPOREAL_MOVE_JAUNT - the same but blocked by holy tiles
-  *
-  * You'll note this is another mob living level proc living at the client level
-  */
+ * Allows mobs to ignore density and phase through objects
+ *
+ * Called by client/Move()
+ *
+ * The behaviour depends on the incorporeal_move value of the mob
+ *
+ * * INCORPOREAL_MOVE_BASIC - forceMoved to the next tile with no stop
+ * * INCORPOREAL_MOVE_SHADOW  - the same but leaves a cool effect path
+ * * INCORPOREAL_MOVE_JAUNT - the same but blocked by holy tiles
+ *
+ * You'll note this is another mob living level proc living at the client level
+ */
 /client/proc/Process_Incorpmove(direct)
 	var/turf/mobloc = get_turf(mob)
 	if(!isliving(mob))
@@ -383,10 +385,10 @@
 	return mob && mob.hud_used && mob.hud_used.zone_select && istype(mob.hud_used.zone_select, /atom/movable/screen/zone_sel)
 
 /**
-  * Hidden verb to set the target zone of a mob to the head
-  *
-  * (bound to 8) - repeated presses toggles through head - eyes - mouth
-  */
+ * Hidden verb to set the target zone of a mob to the head
+ *
+ * (bound to 8) - repeated presses toggles through head - eyes - mouth
+ */
 /client/verb/body_toggle_head()
 	set name = "body-toggle-head"
 	set hidden = 1
@@ -552,10 +554,10 @@
 		mob.toggle_move_intent(usr)
 
 /**
-  * Toggle the move intent of the mob
-  *
-  * triggers an update the move intent hud as well
-  */
+ * Toggle the move intent of the mob
+ *
+ * triggers an update the move intent hud as well
+ */
 /mob/proc/toggle_move_intent(mob/user)
 	if(m_intent == MOVE_INTENT_RUN)
 		m_intent = MOVE_INTENT_WALK
@@ -595,14 +597,27 @@
 
 	var/used_time = 50
 	var/light_threshold = rogue_sneaking_light_threshhold
+	var/held_invis_value = (SEE_INVISIBLE_LIVING + (get_skill_level(/datum/skill/misc/sneaking) * 0.55))+1 //At 5 sneak, you get a total of ~24 invis - 3.75 bonus
 	if(mind)
 		used_time = max(used_time - (get_skill_level(/datum/skill/misc/sneaking) * 8), 0)
-		light_threshold += (get_skill_level(/datum/skill/misc/sneaking) / 200)
+		light_threshold += (get_skill_level(/datum/skill/misc/sneaking) / 20)
+
+	if(!reset && m_intent != MOVE_INTENT_SNEAK && alpha != initial(alpha)) // prevents funny bugs with getting stuck transparent
+		if(!wallpressed)
+			animate(src, alpha = initial(alpha), time = 10)
+			spawn(10) regenerate_icons()
+			invisibility = initial(invisibility) //Ditto. Stops you from getting stuck invisible.
+		else
+			animate(src, alpha = 255, time = 10)
+			invisibility = initial(invisibility) //fucking lol lmao
+
+		rogue_sneaking = FALSE
+		return
 
 	if(rogue_sneaking || reset) //If sneaking, check if they should be revealed
 		var/should_reveal = FALSE
 		// are we crit, sleeping, been recently discovered, have no turf, force-revealed or not in sneak intent? then we should be revealed, end of.
-		if((stat > SOFT_CRIT) || IsSleeping() || (world.time < mob_timers[MT_FOUNDSNEAK] + 30 SECONDS) || !T || reset || (m_intent != MOVE_INTENT_SNEAK))
+		if((stat > SOFT_CRIT) || IsSleeping() || (world.time < mob_timers[MT_FOUNDSNEAK] + 30 SECONDS) || !T || reset || (m_intent != MOVE_INTENT_SNEAK) || (world.time < mob_timers[MT_SNEAKATTACK] + 4 SECONDS) || (world.time < mob_timers[MT_SNEAKBUMP] + 0.5 SECONDS))
 			should_reveal = TRUE
 
 		// are we in a area of light that should reveal us?
@@ -613,39 +628,82 @@
 
 		if (should_reveal)
 			used_time = round(clamp((50 - (used_time*1.75)), 5, 50),1)
-			animate(src, alpha = initial(alpha), time =	used_time) //sneak skill makes you reveal slower but not as drastic as disappearing speed
-			spawn(used_time) regenerate_icons()
+			if(!wallpressed) // so we can stay partially invisible if wallpressed
+				invisibility = initial(invisibility) //Prevents a super rare edge case where you would stay super invisible and evil forever. Why does this happen? SPAWN() is the beast of satan
+				animate(src, alpha = initial(alpha), time =	used_time) //sneak skill makes you reveal slower but not as drastic as disappearing speed
+				spawn(used_time) regenerate_icons()
+			else
+				if(alpha != 255)
+					invisibility = initial(invisibility) //Ensure to set this back to type default (Always 0 for mobs). Execute BEFORE the animate so you can see them fade in.
+					animate(src, alpha = 255, time = used_time)
 			rogue_sneaking = FALSE
 			return
 
 	else //not currently sneaking, check if we can sneak
 		if (m_intent == MOVE_INTENT_SNEAK) // we were not sneaking and are now trying to.
+			if(wallpressed)
+				update_wallpress_slowdown()
+			var/target_alpha = 255
+			if(lying)
+				target_alpha = get_lying_alpha()
+			if(target_alpha != alpha)
+				if(!wallpressed)
+					animate(src, alpha = target_alpha, time = used_time) //Use regular ass sneakcode here so it isn't ungodly overpowered
+					spawn(used_time + 5) regenerate_icons()
 			light_amount = T.get_lumcount()  // as above, this is moderately expensive, so only check it if we need to.
 			if(light_amount < light_threshold)
-				animate(src, alpha = 0, time = used_time)
+				animate(src, alpha = get_lying_alpha(), time = used_time) //THIS PART CONTROLS REGULAR SNEAKING. USE INVIS HERE.
 				spawn(used_time + 5) regenerate_icons()
+				invisibility = held_invis_value //At 5 sneak, you get a total of ~24 invis - 3.75 bonus
 				rogue_sneaking = TRUE
 	return
+
+/mob/living/proc/get_lying_alpha()
+	var/skill_level = src.get_skill_level(/datum/skill/misc/sneaking)
+
+	switch(skill_level)
+		if(1)
+			return 178 //30%
+		if(2)
+			return 140 //45%
+		if(3)
+			return 128 //50%
+		if(4)
+			return 102 //60%
+		if(5)
+			return 77 //70%
+		if(6)
+			return 51 //80%
+
+	return 255
 
 ///Checked whenever a mob tries to change their movement intent
 /mob/proc/toggle_rogmove_intent(intent, silent = FALSE)
 	var/is_mounted = FALSE
-	if(buckled && intent != MOVE_INTENT_SNEAK)
-		if(istype(buckled, /mob/living/simple_animal/hostile/retaliate/rogue/saiga))
-			if(ishuman(src))
-				var/mob/living/carbon/human/H = src
-				var/mob/living/simple_animal/hostile/retaliate/rogue/saiga/S = buckled
-				is_mounted = TRUE
-				if(H.m_intent == MOVE_INTENT_WALK)
-					H.visible_message(span_notice("[H] digs their heels into \the [S], preparing to gallop!"))
-					S.emote("aggro")
-					if(do_after(H, 20))
-						H.m_intent = MOVE_INTENT_RUN
-				else
-					H.visible_message(span_notice("\The [S] calms, slowing its gait."))
-					S.emote("idle")
-					if(do_after(H, 15))
-						H.m_intent = MOVE_INTENT_WALK
+	if(ishuman(src))
+		var/mob/living/carbon/human/H = src
+		var/mob/living/simple_animal/animal_mount = H.get_buckled_animal_mount()
+		if(animal_mount)
+			is_mounted = TRUE
+			switch(intent)
+				if(MOVE_INTENT_RUN)
+					if(H.m_intent != MOVE_INTENT_RUN)
+						H.visible_message(span_notice("[H] steadies atop [animal_mount], preparing to break into a run."))
+						animal_mount.emote("aggro")
+						if(do_after(H, 30))
+							H.m_intent = MOVE_INTENT_RUN
+				if(MOVE_INTENT_SNEAK)
+					if(H.m_intent != MOVE_INTENT_SNEAK)
+						H.visible_message(span_notice("[H] reins in [animal_mount], slowing into a cautious gait."))
+						if(do_after(H, 30))
+							H.m_intent = MOVE_INTENT_SNEAK
+							H.update_sneak_invis()
+				if(MOVE_INTENT_WALK)
+					if(H.m_intent != MOVE_INTENT_WALK)
+						H.visible_message(span_notice("[animal_mount] calms, returning to a steady pace."))
+						animal_mount.emote("idle")
+						if(do_after(H, 15))
+							H.m_intent = MOVE_INTENT_WALK
 	// If we're becoming sprinting from non-sprinting, reset the counter
 	if(!(m_intent == MOVE_INTENT_RUN && intent == MOVE_INTENT_RUN))
 		sprinted_tiles = 0
@@ -770,7 +828,16 @@
 		src.apply_status_effect(/datum/status_effect/buff/magearmor)
 		return TRUE
 
+/mob/living/proc/check_scale_armor()
+	return TRUE
 
+/mob/living/carbon/human/check_scale_armor()
+	if(!HAS_TRAIT(src, TRAIT_SCALEARMOR))
+		return FALSE
+	if(src.magearmor == 0)
+		src.magearmor = 1
+		src.apply_status_effect(/datum/status_effect/buff/magearmor)
+		return TRUE
 
 /mob/proc/toggle_eye_intent(mob/user) //clicking the fixeye button either makes you fixeye or clears your target
 	if(fixedeye)

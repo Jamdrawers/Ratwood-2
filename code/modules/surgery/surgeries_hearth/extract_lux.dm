@@ -14,10 +14,13 @@
 	name = "Extract Lux"
 	implements = list(
 		TOOL_SCALPEL = 80,
+		TOOL_IMPROVISED_SCALPEL = 45,
+		TOOL_SHARP = 30,
 	)
 	target_mobtypes = list(/mob/living/carbon/human, /mob/living/carbon/monkey)
 	time = 8 SECONDS
 	surgery_flags = SURGERY_BLOODY | SURGERY_INCISED | SURGERY_CLAMPED | SURGERY_RETRACTED | SURGERY_BROKEN
+	surgery_flags_blocked = SURGERY_CONSTRUCT
 	skill_min = SKILL_LEVEL_JOURNEYMAN
 	preop_sound = 'sound/surgery/organ2.ogg'
 	success_sound = 'sound/surgery/organ1.ogg'
@@ -38,7 +41,7 @@
 /datum/surgery_step/extract_lux/success(mob/user, mob/living/target, target_zone, obj/item/tool, datum/intent/intent)
 	if (!target.has_status_effect(/datum/status_effect/buff/ozium))
 		target.emote("painscream")
-	if(target.has_status_effect(/datum/status_effect/debuff/devitalised))
+	if(target.has_status_effect(/datum/status_effect/debuff/devitalised) || target.has_status_effect(/datum/status_effect/debuff/devitalised/lux_ripped))
 		display_results(user, target, span_notice("You cannot draw lux from [target]; they have none left to give."),
 		"[user] extracts lux from [target]'s innards.",
 		"[user] extracts lux from [target]'s innards.")

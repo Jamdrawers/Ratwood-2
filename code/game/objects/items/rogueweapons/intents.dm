@@ -54,7 +54,17 @@
 	var/glow_color = null // The color of the glow. Used for spells
 	var/mob_light = null // tracking mob_light
 	var/obj/effect/mob_charge_effect = null // The effect to be added (on top) of the mob while it is charging
-
+	var/custom_swingdelay = null	//Custom icon for its swingdelay.
+	/// Effective range for penfactor to apply fully.
+	var/effective_range = null
+	///	Effective range type. Can be Exact, Below or Above. Be sure to set this if you use effective_range!
+	/// Only use this with reach is >1 because otherwise like... why.
+	var/effective_range_type = EFF_RANGE_NONE
+	/// Extra sharpness drain per successful & parried hit.
+	var/sharpness_penalty = 0
+	//The below is for chipping on intents. Damage applied through armour, as a mechanic.
+	var/blunt_chipping = FALSE//Is this even capable of it?
+	var/blunt_chip_strength = null//How strong?
 
 	var/list/static/bonk_animation_types = list(
 		BCLASS_BLUNT,
@@ -89,7 +99,19 @@
 	if(desc)
 		inspec += "\n[desc]"
 	if(reach != 1)
-		inspec += "\n<b>Reach:</b> [reach]"
+		inspec += "\n<b>Reach:</b> [reach] paces"
+	if(effective_range)
+		var/suffix
+		switch(effective_range_type)
+			if(EFF_RANGE_EXACT)
+				suffix = "exactly"
+			if(EFF_RANGE_ABOVE)
+				suffix = "at and beyond"
+			if(EFF_RANGE_BELOW)
+				suffix = "at and within"
+			else
+				CRASH("effective_range found without a valid effective_range_type on [src] intent by [user]")
+		inspec += "\n<b>Effective Range:</b> [suffix] [effective_range] paces"
 	if(damfactor != 1)
 		inspec += "\n<b>Damage:</b> [damfactor]"
 	if(penfactor)
@@ -128,6 +150,20 @@
 	if(intent_intdamage_factor != 1)
 		var/percstr = abs(intent_intdamage_factor - 1) * 100
 		inspec += "\nThis intent deals [percstr]% [intent_intdamage_factor > 1 ? "more" : "less"] damage to integrity."
+	if(sharpness_penalty)
+		inspec += "\nThis intent will cost some sharpness for every attack made."
+	if(blunt_chipping)
+		var/chip_strength
+		switch(blunt_chip_strength)
+			if(BLUNT_CHIP_MINUSCULE)
+				chip_strength = "minuscule"
+			if(BLUNT_CHIP_WEAK)
+				chip_strength = "middling"
+			if(BLUNT_CHIP_STRONG)
+				chip_strength = "considerable"
+			if(BLUNT_CHIP_ABSURD)
+				chip_strength = "significant"
+		inspec += "\nA [chip_strength] sum of damage will bypass armour, if the target has no padded protection."
 	inspec += "<br>----------------------"
 
 	to_chat(user, "[inspec.Join()]")
@@ -159,7 +195,7 @@
 /datum/intent/proc/rmb_ranged(atom/target, mob/user)
 	return
 
-/datum/intent/proc/can_charge()
+/datum/intent/proc/can_charge(atom/clicked_object)
 	return TRUE
 
 /datum/intent/proc/afterchange()
@@ -220,7 +256,7 @@
 		chargedloop.start(chargedloop.parent)
 		mastermob.curplaying = src
 	if(glow_color && glow_intensity)
-		mob_light = mastermob.mob_light(glow_color, glow_intensity)
+		mob_light = mastermob.mob_light(glow_color, glow_intensity, FLASH_LIGHT_SPELLGLOW)
 	if(mob_charge_effect)
 		mastermob.vis_contents += mob_charge_effect
 
@@ -439,7 +475,7 @@
 	miss_text = "swing a fist at the air"
 	miss_sound = "punchwoosh"
 	item_d_type = "blunt"
-	intent_intdamage_factor = 0.5
+	intent_intdamage_factor = 1
 
 /datum/intent/unarmed/punch/rmb_ranged(atom/target, mob/user)
 	if(user.stat >= UNCONSCIOUS)
@@ -447,11 +483,23 @@
 	if(ismob(target))
 		var/mob/M = target
 		var/list/targetl = list(target)
-		user.visible_message(span_warning("[user] taunts [M]!"), span_warning("I taunt [M]!"), ignored_mobs = targetl)
+		user.visible_message(span_taunt("[user] taunts [M]!"), span_taunt("I taunt [M]!"), ignored_mobs = targetl)
 		user.emote("taunt")
-		if(M.client)
-			if(M.can_see_cone(user))
-				to_chat(M, span_danger("[user] taunts me!"))
+		if(M.mind)
+			var/mob/living/L = user
+			var/taunticon = "taunt" // Regular fist
+			var/custom_offset = 21
+			if(istype(L.patron, /datum/patron/inhumen/graggar) || L.get_stress_amount() > 10 || L.get_flaw(/datum/charflaw/paranoid))
+				taunticon = "midfinger" // Very rude, but we're also a Rude Person (or stressed)
+				custom_offset = 23
+
+			if(istype(L.patron, /datum/patron/divine/eora) || HAS_TRAIT(L, TRAIT_PACIFISM))
+				taunticon = "thumbsdown"
+				custom_offset = 24
+
+			L.play_overhead_private_rclickemote(targetl, taunticon, custom_offset)
+			user.changeNext_move(CLICK_CD_FAST)	// Mostly to prevent spamming the animation too heavily.
+			to_chat(M, span_taunt("[user] taunts me!"))
 		else
 			M.taunted(user)
 	return
@@ -492,9 +540,11 @@
 		var/mob/M = target
 		var/list/targetl = list(target)
 		user.visible_message(span_blue("[user] shoos [M] away."), span_blue("I shoo [M] away."), ignored_mobs = targetl)
-		if(M.client)
-			if(M.can_see_cone(user))
-				to_chat(M, span_blue("[user] shoos me away."))
+		if(M.mind)
+			var/mob/living/L = user
+			L.play_overhead_private_rclickemote(targetl, "dismiss")
+			user.changeNext_move(CLICK_CD_FAST)	// Mostly to prevent spamming the animation too heavily.
+			to_chat(M, span_blue("[user] shoos me away."))
 		else
 			M.shood(user)
 	return
@@ -518,10 +568,12 @@
 	if(ismob(target))
 		var/mob/M = target
 		var/list/targetl = list(target)
-		user.visible_message(span_green("[user] beckons [M] to come closer."), span_green("I beckon [M] to come closer."), ignored_mobs = targetl)
-		if(M.client)
-			if(M.can_see_cone(user))
-				to_chat(M, span_green("[user] beckons me to come closer."))
+		user.visible_message(span_yellow("[user] beckons [M] to come closer."), span_yellow("I beckon [M] to come closer."), ignored_mobs = targetl)
+		if(M.mind)
+			var/mob/living/L = user
+			L.play_overhead_private_rclickemote(targetl, "beckon")
+			user.changeNext_move(CLICK_CD_FAST)	// Mostly to prevent spamming the animation too heavily.
+			to_chat(M, span_yellow("[user] beckons me to come closer."))
 		else
 			M.beckoned(user)
 	return
@@ -543,9 +595,11 @@
 		var/mob/M = target
 		var/list/targetl = list(target)
 		user.visible_message(span_green("[user] waves friendly at [M]."), span_green("I wave friendly at [M]."), ignored_mobs = targetl)
-		if(M.client)
-			if(M.can_see_cone(user))
-				to_chat(M, span_green("[user] gives me a friendly wave."))
+		if(M.mind)	// Waving at an NPC doesn't need to show this.
+			var/mob/living/L = user
+			L.play_overhead_private_rclickemote(targetl, "wavefriendly")
+			user.changeNext_move(CLICK_CD_FAST)	// Mostly to prevent spamming the animation too heavily.
+			to_chat(M, span_green("[user] gives me a friendly wave."))
 	return
 
 /datum/intent/simple/headbutt

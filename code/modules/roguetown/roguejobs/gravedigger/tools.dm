@@ -13,7 +13,7 @@
 	w_class = WEIGHT_CLASS_BULKY
 	tool_behaviour = TOOL_SHOVEL
 	associated_skill = /datum/skill/combat/maces
-	slot_flags = ITEM_SLOT_BACK
+	slot_flags = ITEM_SLOT_HIP | ITEM_SLOT_BACK
 	swingsound = list('sound/combat/wooshes/blunt/shovel_swing.ogg','sound/combat/wooshes/blunt/shovel_swing2.ogg')
 	drop_sound = 'sound/foley/dropsound/shovel_drop.ogg'
 	var/obj/item/natural/dirtclod/heldclod
@@ -61,22 +61,84 @@
 
 /obj/item/rogueweapon/shovel/attack_turf(turf/T, mob/living/user)
 	user.changeNext_move(user.used_intent.clickcd)
+
 	if(user.used_intent.type == /datum/intent/shovelscoop)
 		if(istype(T, /turf/open/floor/rogue/dirt))
 			var/turf/open/floor/rogue/dirt/D = T
+
+			if(!heldclod && user && istype(user.rmb_intent, /datum/rmb_intent/strong) && HAS_TRAIT(user, TRAIT_GRAVEROBBER))
+				if(D.holie && D.holie.stage >= 3)
+					return
+
+				to_chat(user, span_notice("I tear into the earth, carving out a pit!"))
+
+				if(do_after(user, 5 SECONDS, target = T))
+					var/obj/structure/closet/dirthole/H = null
+
+					if(istype(T, /turf/open/floor/rogue/dirt))
+						var/turf/open/floor/rogue/dirt/curD = T
+						H = curD.holie
+
+					if(!H)
+						if(istype(T, /turf/open/floor/rogue/dirt/road))
+							H = new /obj/structure/closet/dirthole(T)
+						else
+							T.ChangeTurf(/turf/open/floor/rogue/dirt/road, flags = CHANGETURF_INHERIT_AIR)
+							var/turf/open/floor/rogue/dirt/newD = T
+							H = newD.holie
+
+					if(H)
+						H.stage = 3
+						H.faildirt = 0
+						H.climb_offset = 0
+						H.locked = FALSE
+						H.opened = TRUE
+						H.update_icon()
+
+						heldclod = new(src)
+						update_icon()
+
+						var/list/spawn_turfs = list(
+							get_turf(user),
+							get_step(user, NORTH),
+							get_step(user, SOUTH),
+							get_step(user, EAST),
+							get_step(user, WEST)
+						)
+
+						var/spawned = 0
+						for(var/turf/spawnT in spawn_turfs)
+							if(!spawnT)
+								continue
+
+							new /obj/item/natural/dirtclod(spawnT)
+							spawned++
+
+							if(spawned >= 3)
+								break
+
+						playsound(T, 'sound/items/dig_shovel.ogg', 100, TRUE)
+
+				return
+
 			if(heldclod)
 				if(D.holie && D.holie.stage < 4)
 					D.holie.attackby(src, user)
 				else
-					if(istype(T, /turf/open/floor/rogue/dirt/road))
+					if(istype(T, /turf/open/floor/rogue/dirt/road/desert))
+						qdel(heldclod)
+						T.ChangeTurf(/turf/open/floor/rogue/dirt/desert, flags = CHANGETURF_INHERIT_AIR)
+					else if(istype(T, /turf/open/floor/rogue/dirt/road))
 						qdel(heldclod)
 						T.ChangeTurf(/turf/open/floor/rogue/dirt, flags = CHANGETURF_INHERIT_AIR)
 					else
 						heldclod.forceMove(T)
+
 					heldclod = null
-					playsound(T,'sound/items/empty_shovel.ogg', 100, TRUE)
+					playsound(T, 'sound/items/empty_shovel.ogg', 100, TRUE)
 					update_icon()
 					return
+
 			else
 				if(D.holie)
 					D.holie.attackby(src, user)
@@ -85,25 +147,162 @@
 						new /obj/structure/closet/dirthole(T)
 					else
 						T.ChangeTurf(/turf/open/floor/rogue/dirt/road, flags = CHANGETURF_INHERIT_AIR)
+
 					heldclod = new(src)
-					playsound(T,'sound/items/dig_shovel.ogg', 100, TRUE)
+					playsound(T, 'sound/items/dig_shovel.ogg', 100, TRUE)
 					update_icon()
+
 			return
+
+		if(istype(T, /turf/open/floor/rogue/sand) || istype(T, /turf/open/floor/rogue/AzureSand) || istype(T, /turf/open/floor/rogue/dunes))
+			if(heldclod)
+				heldclod.forceMove(T)
+				heldclod = null
+				playsound(T, 'sound/items/empty_shovel.ogg', 100, TRUE)
+				update_icon()
+				return
+
+			if(scoop_sand_clod(T))
+				return
+
 		if(heldclod)
 			if(istype(T, /turf/open/water))
 				qdel(heldclod)
-//				T.ChangeTurf(/turf/open/floor/rogue/dirt/road, flags = CHANGETURF_INHERIT_AIR)
 			else
 				heldclod.forceMove(T)
+
 			heldclod = null
-			playsound(T,'sound/items/empty_shovel.ogg', 100, TRUE)
+			playsound(T, 'sound/items/empty_shovel.ogg', 100, TRUE)
 			update_icon()
 			return
-		if(istype(T, /turf/open/floor/rogue/grass) || istype(T, /turf/open/floor/rogue/grassred) || istype(T, /turf/open/floor/rogue/grassyel) || istype(T, /turf/open/floor/rogue/grasscold))
+
+		if(istype(T, /turf/open/floor/rogue/grass) || istype(T, /turf/open/floor/rogue/grassred) || istype(T, /turf/open/floor/rogue/grassyel) || istype(T, /turf/open/floor/rogue/grasscold) || istype(T, /turf/open/floor/rogue/grasspurple) || istype(T, /turf/open/floor/rogue/grassgrey))
 			to_chat(user, span_warning("There is grass in the way."))
 			return
+
+		if(istype(T, /turf/open/floor/rogue/snow) || istype(T, /turf/open/floor/rogue/snowrough) || istype(T, /turf/open/floor/rogue/snowpatchy))
+			T.ChangeTurf(/turf/open/floor/rogue/dirt, flags = CHANGETURF_INHERIT_AIR)
+			to_chat(user, span_warning("You scoop away the snow!"))
+
 		return
+
 	. = ..()
+
+/obj/item/rogueweapon/shovel/proc/start_autodig(mob/living/L, turf/T)
+	if(!isliving(L))
+		return FALSE
+
+	if(istype(T, /turf/open/floor/rogue/sand) || istype(T, /turf/open/floor/rogue/AzureSand))
+		return start_autodig_sand(L, T)
+
+	if(!istype(T, /turf/open/floor/rogue/dirt))
+		return FALSE
+
+	var/turf/open/floor/rogue/dirt/D = T
+	var/start_digging = !heldclod && !D.holie
+
+	if(!start_digging)
+		return FALSE
+
+	L.visible_message(span_notice("[L] begins digging on [T]..."))
+	// Do the first dig
+	if(!heldclod)
+		if(istype(T, /turf/open/floor/rogue/dirt/road))
+			new /obj/structure/closet/dirthole(T)
+		else
+			T.ChangeTurf(/turf/open/floor/rogue/dirt/road, flags = CHANGETURF_INHERIT_AIR)
+		heldclod = new(src)
+		playsound(T,'sound/items/dig_shovel.ogg', 100, TRUE)
+		update_icon()
+
+	// Start the continuous loop
+	while(do_after(L, 1 SECONDS, target = T))
+		D = get_turf(T)
+		if(!(istype(D, /turf/open/floor/rogue/dirt)))
+			break
+		if(!(L.mobility_flags & MOBILITY_STAND))
+			to_chat(L, span_warning("You are knocked down and stop digging."))
+			break
+
+		L.changeNext_move(L.used_intent.clickcd)
+		if(max_blade_int)
+			remove_bintegrity(2)
+
+		// Fill the hole with the clod we have
+		if(heldclod && D.holie)
+			D.holie.attackby(src, L)
+			playsound(D,'sound/items/empty_shovel.ogg', 100, TRUE)
+
+		// Dig a new hole on the same tile
+		D = get_turf(T)
+		if(istype(D, /turf/open/floor/rogue/dirt))
+			if(!D.holie)  // Only dig if there's no existing hole
+				if(istype(D, /turf/open/floor/rogue/dirt/road))
+					new /obj/structure/closet/dirthole(D)
+				else
+					D.ChangeTurf(/turf/open/floor/rogue/dirt/road, flags = CHANGETURF_INHERIT_AIR)
+				if(!heldclod)
+					heldclod = new(src)
+				playsound(D,'sound/items/dig_shovel.ogg', 100, TRUE)
+				update_icon()
+			else
+				break
+		else
+			break
+
+	return TRUE
+
+/obj/item/rogueweapon/shovel/proc/can_autodig_sand(turf/T)
+	if(istype(T, /turf/open/floor/rogue/sand))
+		var/turf/open/floor/rogue/sand/S = T
+		return S.sand_amt > 0
+	if(istype(T, /turf/open/floor/rogue/AzureSand) || istype(T, /turf/open/floor/rogue/dunes))
+		return TRUE
+	return FALSE
+
+/obj/item/rogueweapon/shovel/proc/scoop_sand_clod(turf/T)
+	if(!can_autodig_sand(T))
+		return FALSE
+
+	if(istype(T, /turf/open/floor/rogue/sand))
+		var/turf/open/floor/rogue/sand/S = T
+		S.sand_amt = max(S.sand_amt - 1, 0)
+
+	heldclod = new /obj/item/natural/dirtclod/sand(src)
+	playsound(T, 'sound/items/dig_shovel.ogg', 100, TRUE)
+	update_icon()
+	return TRUE
+
+/obj/item/rogueweapon/shovel/proc/start_autodig_sand(mob/living/L, turf/T)
+	if(!can_autodig_sand(T) || heldclod)
+		return FALSE
+
+	L.visible_message(span_notice("[L] begins shoveling sand on [T]..."))
+	if(!scoop_sand_clod(T))
+		return FALSE
+
+	while(do_after(L, 1 SECONDS, target = T))
+		var/turf/current_turf = get_turf(T)
+		if(!can_autodig_sand(current_turf))
+			break
+		if(!(L.mobility_flags & MOBILITY_STAND))
+			to_chat(L, span_warning("You are knocked down and stop digging."))
+			break
+
+		L.changeNext_move(L.used_intent.clickcd)
+		if(max_blade_int)
+			remove_bintegrity(2)
+
+		if(heldclod)
+			heldclod.forceMove(current_turf)
+			heldclod = null
+			playsound(current_turf, 'sound/items/empty_shovel.ogg', 100, TRUE)
+			update_icon()
+
+		if(!scoop_sand_clod(current_turf))
+			break
+
+	return TRUE
 
 /obj/item/rogueweapon/shovel/getonmobprop(tag)
 	. = ..()
@@ -172,7 +371,7 @@
 	smeltresult = null
 	grid_height = 64
 
-/obj/item/rogueweapon/shovel/aalloy
+/obj/item/rogueweapon/shovel/decrepit
 	force = 8
 	name = "decrepit shovel"
 	desc = "A tool of wrought bronze, for burying the lyfeless. His worshippers would say that death is necessary; that the bod will nourish this world, so that more lyfe may sprout. But to those who know the truth - Her truth, it is nothing more than a mockery."
@@ -452,5 +651,53 @@
 "sflip" = 8,
 "wflip" = 8,
 "eflip" = 1)
+			if("onbelt")
+				return list("shrink" = 0.3,"sx" = -2,"sy" = -5,"nx" = 4,"ny" = -5,"wx" = 0,"wy" = -5,"ex" = 2,"ey" = -5,"nturn" = 0,"sturn" = 0,"wturn" = 0,"eturn" = 0,"nflip" = 0,"sflip" = 0,"wflip" = 0,"eflip" = 0,"northabove" = 0,"southabove" = 1,"eastabove" = 1,"westabove" = 0)
+
+//This is effectively an iron quarterstaff, with silver quality, arc intent and chopping. It's a weird thing, but fluff and soulful for Necrans.
+/obj/item/rogueweapon/shovel/mort_staff
+	name = "\improper mortician's staff"
+	desc = "A heavy, silver shovel's head, paired with a length of silver and boswellia wood. \
+	As with standard Necran practice in the many sects, it has been anointed in censer soot, permitting it to act as a focus."
+	force = 16//Iron quarterstaff level.
+	force_wielded = 22//See above.
+	possible_item_intents = list(SPEAR_BASH, /datum/intent/special/magicarc)//One hand lets you arc divine blast and such.
+	gripped_intents = list(/datum/intent/spear/bash/ranged/quarterstaff, /datum/intent/spear/thrust/quarterstaff,
+	/datum/intent/axe/chop/stone, /datum/intent/shovelscoop)//Two hands to let you shovel and chop.
+	icon = 'icons/roguetown/weapons/64.dmi'
+	icon_state = "mortstaff"//Temp sprite.
+	associated_skill = /datum/skill/combat/polearms
+	wdefense = 3
+	wdefense_wbonus = 3//Bless this, m'lord.
+	max_integrity = 200
+	resistance_flags = FLAMMABLE
+	sharpness = IS_BLUNT
+	slot_flags = ITEM_SLOT_BACK
+	walking_stick = TRUE
+	smeltresult = /obj/item/ingot/silver
+	bigboy = TRUE
+	anvilrepair = /datum/skill/craft/carpentry
+	pickup_sound = 'modular_helmsguard/sound/sheath_sounds/draw_polearm.ogg'
+	is_silver = TRUE
+
+/obj/item/rogueweapon/shovel/mort_staff/ComponentInitialize()
+	AddComponent(\
+		/datum/component/silverbless,\
+		pre_blessed = BLESSING_NONE,\
+		silver_type = SILVER_TENNITE,\
+		added_force = 0,\
+		added_blade_int = 0,\
+		added_int = 50,\
+		added_def = 2,\
+	)
+
+/obj/item/rogueweapon/shovel/mort_staff/getonmobprop(tag)
+	. = ..()
+	if(tag)
+		switch(tag)
+			if("gen")
+				return list("shrink" = 0.6,"sx" = -6,"sy" = -1,"nx" = 8,"ny" = 0,"wx" = -4,"wy" = 0,"ex" = 2,"ey" = 1,"northabove" = 0,"southabove" = 1,"eastabove" = 1,"westabove" = 0,"nturn" = -38,"sturn" = 37,"wturn" = 32,"eturn" = -23,"nflip" = 0,"sflip" = 8,"wflip" = 8,"eflip" = 0)
+			if("wielded")
+				return list("shrink" = 0.6,"sx" = 4,"sy" = -2,"nx" = -3,"ny" = -2,"wx" = -5,"wy" = -1,"ex" = 3,"ey" = -2,"northabove" = 0,"southabove" = 1,"eastabove" = 1,"westabove" = 0,"nturn" = 7,"sturn" = -7,"wturn" = 16,"eturn" = -22,"nflip" = 8,"sflip" = 0,"wflip" = 8,"eflip" = 0)
 			if("onbelt")
 				return list("shrink" = 0.3,"sx" = -2,"sy" = -5,"nx" = 4,"ny" = -5,"wx" = 0,"wy" = -5,"ex" = 2,"ey" = -5,"nturn" = 0,"sturn" = 0,"wturn" = 0,"eturn" = 0,"nflip" = 0,"sflip" = 0,"wflip" = 0,"eflip" = 0,"northabove" = 0,"southabove" = 1,"eastabove" = 1,"westabove" = 0)

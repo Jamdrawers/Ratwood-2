@@ -5,9 +5,8 @@
 	allowed_races = RACES_ALL_KINDS
 	outfit = /datum/outfit/job/roguetown/adventurer/seamstress
 	subclass_social_rank = SOCIAL_RANK_YEOMAN
-	traits_applied = list(TRAIT_SEWING_EXPERT)
-
-	traits_applied = list(TRAIT_DYES)
+	maximum_possible_slots = 20 // Should never fill, for the purpose of players to know what types towners are in round at the menu
+	traits_applied = list(TRAIT_SEWING_EXPERT,TRAIT_DYES)
 	category_tags = list(CTAG_PILGRIM, CTAG_TOWNER)
 	subclass_stats = list(
 		STATKEY_SPD = 2,
@@ -43,9 +42,18 @@
 						/obj/item/natural/bundle/fibers/full = 1,
 						/obj/item/flashlight/flare/torch = 1,
 						/obj/item/needle/thorn = 1,
-						/obj/item/recipe_book/sewing = 1,
 						/obj/item/book/rogue/swatchbook = 1,
-						/obj/item/recipe_book/leatherworking = 1
 						)
 	if(H.mind)
 		H.mind.AddSpell(new /obj/effect/proc_holder/spell/invoked/fittedclothing)
+
+	if(SSmapping.config.map_name == "Desert Town")
+		shirt = /obj/item/clothing/suit/roguetown/shirt/dress/thawb/gold
+		armor = /obj/item/clothing/suit/roguetown/shirt/robe/bisht/purple
+		head = /obj/item/clothing/head/roguetown/turban/fancypurple
+		shoes = /obj/item/clothing/shoes/roguetown/gladiator
+
+	if(H.age == AGE_MIDDLEAGED)
+		H.adjust_skillrank_up_to(/datum/skill/craft/sewing, 5, TRUE)
+	if(H.age == AGE_OLD)
+		H.adjust_skillrank_up_to(/datum/skill/craft/sewing, 6, TRUE)

@@ -86,6 +86,7 @@
 		/datum/customizer/organ/snout/akula,
 		/datum/customizer/organ/tail/axian,
 		/datum/customizer/organ/ears/axian,
+		/datum/customizer/organ/horns/anthro,
 		/datum/customizer/organ/testicles/anthro,
 		/datum/customizer/organ/penis/anthro,
 		/datum/customizer/organ/breasts/human,
@@ -111,6 +112,12 @@
 		/datum/body_marking/bangs,
 		/datum/body_marking/bun,
 		/datum/body_marking/gradient,
+		/datum/body_marking/womb_tattoo,
+		/datum/body_marking/butterfly,
+		/datum/body_marking/waist,
+		/datum/body_marking/diagonal_eyes,
+		/datum/body_marking/wide_eyes,
+		/datum/body_marking/stripes,
 	)
 	descriptor_choices = list(
 		/datum/descriptor_choice/trait,

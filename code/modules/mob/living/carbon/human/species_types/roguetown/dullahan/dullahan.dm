@@ -14,7 +14,7 @@
 	//race_bonus = list(STAT_INTELLIGENCE = 1, STAT_CONSTITUTION = 1)
 	skin_tone_wording = "Catalyst"
 
-	species_traits = list(EYECOLOR,HAIR,FACEHAIR,LIPS,STUBBLE,OLDGREY,MUTCOLORS_PARTSONLY)
+	species_traits = list(EYECOLOR,HAIR,FACEHAIR,LIPS,STUBBLE,OLDGREY,MUTCOLORS)
 	default_features = MANDATORY_FEATURE_LIST
 	inherent_traits = list(TRAIT_EASYDECAPITATION, TRAIT_NOHUNGER, TRAIT_NOBREATH, TRAIT_ZOMBIE_IMMUNE) //Given the deathless traits inherently as part of their nature as pseudo-undead.
 	use_skintones = 1
@@ -71,6 +71,7 @@
 		/datum/customizer/bodypart_feature/accessory,
 		/datum/customizer/bodypart_feature/face_detail,
 		/datum/customizer/bodypart_feature/underwear,
+		/datum/customizer/bodypart_feature/legwear,
 		/datum/customizer/organ/snout/anthro/dullahan,
 		/datum/customizer/organ/horns/demihuman,
 		/datum/customizer/organ/wings/anthro,
@@ -101,6 +102,12 @@
 		/datum/body_marking/bangs,
 		/datum/body_marking/bun,
 		/datum/body_marking/plain,
+		/datum/body_marking/womb_tattoo,
+		/datum/body_marking/butterfly,
+		/datum/body_marking/waist,
+		/datum/body_marking/diagonal_eyes,
+		/datum/body_marking/wide_eyes,
+		/datum/body_marking/stripes,
 	)
 	descriptor_choices = list(
 		/datum/descriptor_choice/trait,
@@ -120,7 +127,7 @@
 		/datum/language/common,
 	)
 
-	restricted_virtues = list(/datum/virtue/utility/noble, /datum/virtue/utility/deathless, /datum/virtue/utility/resident)
+	restricted_virtues = list(/datum/virtue/utility/deathless)
 
 	stress_examine = TRUE
 	stress_desc = span_red("Accursed. I should keep my distance...")

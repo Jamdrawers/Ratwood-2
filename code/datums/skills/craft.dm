@@ -15,7 +15,7 @@
 
 /datum/skill/craft/weaponsmithing
 	name = "Weaponsmithing"
-	desc = "Determins whether you can smith various weapons. Required to repair weapons successfully on tables."
+	desc = "Determines whether you can smith various weapons. Required to repair weapons successfully on tables."
 	dreams = list(
 		"...tempered in gold and void, sharpened only by the sun and moon, your creation is finally complete. This one... This one will pierce the heavens...",
 		"...sweat drips down your brow and your arms ache with every strike, but at last, the blade is forged. A masterpiece of steel and gold, adorned with rontz gems...",
@@ -75,22 +75,17 @@
 
 /datum/skill/craft/masonry
 	name = "Masonry"
-	desc = "Determines whether you can craft various stone items and repair them."
+	desc = "Determines whether you can craft various stone items, gems and repair them."
 	dreams = list(
 		"...a fortress. Impenetrable. Everlasting. Brick by brick. Layer by layer. Stone upon stone. This is your magnum opus. This is the way of creation...",
 		"...'3, 4 and 5 lead to the corner of 90.' your master, a wizened old elf adrift in the void, shows you how their mason's square indicates straight and strange corners alike..."
 	)
 	expert_name = "Mason"
-	// Niche skill, no gating
-
-/datum/skill/craft/traps
-	name = "Trapmaking"
-	desc = "Determines whether you can craft mantraps and if you can spot and disable traps."
-	dreams = list(
-		"...you spin a quiet silver wire across a hallway, lying in wait for your prey. The monstrous pale volf approaches. This time, you are prepared...",
-		"...the gleam of the trap's sharp teeth catches the dim light as you conceal it beneath layers of brush and foliage. To the untrained eye, it's nothing more than a harmless patch of grass - but you know better..."
-	)
-	expert_name = "Trapper"
+	// No longer niche with gemcarving etc
+	max_untraited_level = SKILL_LEVEL_APPRENTICE
+	trait_uncap = list(TRAIT_HOMESTEAD_EXPERT = SKILL_LEVEL_LEGENDARY,
+	TRAIT_SMITHING_EXPERT = SKILL_LEVEL_LEGENDARY,
+	TRAIT_SELF_SUSTENANCE = SKILL_LEVEL_JOURNEYMAN)
 
 /datum/skill/craft/engineering
 	name = "Engineering"
@@ -115,8 +110,8 @@
 	)
 	expert_name = "Cook"
 	max_untraited_level = SKILL_LEVEL_APPRENTICE
-	trait_uncap = list(TRAIT_HOMESTEAD_EXPERT = SKILL_LEVEL_LEGENDARY, 
-	TRAIT_SURVIVAL_EXPERT = SKILL_LEVEL_LEGENDARY, 
+	trait_uncap = list(TRAIT_HOMESTEAD_EXPERT = SKILL_LEVEL_LEGENDARY,
+	TRAIT_SURVIVAL_EXPERT = SKILL_LEVEL_LEGENDARY,
 	TRAIT_SELF_SUSTENANCE = SKILL_LEVEL_JOURNEYMAN)
 
 /datum/skill/craft/sewing
@@ -130,7 +125,7 @@
 	max_untraited_level = SKILL_LEVEL_APPRENTICE
 	trait_uncap = list(TRAIT_SEWING_EXPERT = SKILL_LEVEL_LEGENDARY,
 	TRAIT_SURVIVAL_EXPERT = SKILL_LEVEL_JOURNEYMAN,
-	TRAIT_HOMESTEAD_EXPERT = SKILL_LEVEL_JOURNEYMAN, 
+	TRAIT_HOMESTEAD_EXPERT = SKILL_LEVEL_JOURNEYMAN,
 	TRAIT_SELF_SUSTENANCE = SKILL_LEVEL_JOURNEYMAN)
 
 /datum/skill/craft/tanning
@@ -144,7 +139,7 @@
 	max_untraited_level = SKILL_LEVEL_APPRENTICE
 	trait_uncap = list(TRAIT_SEWING_EXPERT = SKILL_LEVEL_LEGENDARY,
 	TRAIT_SURVIVAL_EXPERT = SKILL_LEVEL_LEGENDARY,
-	TRAIT_HOMESTEAD_EXPERT = SKILL_LEVEL_JOURNEYMAN,  
+	TRAIT_HOMESTEAD_EXPERT = SKILL_LEVEL_JOURNEYMAN,
 	TRAIT_SELF_SUSTENANCE = SKILL_LEVEL_JOURNEYMAN)
 
 /datum/skill/craft/ceramics
@@ -159,7 +154,7 @@
 	trait_uncap = list(TRAIT_HOMESTEAD_EXPERT = SKILL_LEVEL_LEGENDARY,
 	TRAIT_SMITHING_EXPERT = SKILL_LEVEL_LEGENDARY,
 	TRAIT_SELF_SUSTENANCE = SKILL_LEVEL_JOURNEYMAN)
-	
+
 /datum/skill/craft/alchemy
 	name = "Alchemy"
 	desc = "Determines what kind of potions you can brew and the types of transmutation and alchemy recipes you have access to"

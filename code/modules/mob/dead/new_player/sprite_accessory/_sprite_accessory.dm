@@ -32,6 +32,8 @@
 	var/static/list/accessory_icon_cache = list()
 	/// Whether this specific accessory doesn't allow for coloring
 	var/color_disabled = FALSE
+	/// Which gradient dmi file this uses
+	var/gradient_icon = 'icons/mob/sprite_accessory/hair/hair_gradients32x32.dmi'
 
 /datum/sprite_accessory/New()
 	if(color_keys > 1)
@@ -183,13 +185,15 @@
 			return "FFRONT"
 		if(BODY_UNDER_LAYER)
 			return "UNDER"
+		if(NECK_LAYER)
+			return "NECK"
 		else
 			CRASH("Tried to get an unimplemented layer suffix for sprite accessory of type [type]")
 
 /datum/sprite_accessory/proc/get_icon_state(obj/item/organ/organ, obj/item/bodypart/bodypart, mob/living/carbon/owner)
 	return icon_state
 
-/datum/sprite_accessory/proc/get_default_colors(var/key_source_list)
+/datum/sprite_accessory/proc/get_default_colors(key_source_list)
 	var/list/color_list = list()
 	for(var/i in 1 to color_keys)
 		var/color

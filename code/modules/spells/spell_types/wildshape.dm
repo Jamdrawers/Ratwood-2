@@ -1,12 +1,11 @@
-/obj/effect/proc_holder/spell/targeted/wildshape
+/obj/effect/proc_holder/spell/self/wildshape
 	name = "Beast Form"
 	desc = "Take on the form of one of Dendor's sacred beasts."
 	overlay_state = "tamebeast"
 	clothes_req = FALSE
 	human_req = FALSE
-	range = -1
-	include_user = TRUE
-	releasedrain = 60
+	chargedrain = 0
+	chargetime = 0
 	recharge_time = 30 SECONDS
 	cooldown_min = 50
 	invocations = list("Treefather grant me your form!")
@@ -15,8 +14,6 @@
 	associated_skill = /datum/skill/magic/holy
 	devotion_cost = 80
 	miracle = TRUE
-	clothes_req = FALSE
-	human_req = FALSE
 
 
 	var/list/possible_shapes = list(
@@ -29,44 +26,74 @@
 		/mob/living/carbon/human/species/wildshape/spider
 	)
 
-/obj/effect/proc_holder/spell/targeted/wildshape/cast(list/targets, mob/user = usr)
+/obj/effect/proc_holder/spell/self/wildshape/cast(list/targets, mob/living/carbon/human/user = usr)
 	. = ..()
-	for(var/mob/living/carbon/human/M in targets)
-		if (M.has_status_effect(/datum/status_effect/debuff/submissive))
-			to_chat(user, span_warning("Your will is too broken to change form."))
-			return FALSE
-		if(!istype(M, /mob/living/carbon/human/species/wildshape)) //If we aren't a wildshaped species, we can use this
-			var/list/animal_list = list()
+	if(user.has_status_effect(/datum/status_effect/debuff/submissive))
+		to_chat(user, span_warning("Your will is too broken to change form."))
+		return FALSE
 
-			for(var/path in possible_shapes) //First pass for the names
-				var/mob/living/carbon/human/species/wildshape/A = path
-				animal_list[initial(A.name)] = path
+	if(istype(user, /mob/living/carbon/human/species/wildshape))
+		user.wildshape_untransform()
+		return FALSE
 
-			var/new_wildshape_type = input(M, "Choose Your Animal Form!", "It's Morphing Time!", null) as null|anything in sortList(animal_list)
+	var/list/choices = list()
 
-			for(var/crecher in possible_shapes) //Second pass to fetch the mob type itself and send it on wildshape_transformation
-				var/mob/living/carbon/human/species/wildshape/B = crecher
-				if(new_wildshape_type == B.name)
-					M.wildshape_transformation(B)
+	for(var/mob/living/carbon/human/species/wildshape/shape as anything in possible_shapes)
+		var/icon/icon = icon(shape.wildshape_icon, shape.wildshape_icon_state)
 
-		else //If we are a wildshaped species, we simply un-transform
-			M.wildshape_untransform()
+		var/size_x = icon.Width()
+		var/size_y = icon.Height()
 
-	return
+		var/image/icon_img = image(icon)
 
+		icon_img.pixel_x = -(size_x / 2) + 16
+		icon_img.pixel_y = -(size_y / 2) + 16
+		
+		choices[shape.name] = icon_img
+
+	var/new_wildshape_type = show_radial_menu(user, user, choices)
+
+	if(!new_wildshape_type)
+		revert_cast()
+		return FALSE
+
+	user.Stun(30)
+	user.Knockdown(30)
+	INVOKE_ASYNC(user, TYPE_PROC_REF(/mob/living/carbon/human, wildshape_transformation), GLOB.wildshapes[new_wildshape_type])
+
+	return TRUE
 // Mob itself
 /mob/living/carbon/human/species/wildshape
 	var/datum/language_holder/stored_language
 	var/list/stored_skills
 	var/list/stored_experience
 	var/list/stored_spells
+	var/wildshape_icon
+	var/wildshape_icon_state
 
 /mob/living/carbon/human/species/wildshape/proc/gain_inherent_skills()
-	if(src.mind)
-		src.adjust_skillrank(/datum/skill/magic/holy, 3, TRUE) //Any dendorite using this should be a holy magic user
+	if(mind)
+		adjust_skillrank(/datum/skill/magic/holy, 4, TRUE)
+		adjust_skillrank(/datum/skill/magic/holy, 4, TRUE)
+		var/datum/devotion/D = devotion
+		if(!D)
+			D = new /datum/devotion(src, patron)
 
-		var/datum/devotion/C = new /datum/devotion(src, src.patron) //If we don't do this, Dendorites can't be clerics and they can't revert back to their true forms
-		C.grant_miracles(src, cleric_tier = CLERIC_T2, passive_gain = CLERIC_REGEN_MAJOR)	//Major regen as no matter the previous level, it gets reset on transform. More connection to dendor I guess? Can level up to T4.
+		D.suppress_grants = TRUE
+
+		if(D.level < CLERIC_T2)
+			D.level = CLERIC_T2
+		D.last_level = D.level
+
+		if(!D.passive_devotion_gain && !D.passive_progression_gain)
+			D.passive_devotion_gain = CLERIC_REGEN_MAJOR
+			D.passive_progression_gain = CLERIC_REGEN_MAJOR
+			START_PROCESSING(SSobj, D)
+
+		if(!(/mob/living/carbon/human/proc/devotionreport in verbs))
+			verbs += /mob/living/carbon/human/proc/devotionreport
+		if(!(/mob/living/carbon/human/proc/clericpray in verbs))
+			verbs += /mob/living/carbon/human/proc/clericpray	
 
 /mob/living/carbon/human/species/wildshape/update_inv_gloves() //Prevents weird blood overlays
 	remove_overlay(GLOVES_LAYER)
@@ -75,3 +102,6 @@
 /mob/living/carbon/human/species/wildshape/update_inv_shoes() //Prevents weird blood overlays
 	remove_overlay(SHOES_LAYER)
 	remove_overlay(SHOESLEEVE_LAYER)
+
+/mob/living/carbon/human/species/wildshape/update_inv_neck() //Prevents neck slot sprite overlays in wildshape
+	remove_overlay(NECK_LAYER)

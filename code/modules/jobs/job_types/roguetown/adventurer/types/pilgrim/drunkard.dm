@@ -5,7 +5,7 @@
 	allowed_races = RACES_ALL_KINDS
 	outfit = /datum/outfit/job/roguetown/adventurer/drunkard
 	traits_applied = list(TRAIT_HOMESTEAD_EXPERT)
-	
+	maximum_possible_slots = 20 // Should never fill, for the purpose of players to know what types towners are in round at the menu
 	category_tags = list(CTAG_TOWNER)
 	subclass_stats = list(
 		STATKEY_LCK = 2,
@@ -34,6 +34,9 @@
 	belt = /obj/item/storage/belt/rogue/leather
 	beltr = /obj/item/clothing/mask/cigarette/rollie/cannabis
 	beltl = /obj/item/flint
+	if(SSmapping.config.map_name == "Desert Town")
+		head = /obj/item/clothing/head/roguetown/turban/fancypurple
+		shoes = /obj/item/clothing/shoes/roguetown/shalal
 	backpack_contents = list(
 						/obj/item/storage/pill_bottle/dice = 1,
 						/obj/item/storage/pill_bottle/dice/farkle = 1,
@@ -43,3 +46,8 @@
 						/obj/item/flashlight/flare/torch = 1,
 						)
 	ADD_TRAIT(H, TRAIT_CRACKHEAD, TRAIT_GENERIC)
+
+	if(H.age == AGE_MIDDLEAGED)
+		H.adjust_skillrank_up_to(/datum/skill/misc/stealing, 5, TRUE)//lol
+	if(H.age == AGE_OLD)
+		H.adjust_skillrank_up_to(/datum/skill/misc/stealing, 6, TRUE)//lol

@@ -112,6 +112,9 @@
 	/// This job is a "wanderer" on examine
 	var/wanderer_examine = FALSE
 
+	/// This job is a "lowlife" on examine
+	var/lowlife_examine = FALSE
+
 	/// This job uses adventurer classes on examine
 	var/advjob_examine = FALSE
 
@@ -181,7 +184,7 @@
 		used_name = f_title
 	return used_name
 
-/client/proc/job_greet(var/datum/job/greeting_job)
+/client/proc/job_greet(datum/job/greeting_job)
 	if(mob.job == greeting_job.title)
 		greeting_job.greet(mob)
 
@@ -262,38 +265,29 @@
 
 	if(social_rank)
 		H.social_rank = social_rank
+	if(istype(H, /mob/living/carbon/human))
+		var/mob/living/carbon/human/Hu = H
+		if(Hu.familytree_pref != FAMILY_NONE && !Hu.family_datum)
+			addtimer(CALLBACK(SSfamilytree, TYPE_PROC_REF(/datum/controller/subsystem/familytree, AddLocal), H, Hu.familytree_pref), 5 SECONDS)
 
+	var/department = SSjob.bitflag_to_department(department_flag, obsfuscated_job)
 	if (!hidden_job)
 		var/mob/living/carbon/human/Hu = H
 		if (istype(H, /mob/living/carbon/human))
-			if (obsfuscated_job)
-				GLOB.actors_list[H.mobid] = "[H.real_name] as the [Hu.dna.species.name] Adventurer<BR>"
+			if (obsfuscated_job) // WANDERER
+				GLOB.actors_list["Wanderers"] += list("[H.mobid]" = "[H.real_name] as the [Hu.dna.species.name] Adventurer<BR>")
 			else
-				GLOB.actors_list[H.mobid] = "[H.real_name] as the [Hu.dna.species.name] [H.mind.assigned_role]<BR>"
+				GLOB.actors_list[department] += list("[H.mobid]" = "[H.real_name] as the [Hu.dna.species.name] [H.mind.assigned_role]<BR>")
 		else
 			if (obsfuscated_job)
-				GLOB.actors_list[H.mobid] = "[H.real_name] as Adventurer<BR>"
+				GLOB.actors_list["Wanderers"] += list("[H.mobid]" = "[H.real_name] as Adventurer<BR>")
 			else
-				GLOB.actors_list[H.mobid] = "[H.real_name] as [H.mind.assigned_role]<BR>"
+				GLOB.actors_list[department] += list("[H.mobid]" = "[H.real_name] as [H.mind.assigned_role]<BR>")
 
 	if(islist(advclass_cat_rolls))
 		hugboxify_for_class_selection(H)
 
-	log_admin("[H.key]/([H.real_name]) has joined as [H.mind.assigned_role].")
-
-/client/verb/set_mugshot()
-	set category = "OOC"
-	set name = "Set Credits Mugshot"
-	set hidden = FALSE
-	if(mob && ishuman(mob) && mob.mind)
-		var/mob/living/carbon/human/H = mob
-		if(!H.mind.mugshot_set)
-			to_chat(src, "Updating mugshot...")
-			H.mind.mugshot_set = TRUE
-			H.add_credit(TRUE)
-			to_chat(src, "Mugshot updated.")
-		else
-			to_chat(src, "Mugshots are resource intensive. You are limited to one per character.")
+	log_admin("[department] >> [H.key]/([H.real_name]) has joined as [H.mind.assigned_role].")
 
 /mob/living/carbon/human/proc/add_credit(generate_for_adv_class = FALSE) //Evil code to get the proper image for adv classes after they spawn in.
 	if(!mind || !client)
@@ -328,7 +322,7 @@
 	return TRUE
 
 /datum/job/proc/GetAntagRep()
-	. = CONFIG_GET(keyed_list/antag_rep)[lowertext(title)]
+	. = CONFIG_GET(keyed_list/antag_rep)[LOWER_TEXT(title)]
 	if(. == null)
 		return antag_rep
 
@@ -351,6 +345,7 @@
 
 	//Equip the rest of the gear
 	H.dna.species.before_equip_job(src, H, visualsOnly)
+	H.apply_organ_stuff() // apply super special sauce organ stuff when we spawn in, and therefore have MIND
 	if(!outfit_override && visualsOnly && visuals_only_outfit)
 		outfit_override = visuals_only_outfit
 	if(should_wear_femme_clothes(H))
@@ -405,6 +400,12 @@
 //Unused as of now
 /datum/job/proc/config_check()
 	return TRUE
+
+
+/datum/outfit/job/pre_equip(mob/living/carbon/human/H, visualsOnly = FALSE)//gives the desert language to all the desert people!
+	. = ..()
+	if(SSmapping.config.map_name == "Desert Town" && !(HAS_TRAIT(H, TRAIT_OUTLANDER)))
+		H.grant_language(/datum/language/celestial)
 
 /datum/outfit/job
 	name = "Standard Gear"

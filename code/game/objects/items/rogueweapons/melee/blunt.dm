@@ -8,11 +8,13 @@
 	chargetime = 0
 	penfactor = BLUNT_DEFAULT_PENFACTOR
 	damfactor = 1.1
-	intent_intdamage_factor = 1.15
 	swingdelay = 0
 	icon_state = "instrike"
 	item_d_type = "blunt"
 	intent_intdamage_factor = BLUNT_DEFAULT_INT_DAMAGEFACTOR
+	//We want chipping, m'lord.
+	blunt_chipping = TRUE
+	blunt_chip_strength = BLUNT_CHIP_WEAK
 
 /datum/intent/mace/smash
 	name = "smash"
@@ -26,6 +28,9 @@
 	icon_state = "insmash"
 	item_d_type = "blunt"
 	intent_intdamage_factor = BLUNT_DEFAULT_INT_DAMAGEFACTOR
+	//We want chipping, m'lord.
+	blunt_chipping = TRUE
+	blunt_chip_strength = BLUNT_CHIP_STRONG
 	desc = "A powerful, charged up strike that deals normal damage but can throw a standing opponent back and slow them down, based on your strength. Ineffective below 10 strength. Slowdown & Knockback scales to your Strength up to 14 (1 - 4 tiles). Cannot be used consecutively more than every 5 seconds on the same target. Prone targets halve the knockback distance. Not fully charging the attack limits knockback to 1 tile."
 
 /datum/intent/mace/smash/spec_on_apply_effect(mob/living/H, mob/living/user, params)
@@ -53,6 +58,12 @@
 		force = H.move_force)
 // Do not call handle_knockback like in knockback cuz that means it will hardstun
 
+/datum/intent/mace/strike/goden
+	reach = 2
+
+/datum/intent/mace/smash/goden
+	reach = 2
+
 /datum/intent/mace/rangedthrust
 	name = "thrust"
 	blade_class = BCLASS_STAB
@@ -67,6 +78,8 @@
 	penfactor = 25
 	damfactor = 0.9
 	item_d_type = "stab"
+	effective_range = 2
+	effective_range_type = EFF_RANGE_EXACT
 
 //blunt objs ฅ^•ﻌ•^ฅ
 
@@ -96,6 +109,7 @@
 	wdefense = 2
 	wbalance = WBALANCE_HEAVY
 	icon_angle_wielded = 50
+	special = /datum/special_intent/ground_smash
 
 /obj/item/rogueweapon/mace/getonmobprop(tag)
 	. = ..()
@@ -119,19 +133,6 @@
 	max_integrity = 250
 	wdefense = 2
 
-/obj/item/rogueweapon/mace/alloy
-	name = "decrepit mace"
-	desc = "Frayed bronze, perched atop a rotwooden shaft. His sacrifice had drowned Old Syon, and - in its wake - left Man bereft of all it had accomplished. With all other prayers falling upon deaf ears, Man had crafted this idol in tribute to its new God; violence."
-	icon_state = "amace"
-	force = 17
-	force_wielded = 21
-	max_integrity = 180
-	blade_dulling = DULLING_SHAFT_CONJURED
-	color = "#bb9696"
-	smeltresult = /obj/item/ingot/aaslag
-	anvilrepair = null
-
-
 /obj/item/rogueweapon/mace/church
 	force = 25
 	force_wielded = 30
@@ -153,11 +154,21 @@
 	wdefense = 3
 	smelt_bar_num = 2
 
-/obj/item/rogueweapon/mace/steel/palloy
-	name = "ancient alloy mace"
+/obj/item/rogueweapon/mace/steel/ancient
+	name = "ancient mace"
 	desc = "Polished gilbranze, perched atop a reinforced shaft. Break the unenlightened into naught-but-giblets; like a potter's vessels, dashed against the rocks."
 	icon_state = "amace"
 	smeltresult = /obj/item/ingot/aaslag
+
+/obj/item/rogueweapon/mace/steel/ancient/decrepit
+	name = "decrepit mace"
+	desc = "Frayed bronze, perched atop a rotwooden shaft. His sacrifice had drowned Old Syon, and - in its wake - left Man bereft of all it had accomplished. With all other prayers falling upon deaf ears, Man had crafted this idol in tribute to its new God; violence."
+	force = 17
+	force_wielded = 21
+	max_integrity = 180
+	blade_dulling = DULLING_SHAFT_CONJURED
+	color = "#bb9696"
+	anvilrepair = null
 
 /obj/item/rogueweapon/mace/steel/silver
 	force = 30
@@ -241,6 +252,15 @@
 	intent_intdamage_factor = 0.5	// Purposefully bad at damaging armor.
 	icon_state = "inbash"	// Wallop is too long for a button; placeholder.
 
+/obj/item/rogueweapon/mace/cudgel/shellrungu
+	name = "shell rungu"
+	desc = "A ceremonial rungu carved out of clam shell. Not intended for combat. Its used in various Sea and Coastal Elven rituals and ceremonies."
+	icon = 'icons/roguetown/gems/gem_shell.dmi'
+	icon_state = "rungu_shell"
+
+	max_integrity = 75
+	sellprice = 35
+
 /obj/item/rogueweapon/mace/cudgel/psy
 	name = "psydonic handmace"
 	desc = "A shorter variant of the flanged silver mace, rebalanced for one-handed usage. It isn't uncommon for these sidearms to mysteriously 'vanish' from an Adjudicator's belt, only to be 'rediscovered' - and subsequently kept - by a Confessor."
@@ -248,7 +268,6 @@
 	force_wielded = 30
 	minstr = 9
 	wdefense = 5
-	wbalance = WBALANCE_SWIFT
 	resistance_flags = FIRE_PROOF
 	icon_state = "psyflangedmace"
 	is_silver = TRUE
@@ -344,62 +363,23 @@
 	if(tag)
 		switch(tag)
 			if("gen")
-				return list("shrink" = 0.6,
-"sx" = -15,
-"sy" = -12,
-"nx" = 9,
-"ny" = -11,
-"wx" = -11,
-"wy" = -11,
-"ex" = 1,
-"ey" = -12,
-"northabove" = 0,
-"southabove" = 1,
-"eastabove" = 1,
-"westabove" = 0,
-"nturn" = 90,
-"sturn" = -90,
-"wturn" = -90,
-"eturn" = 90,
-"nflip" = 0,
-"sflip" = 8,
-"wflip" = 8,
-"eflip" = 0)
+				return list("shrink" = 0.6,"sx" = -11,"sy" = -8,"nx" = 12,"ny" = -8,"wx" = -5,"wy" = -8,"ex" = 6,"ey" = -8,"northabove" = 0,"southabove" = 1,"eastabove" = 1,"westabove" = 0,"nturn" = 90,"sturn" = -90,"wturn" = -90,"eturn" = 90,"nflip" = 0,"sflip" = 8,"wflip" = 8,"eflip" = 0)
 			if("wielded")
-				return list("shrink" = 0.6,
-"sx" = -15,
-"sy" = -1,
-"nx" = 10,
-"ny" = 0,
-"wx" = -13,
-"wy" = -1,
-"ex" = 2,
-"ey" = -1,
-"northabove" = 0,
-"southabove" = 1,
-"eastabove" = 1,
-"westabove" = 0,
-"nturn" = 0,
-"sturn" = 0,
-"wturn" = 0,
-"eturn" = 0,
-"nflip" = 0,
-"sflip" = 8,
-"wflip" = 8,
-"eflip" = 0)
+				return list("shrink" = 0.7,"sx" = 5,"sy" = -4,"nx" = -5,"ny" = -4,"wx" = -5,"wy" = -3,"ex" = 7,"ey" = -4,"northabove" = 0,"southabove" = 1,"eastabove" = 1,"westabove" = 0,"nturn" = -45,"sturn" = 45,"wturn" = -45,"eturn" = 45,"nflip" = 8,"sflip" = 0,"wflip" = 8,"eflip" = 0)
 			if("onbelt")
-				return list("shrink" = 0.3,"sx" = -2,"sy" = -5,"nx" = 4,"ny" = -5,"wx" = 0,"wy" = -5,"ex" = 2,"ey" = -5,"nturn" = 0,"sturn" = 0,"wturn" = 0,"eturn" = 0,"nflip" = 0,"sflip" = 0,"wflip" = 0,"eflip" = 0,"northabove" = 0,"southabove" = 1,"eastabove" = 1,"westabove" = 0)
+				return list("shrink" = 0.5,"sx" = -2,"sy" = -5,"nx" = 4,"ny" = -5,"wx" = 0,"wy" = -5,"ex" = 2,"ey" = -5,"nturn" = 0,"sturn" = 0,"wturn" = 0,"eturn" = 0,"nflip" = 0,"sflip" = 0,"wflip" = 0,"eflip" = 0,"northabove" = 0,"southabove" = 1,"eastabove" = 1,"westabove" = 0)
 
 
 /obj/item/rogueweapon/mace/goden
 	force = 15
 	force_wielded = 30
 	possible_item_intents = list(/datum/intent/mace/strike)
-	gripped_intents = list(/datum/intent/mace/strike, /datum/intent/mace/smash, /datum/intent/mace/rangedthrust, /datum/intent/effect/daze)
+	gripped_intents = list(/datum/intent/mace/strike/goden, /datum/intent/mace/smash/goden, /datum/intent/mace/rangedthrust, /datum/intent/effect/daze)
 	name = "Goedendag"
 	desc = "Good morning."
 	icon_state = "goedendag"
 	icon = 'icons/roguetown/weapons/64.dmi'
+	slot_flags = null
 	sharpness = IS_BLUNT
 	//dropshrink = 0.75
 	wlength = WLENGTH_LONG
@@ -427,17 +407,6 @@
 			if("onbelt")
 				return list("shrink" = 0.3,"sx" = -2,"sy" = -5,"nx" = 4,"ny" = -5,"wx" = 0,"wy" = -5,"ex" = 2,"ey" = -5,"nturn" = 0,"sturn" = 0,"wturn" = 0,"eturn" = 0,"nflip" = 0,"sflip" = 0,"wflip" = 0,"eflip" = 0,"northabove" = 0,"southabove" = 1,"eastabove" = 1,"westabove" = 0)
 
-/obj/item/rogueweapon/mace/goden/aalloy
-	name = "decrepit grand mace"
-	desc = "Good nite, sire."
-	force = 12
-	force_wielded = 22
-	icon_state = "ancient_supermace"
-	blade_dulling = DULLING_SHAFT_CONJURED
-	color = "#bb9696"
-	smeltresult = /obj/item/ingot/aaslag
-	anvilrepair = null
-
 /obj/item/rogueweapon/mace/goden/steel
 	name = "grand mace"
 	desc = "Good morning, sire."
@@ -448,12 +417,21 @@
 	smelt_bar_num = 2
 	wdefense_wbonus = 5
 
-/obj/item/rogueweapon/mace/goden/steel/paalloy
+/obj/item/rogueweapon/mace/goden/steel/ancient
 	name = "ancient grand mace"
 	desc = "A twisting polehammer, forged in polished gilbranze. What did you think this was all about? This destruction, this war, this sacrifice; it was all to prepare Man for its true ascension."
 	icon_state = "ancient_supermace"
 	smeltresult = /obj/item/ingot/aaslag
 
+/obj/item/rogueweapon/mace/goden/steel/ancient/decrepit
+	name = "decrepit grand mace"
+	desc = "Good nite, sire."
+	force = 12
+	force_wielded = 22
+	max_integrity = 180
+	blade_dulling = DULLING_SHAFT_CONJURED
+	color = "#bb9696"
+	anvilrepair = null
 
 /obj/item/rogueweapon/mace/goden/deepduke
 	name = "deep duke's staff"
@@ -471,31 +449,21 @@
 	name = "kanabo"
 	desc = "A steel-banded wooden club, made to break the enemy in spirit as much as in flesh. One of the outliers among the many more elegant weapons of Kazengun."
 	icon_state = "kanabo"
-	slot_flags = ITEM_SLOT_BACK
-	gripped_intents = list(/datum/intent/mace/strike, /datum/intent/mace/smash, /datum/intent/stab, /datum/intent/effect/daze)
+	gripped_intents = list(/datum/intent/mace/strike/goden, /datum/intent/mace/smash/goden, /datum/intent/stab, /datum/intent/effect/daze)
 	max_integrity = 225 // it's strong wood, but it's still wood.
 
-/obj/item/rogueweapon/mace/goden/steel/ravox
-	name = "duel settler"
-	desc = "The tenets of ravoxian duels are enscribed upon the head of this maul."
-	icon_state = "ravoxhammer"
-	gripped_intents = list(/datum/intent/mace/strike, /datum/intent/mace/smash, /datum/intent/effect/daze) // It loses the Goden stab so I give it daze
-	max_integrity = 350 // I am reluctant to give a steel goden more force as it breaks weapon so durability it is.
-
-/obj/item/rogueweapon/mace/goden/psymace
-	name = "psydonic mace"
+/obj/item/rogueweapon/mace/goden/psy
+	name = "psydonic grand mace"
 	desc = "An ornate mace, plated in a ceremonial veneer of silver. Even the unholy aren't immune to discombobulation."
 	icon_state = "psymace"
-	force = 30
+	force = 15
 	force_wielded = 35
 	minstr = 12
-	wdefense = 6
-	wbalance = WBALANCE_HEAVY
 	smelt_bar_num = 2
 	is_silver = TRUE
 	smeltresult = /obj/item/ingot/silverblessed
 
-/obj/item/rogueweapon/mace/goden/psymace/ComponentInitialize()
+/obj/item/rogueweapon/mace/goden/psy/ComponentInitialize()
 	AddComponent(\
 		/datum/component/silverbless,\
 		pre_blessed = BLESSING_NONE,\
@@ -506,7 +474,18 @@
 		added_def = 1,\
 	)
 
-/obj/item/rogueweapon/mace/goden/psymace/old
+/obj/item/rogueweapon/mace/goden/psy/preblessed/ComponentInitialize()
+	AddComponent(\
+		/datum/component/silverbless,\
+		pre_blessed = BLESSING_PSYDONIAN,\
+		silver_type = SILVER_PSYDONIAN,\
+		added_force = 0,\
+		added_blade_int = 0,\
+		added_int = 50,\
+		added_def = 1,\
+	)
+
+/obj/item/rogueweapon/mace/goden/psy/old
 	name = "enduring mace"
 	desc = "An ornate mace, its silver tarnished by neglect. Even without HIS holy blessing, its weight ENDURES."
 	icon_state = "psymace"
@@ -518,7 +497,7 @@
 	smeltresult = /obj/item/ingot/steel
 	color = COLOR_FLOORTILE_GRAY
 
-/obj/item/rogueweapon/mace/goden/psymace/old/ComponentInitialize()
+/obj/item/rogueweapon/mace/goden/psy/old/ComponentInitialize()
 	return
 
 /obj/item/rogueweapon/mace/spiked
@@ -537,17 +516,6 @@
 	wbalance = WBALANCE_HEAVY
 	smeltresult = /obj/item/ingot/iron
 	wdefense = 3
-
-/obj/item/rogueweapon/mace/warhammer/alloy
-	name = "decrepit warhammer"
-	desc = "A macehead of frayed bronze, spiked and perched atop a thin shaft. To see such a knightly implement abandoned to decay and neglect; that wounds the heart greater than any well-poised strike."
-	icon_state = "awarhammer"
-	force = 17
-	max_integrity = 180
-	blade_dulling = DULLING_SHAFT_CONJURED
-	color = "#bb9696"
-	smeltresult = /obj/item/ingot/aaslag
-	anvilrepair = null
 
 /obj/item/rogueweapon/mace/warhammer/steel
 	force = 25
@@ -569,11 +537,20 @@
 				return list("shrink" = 0.4,"sx" = -2,"sy" = -5,"nx" = 4,"ny" = -5,"wx" = 0,"wy" = -5,"ex" = 2,"ey" = -5,"nturn" = 0,"sturn" = 0,"wturn" = 0,"eturn" = 0,"nflip" = 0,"sflip" = 0,"wflip" = 0,"eflip" = 0,"northabove" = 0,"southabove" = 1,"eastabove" = 1,"westabove" = 0)
 	return ..()
 
-/obj/item/rogueweapon/mace/warhammer/steel/paalloy
+/obj/item/rogueweapon/mace/warhammer/steel/ancient
 	name = "ancient alloy warhammer"
 	desc = "A macehead of polished gilbranze, spiked and perched atop a reinforced shaft. An elegant weapon from a more civilized age; when Man lived in harmony with one-another, and when 'the undying' was nothing more than a nitemare's thought."
 	icon_state = "awarhammer"
 	smeltresult = /obj/item/ingot/aaslag
+
+/obj/item/rogueweapon/mace/warhammer/steel/ancient/decrepit
+	name = "decrepit warhammer"
+	desc = "A macehead of frayed bronze, spiked and perched atop a thin shaft. To see such a knightly implement abandoned to decay and neglect; that wounds the heart greater than any well-poised strike."
+	force = 17
+	max_integrity = 180
+	blade_dulling = DULLING_SHAFT_CONJURED
+	color = "#bb9696"
+	anvilrepair = null
 
 /obj/item/rogueweapon/mace/warhammer/steel/silver
 	name = "silver warhammer"
@@ -675,6 +652,34 @@
 	smelt_bar_num = 3
 	max_integrity = 350
 
+//Malumite maul. Intended for Templars.
+/obj/item/rogueweapon/mace/maul/grand/malum
+	name = "Kargrund Maul"
+	desc = "Forged from the legacy of dwarven rock-hammers, this maul’s holy steel and divine runes grant it immense power. \
+	Unwieldy to those weak of arm or faith, its mighty blows have the strength to shatter both stone and skull alike."
+	icon_state = "malumhammer"
+	minstr = 8//Handled by the unique interaction below. Inverted to start, since they spawn with it, and funny stuff can happen.
+
+/obj/item/rogueweapon/mace/maul/grand/malum/pickup(mob/living/user)
+	if(HAS_TRAIT(user, TRAIT_FORGEBLESSED))
+		src.minstr = 8//-10, if you have the ability to use this.
+	else
+		src.minstr = 18
+	..()
+
+//This thing is warded. For fluff. And because it's COOL, we give them silver blessings.
+//+1 DEF from it, too. For a total of 7 defence when wielded.
+/obj/item/rogueweapon/mace/maul/grand/malum/ComponentInitialize()
+	AddComponent(\
+		/datum/component/silverbless,\
+		pre_blessed = BLESSING_TENNITE,\
+		silver_type = SILVER_PSYDONIAN,\
+		added_force = 0,\
+		added_blade_int = 0,\
+		added_int = 0,\
+		added_def = 1,\
+	)
+
 //Dwarvish mauls. Unobtanium outside of Grudgebearer. Do not change that.
 /obj/item/rogueweapon/mace/maul/steel
 	name = "dwarvish maul"
@@ -725,6 +730,9 @@
 	clickcd = CLICK_CD_HEAVY//Take a guess.
 	icon_state = "instrike"
 	item_d_type = "blunt"
+	//We want chipping, m'lord.
+	blunt_chipping = TRUE
+	blunt_chip_strength = BLUNT_CHIP_STRONG
 
 /datum/intent/maul/crush
 	name = "crush"
@@ -733,6 +741,9 @@
 	chargetime = 5
 	damfactor = 1.7
 	intent_intdamage_factor = 1.5//10% more than standard.
+	//We want chipping, m'lord.
+	blunt_chipping = TRUE
+	blunt_chip_strength = BLUNT_CHIP_ABSURD
 	icon_state = "incrush"
 	desc = "This can throw a standing opponent and slow them down. \
 	5 second cooldown on consecutive targets. Prone targets halve the knockback distance. \

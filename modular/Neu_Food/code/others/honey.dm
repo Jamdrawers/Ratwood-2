@@ -4,7 +4,7 @@
 	name = "honey"
 	icon = 'modular/Neu_Food/icons/others/honey.dmi'
 	icon_state = "honeycomb"
-	dropshrink = 0.8
+	dropshrink = 0.75
 	bitesize = 3
 	possible_transfer_amounts = list()
 	list_reagents = list(/datum/reagent/consumable/honey = 5, /datum/reagent/consumable/nutriment = SNACK_DECENT)
@@ -21,7 +21,7 @@
 
 	var/honey_color = ""
 
-/obj/item/reagent_containers/food/snacks/rogue/honey/Initialize()
+/obj/item/reagent_containers/food/snacks/rogue/honey/Initialize(mapload)
 	. = ..()
 	pixel_x = rand(8,-8)
 	pixel_y = rand(8,-8)

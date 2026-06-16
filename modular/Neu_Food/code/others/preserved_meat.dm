@@ -6,8 +6,9 @@
 	icon_state = "salumoi5"
 	eat_effect = null
 	fried_type = null
-	slices_num = 4
-	bitesize = 7
+	slices_num = 5
+	bitesize = 5
+	eating_slice = TRUE
 	slice_batch = FALSE
 	faretype = FARE_POOR
 	list_reagents = list(/datum/reagent/consumable/nutriment = SNACK_NUTRITIOUS)
@@ -21,18 +22,6 @@
 		icon_state = "salumoi[slices_num]"
 	else
 		icon_state = "salumoi_slice"
-
-/obj/item/reagent_containers/food/snacks/rogue/meat/salami/On_Consume(mob/living/eater)
-	..()
-	if(slices_num)
-		if(bitecount == 3)
-			slices_num = 4
-		if(bitecount == 4)
-			slices_num = 3
-		if(bitecount == 5)
-			slices_num = 2
-		if(bitecount == 6)
-			changefood(slice_path, eater)
 
 /obj/item/reagent_containers/food/snacks/rogue/meat/salami/slice
 	eat_effect = null
@@ -78,10 +67,11 @@
 	icon = 'modular/Neu_Food/icons/others/preserved_meat.dmi'
 	icon_state = "salo4"
 	list_reagents = list(/datum/reagent/consumable/nutriment = SNACK_CHUNKY)
-	bitesize = 6
+	bitesize = 4
 	slice_path = /obj/item/reagent_containers/food/snacks/fat/salo/slice
-	faretype = FARE_POOR
+	faretype = FARE_IMPOVERISHED
 	slices_num = 4
+	eating_slice = TRUE
 	slice_batch = FALSE
 	rotprocess = null
 	slice_sound = TRUE
@@ -93,16 +83,6 @@
 	else
 		icon_state = "saloslice"
 
-/obj/item/reagent_containers/food/snacks/fat/salo/On_Consume(mob/living/eater)
-	..()
-	if(slices_num)
-		if(bitecount == 3)
-			slices_num = 3
-		if(bitecount == 4)
-			slices_num = 2
-		if(bitecount == 5)
-			changefood(slice_path, eater)
-
 /obj/item/reagent_containers/food/snacks/fat/salo/slice
 	name = "salo"
 	icon_state = "saloslice"
@@ -110,3 +90,17 @@
 	slices_num = FALSE
 	slice_path = FALSE
 	list_reagents = list(/datum/reagent/consumable/nutriment = SNACK_POOR)
+
+// -------------- DRIED FISH FILET -----------------
+/obj/item/reagent_containers/food/snacks/rogue/meat/driedfishfilet
+	name = "dried fish filet"
+	desc = "A slab of aquatic meat, salted harder than the living thing was. A staple of any traveler alongside coastal regions, make sure to pack enough water with it."
+	icon = 'modular/Neu_Food/icons/others/preserved_meat.dmi'
+	icon_state = "dried_fish_filet"
+	eat_effect = null
+	fried_type = null
+	bitesize = 3
+	faretype = FARE_POOR
+	list_reagents = list(/datum/reagent/consumable/nutriment = SNACK_NUTRITIOUS)
+	tastes = list("salted fish" = 1)
+	rotprocess = null

@@ -8,6 +8,7 @@
 	subclass_social_rank = SOCIAL_RANK_PEASANT
 	category_tags = list(CTAG_PILGRIM, CTAG_TOWNER)
 	traits_applied = list(TRAIT_DARKVISION, TRAIT_SMITHING_EXPERT) // Smithing Expert, because from what I observe of miner players they tend to do smithing far more than farming etc.
+	maximum_possible_slots = 20 // Should never fill, for the purpose of players to know what types towners are in round at the menu
 	subclass_stats = list(
 		STATKEY_STR = 2,
 		STATKEY_CON = 2,
@@ -24,7 +25,6 @@
 		/datum/skill/misc/swimming = SKILL_LEVEL_NOVICE,
 		/datum/skill/misc/climbing = SKILL_LEVEL_APPRENTICE,
 		/datum/skill/craft/crafting = SKILL_LEVEL_APPRENTICE,
-		/datum/skill/craft/traps = SKILL_LEVEL_APPRENTICE,
 		/datum/skill/craft/engineering = SKILL_LEVEL_NOVICE,
 		/datum/skill/craft/carpentry = SKILL_LEVEL_NOVICE,
 		/datum/skill/craft/masonry = SKILL_LEVEL_JOURNEYMAN,
@@ -49,8 +49,6 @@
 						/obj/item/flashlight/flare/torch = 1,
 						/obj/item/rogueweapon/chisel = 1,
 						/obj/item/rogueweapon/hammer/wood = 1,
-						/obj/item/recipe_book/survival = 1,
-						/obj/item/recipe_book/builder = 1,
 						/obj/item/rogueweapon/scabbard/sheath = 1,
 						/obj/item/rogueweapon/huntingknife = 1,
 						/obj/item/storage/hip/orestore/bronze = 1
@@ -64,3 +62,12 @@
 		shirt = /obj/item/clothing/suit/roguetown/shirt/undershirt/random
 	if(H.mind)
 		H.mind.AddSpell(new /obj/effect/proc_holder/spell/invoked/mineroresight)
+	if(SSmapping.config.map_name == "Desert Town")
+		shoes = /obj/item/clothing/shoes/roguetown/sandals
+		shirt = /obj/item/clothing/suit/roguetown/shirt/dress/thawb/random
+		armor = /obj/item/clothing/suit/roguetown/shirt/robe/bisht/bluegrey
+		head = /obj/item/clothing/head/roguetown/tagelmust
+	if(H.age == AGE_MIDDLEAGED)
+		H.adjust_skillrank_up_to(/datum/skill/labor/mining, 5, TRUE)
+	if(H.age == AGE_OLD)
+		H.adjust_skillrank_up_to(/datum/skill/labor/mining, 6, TRUE)

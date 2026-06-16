@@ -56,7 +56,7 @@
 	range = 6
 	speed = 6 //higher is slower
 
-/mob/living/simple_animal/hostile/retaliate/rogue/fae/sylph/Initialize()
+/mob/living/simple_animal/hostile/retaliate/rogue/fae/sylph/Initialize(mapload)
 	src.adjust_skillrank(/datum/skill/combat/unarmed, 5, TRUE)
 	. = ..()
 
@@ -131,3 +131,7 @@
 			return FALSE
 		treeguy.create_shroom(targets[1])
 		treeguy.shroom_cd = world.time
+
+/mob/living/simple_animal/hostile/retaliate/rogue/fae/sylph/awaken_summon(mob/living/carbon/human/master, ckey)
+	..()
+	ranged_cooldown = 6 SECONDS

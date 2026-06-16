@@ -5,6 +5,7 @@
 	desc = "A disgusting, blood-sucking parasite."
 	icon = 'icons/roguetown/items/surgery.dmi'
 	icon_state = "leech"
+	dropshrink = 0.8
 	baitpenalty = 0
 	fishingMods=list(
 		"commonFishingMod" = 0.7,
@@ -44,7 +45,7 @@
 	/// Whether we can be attached to mindless mobs.
 	var/mindless_attach = TRUE
 
-/obj/item/natural/worms/leech/Initialize()
+/obj/item/natural/worms/leech/Initialize(mapload)
 	. = ..()
 	//leech lore
 	leech_lore()
@@ -257,6 +258,15 @@
 	blood_storage = BLOOD_VOLUME_BAD
 	blood_maximum = BLOOD_VOLUME_NORMAL
 	mindless_attach = FALSE
+	embedding = list(
+		"embed_chance" = 100,
+		"embedded_unsafe_removal_time" = 0,
+		"embedded_pain_chance" = 0,
+		"embedded_fall_chance" = 0,
+		"embedded_bloodloss"= 0,
+		"embedded_ignore_throwspeed_threshold" = TRUE,
+		"embedded_unsafe_removal_pain_multiplier" = 0,
+	) // the humble cheele is gentle. so gentle.
 
 /obj/item/natural/worms/leech/cheele/attack_self(mob/user)
 	. = ..()

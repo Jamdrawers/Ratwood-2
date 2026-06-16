@@ -25,6 +25,8 @@
 	GLOB.emote_list = init_emote_list()
 
 	init_subtypes(/datum/crafting_recipe, GLOB.crafting_recipes)
+	for(var/datum/crafting_recipe/R as anything in GLOB.crafting_recipes)
+		R.build_display_cache()
 
 	init_subtypes(/datum/alch_grind_recipe, GLOB.alch_grind_recipes)
 
@@ -71,7 +73,7 @@
 	// Loadout items
 	for (var/path in subtypesof(/datum/loadout_item))
 		var/datum/loadout_item/loadout_item = new path()
-		GLOB.loadout_items[path] = loadout_item
+		GLOB.loadout_items += loadout_item
 
 
 	// Combat Music Overrides
@@ -87,6 +89,15 @@
 	for (var/path in subtypesof(/datum/inqports))
 		var/datum/inqports/inqports = new path()
 		GLOB.inqsupplies[path] = inqports
+
+	//druids menu
+	for(var/mob/living/carbon/human/species/wildshape/shape as anything in subtypesof(/mob/living/carbon/human/species/wildshape))
+		GLOB.wildshapes[shape.name] = shape
+
+	// Vices 
+	for (var/path in subtypesof(/datum/charflaw))
+		var/datum/charflaw/charflaw = new path()
+		GLOB.charflaw_singletons[path] = charflaw
 
 
 //creates every subtype of prototype (excluding prototype) and adds it to list L.

@@ -10,7 +10,7 @@
 	dir = SOUTH
 	debris = list()
 	var/list/loot = list()
-/obj/structure/loot/pile/coins/Initialize()
+/obj/structure/loot/pile/coins/Initialize(mapload)
 	var/i
 	var/lootnumber = 1
 	for(i=0, i<lootnumber, i++)
@@ -19,7 +19,7 @@
 		/obj/item/storage/belt/rogue/pouch/coins/rich/ = 1)))
 	return ..()
 
-/obj/structure/loot/pile/gear/Initialize()
+/obj/structure/loot/pile/gear/Initialize(mapload)
 	var/i
 	var/lootnumber = 1
 	for(i=0, i<lootnumber, i++)
@@ -35,7 +35,7 @@
 		/obj/item/clothing/head/roguetown/helmet/heavy/knight = 1)))
 	return ..()
 
-/obj/structure/loot/pile/spells/Initialize()
+/obj/structure/loot/pile/spells/Initialize(mapload)
 	var/i
 	var/lootnumber = 1
 	for(i=0, i<lootnumber, i++)
@@ -45,7 +45,8 @@
 		/obj/item/book/granter/spell/blackstone/fireball = 5,
 		/obj/item/book/granter/spell/blackstone/sicknessray = 5,
 		/obj/item/book/granter/spell/blackstone/bonechill = 3,
-		/obj/item/book/granter/spell/blackstone/skeleton = 3,
+		/obj/item/book/granter/spell/blackstone/skeleton/lesser = 3,
+		/obj/item/book/granter/spell/blackstone/skeleton = 1,
 		/obj/item/book/granter/spell/blackstone/invisibility = 3,
 		/obj/item/book/granter/spell/blackstone/greaterfireball = 2)))
 	return ..()

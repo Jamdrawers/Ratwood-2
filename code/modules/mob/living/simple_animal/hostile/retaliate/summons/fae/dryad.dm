@@ -24,7 +24,6 @@
 	vision_range = 7
 	aggro_vision_range = 9
 	environment_smash = ENVIRONMENT_SMASH_STRUCTURES
-	simple_detect_bonus = 20
 	retreat_distance = 0
 	minimum_distance = 0
 	food_type = list()
@@ -33,7 +32,6 @@
 	STACON = 18
 	STASTR = 14
 	STASPD = 4
-	simple_detect_bonus = 20
 	deaggroprob = 0
 	defprob = 40
 	canparry = TRUE
@@ -48,7 +46,7 @@
 	var/vine_cd
 	inherent_spells = list(/obj/effect/proc_holder/spell/self/create_vines)
 
-/mob/living/simple_animal/hostile/retaliate/rogue/fae/dryad/Initialize()
+/mob/living/simple_animal/hostile/retaliate/rogue/fae/dryad/Initialize(mapload)
 	src.adjust_skillrank(/datum/skill/combat/unarmed, 4, TRUE)
 	. = ..()
 
@@ -63,7 +61,7 @@
 			src.move_to_delay = 12
 			src.STASPD = 4
 
-/mob/living/simple_animal/hostile/retaliate/rogue/fae/dryad/proc/contains_vines(var/turf/T)
+/mob/living/simple_animal/hostile/retaliate/rogue/fae/dryad/proc/contains_vines(turf/T)
 	for(var/obj/structure/vine/V in T)
 		return TRUE
 	return FALSE

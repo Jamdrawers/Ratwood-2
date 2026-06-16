@@ -55,7 +55,7 @@
 		item_d_type = "fire"
 		blade_class = BCLASS_CHOP
 
-/obj/item/rogueweapon/sword/long/martyr/Initialize()
+/obj/item/rogueweapon/sword/long/martyr/Initialize(mapload)
 	AddComponent(/datum/component/martyrweapon)
 	..()
 
@@ -81,7 +81,7 @@
 			return FALSE
 		else	//Everyone else
 			to_chat(user, span_warning("A painful jolt across your entire body sends you to the ground. You cannot touch this thing."))
-			H.emote("groan")
+			H.emote("groan", forced = TRUE)
 			H.Stun(10)
 			return FALSE
 	else

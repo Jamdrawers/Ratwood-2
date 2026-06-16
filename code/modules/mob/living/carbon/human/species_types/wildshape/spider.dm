@@ -4,6 +4,8 @@
 	footstep_type = FOOTSTEP_MOB_CLAW
 	ambushable = FALSE
 	skin_armor = new /obj/item/clothing/suit/roguetown/armor/skin_armor/spider_chitin
+	wildshape_icon = 'icons/roguetown/mob/monster/spider.dmi'
+	wildshape_icon_state = "honeys"
 	// Someone else balance this, I am here for code, not numbers
 
 /mob/living/carbon/human/species/wildshape/spider/gain_inherent_skills()
@@ -18,15 +20,18 @@
 
 		src.STASTR = 10
 		src.STACON = 6
-		src.STAWIL = 11
+		src.STAWIL = 10
 		src.STAPER = 12
 		src.STASPD = 14
 
 		AddSpell(new /obj/effect/proc_holder/spell/self/spiderfangs)
 		AddSpell(new /obj/effect/proc_holder/spell/self/createhoney)
 		AddSpell(new /obj/effect/proc_holder/spell/self/weaveweb)
-		real_name = "Beespider"
 		faction += "spiders" // It IS a spider
+		if (src.client.prefs?.wildshape_name)
+			real_name = "beespider ([stored_mob.real_name])"
+		else
+			real_name = "beespider"
 
 // CAT SPECIES DATUM //
 /datum/species/shapespider
@@ -44,7 +49,8 @@
 		TRAIT_BREADY, //Ambusher
 		TRAIT_ORGAN_EATER,
 		TRAIT_PIERCEIMMUNE, //Prevents weapon dusting and caltrop effects when killed/stepping on shards, also 8 legs.
-		TRAIT_LONGSTRIDER
+		TRAIT_LONGSTRIDER,
+		TRAIT_DODGEEXPERT,
 	)
 	inherent_biotypes = MOB_HUMANOID
 	no_equip = list(SLOT_SHIRT, SLOT_HEAD, SLOT_WEAR_MASK, SLOT_ARMOR, SLOT_GLOVES, SLOT_SHOES, SLOT_PANTS, SLOT_CLOAK, SLOT_BELT, SLOT_BACK_R, SLOT_BACK_L, SLOT_S_STORE)
@@ -146,10 +152,17 @@
 /obj/item/rogueweapon/spider_fang/left
 	icon_state = "claw_l"
 
-/obj/item/rogueweapon/spider_fang/Initialize()
+/obj/item/rogueweapon/spider_fang/Initialize(mapload)
 	. = ..()
-	ADD_TRAIT(src, TRAIT_NODROP, TRAIT_GENERIC)
 	ADD_TRAIT(src, TRAIT_NOEMBED, TRAIT_GENERIC)
+
+/obj/item/rogueweapon/spider_fang/attack_self(mob/living/user)
+	var/obj/item/rogueweapon/spider_fang/active = user.get_active_held_item()
+	var/obj/item/rogueweapon/spider_fang/inactive = user.get_inactive_held_item()
+	if(active)
+		user.dropItemToGround(active, TRUE)
+	if(inactive && inactive != active)
+		user.dropItemToGround(inactive, TRUE)
 
 // SPIDER SPELLS //
 /obj/effect/proc_holder/spell/self/spiderfangs
@@ -165,24 +178,22 @@
 	..()
 	var/obj/item/rogueweapon/spider_fang/left/l
 	var/obj/item/rogueweapon/spider_fang/right/r
+	var/active = user.get_active_held_item()
+	var/inactive = user.get_inactive_held_item()
 
-	l = user.get_active_held_item()
-	r = user.get_inactive_held_item()
-	if(extended)
-		if(istype(l, /obj/item/rogueweapon/spider_fang))
-			user.dropItemToGround(l, TRUE)
-			qdel(l)
-		if(istype(r, /obj/item/rogueweapon/spider_fang))
-			user.dropItemToGround(r, TRUE)
-			qdel(r)
-		//user.visible_message("Your claws retract.", "You feel your claws retracting.", "You hear a sound of claws retracting.")
+	if(istype(active, /obj/item/rogueweapon/spider_fang) || istype(inactive, /obj/item/rogueweapon/spider_fang))
+		if(istype(active, /obj/item/rogueweapon/spider_fang))
+			user.dropItemToGround(active, TRUE)
+		if(istype(inactive, /obj/item/rogueweapon/spider_fang) && inactive != active)
+			user.dropItemToGround(inactive, TRUE)
+		to_chat(user, span_notice("My fangs retract."))
 		extended = FALSE
 	else
-		l = new(user,1)
-		r = new(user,2)
+		l = new(user, 1)
+		r = new(user, 2)
 		user.put_in_hands(l, TRUE, FALSE, TRUE)
 		user.put_in_hands(r, TRUE, FALSE, TRUE)
-		//user.visible_message("Your claws extend.", "You feel your claws extending.", "You hear a sound of claws extending.")
+		to_chat(user, span_notice("My fangs extend."))
 		extended = TRUE
 
 /obj/effect/proc_holder/spell/self/createhoney

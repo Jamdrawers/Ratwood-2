@@ -37,18 +37,50 @@ GLOBAL_LIST_INIT(special_traits, build_special_traits())
 	apply_charflaw_equipment(character, player)
 	apply_prefs_special(character, player)
 	apply_prefs_virtue(character, player)
+	apply_prefs_origin(character, player)
 	apply_prefs_race_bonus(character, player)
+	apply_voicepacks(character, player)
 	if(player.prefs.dnr_pref)
 		apply_dnr_trait(character, player)
 	if(player.prefs.loadout)
-		character.mind.special_items[player.prefs.loadout::name] += player.prefs.loadout::path
+		var/display_name = player.prefs.loadout_1_name ? player.prefs.loadout_1_name : player.prefs.loadout.name
+		character.mind.special_items[display_name] = player.prefs.loadout.path
 	if(player.prefs.loadout2)
-		character.mind.special_items[player.prefs.loadout2::name] += player.prefs.loadout2::path
+		var/display_name = player.prefs.loadout_2_name ? player.prefs.loadout_2_name : player.prefs.loadout2.name
+		character.mind.special_items[display_name] = player.prefs.loadout2.path
 	if(player.prefs.loadout3)
-		character.mind.special_items[player.prefs.loadout3::name] += player.prefs.loadout3::path
+		var/display_name = player.prefs.loadout_3_name ? player.prefs.loadout_3_name : player.prefs.loadout3.name
+		character.mind.special_items[display_name] = player.prefs.loadout3.path
+	if(player.prefs.loadout4)
+		var/display_name = player.prefs.loadout_4_name ? player.prefs.loadout_4_name : player.prefs.loadout4.name
+		character.mind.special_items[display_name] = player.prefs.loadout4.path
+	if(player.prefs.loadout5)
+		var/display_name = player.prefs.loadout_5_name ? player.prefs.loadout_5_name : player.prefs.loadout5.name
+		character.mind.special_items[display_name] = player.prefs.loadout5.path
+	if(player.prefs.loadout6)
+		var/display_name = player.prefs.loadout_6_name ? player.prefs.loadout_6_name : player.prefs.loadout6.name
+		character.mind.special_items[display_name] = player.prefs.loadout6.path
+	if(player.prefs.loadout7)
+		var/display_name = player.prefs.loadout_7_name ? player.prefs.loadout_7_name : player.prefs.loadout7.name
+		character.mind.special_items[display_name] = player.prefs.loadout7.path
+	if(player.prefs.loadout8)
+		var/display_name = player.prefs.loadout_8_name ? player.prefs.loadout_8_name : player.prefs.loadout8.name
+		character.mind.special_items[display_name] = player.prefs.loadout8.path
+	if(player.prefs.loadout9)
+		var/display_name = player.prefs.loadout_9_name ? player.prefs.loadout_9_name : player.prefs.loadout9.name
+		character.mind.special_items[display_name] = player.prefs.loadout9.path
+	if(player.prefs.loadout10)
+		var/display_name = player.prefs.loadout_10_name ? player.prefs.loadout_10_name : player.prefs.loadout10.name
+		character.mind.special_items[display_name] = player.prefs.loadout10.path
 	var/datum/job/assigned_job = SSjob.GetJob(character.mind?.assigned_role)
 	if(assigned_job)
 		assigned_job.clamp_stats(character)
+
+/proc/apply_voicepacks(mob/living/carbon/human/character, client/player)
+	if(player.prefs.voice_pack != "Default")
+		var/datum/voicepack/VP = GLOB.voice_packs_list[player.prefs.voice_pack]
+		character.dna.species.soundpack_m = new VP()
+		character.dna.species.soundpack_f = new VP()
 
 /proc/apply_prefs_virtue(mob/living/carbon/human/character, client/player)
 	if (!player)
@@ -98,7 +130,7 @@ GLOBAL_LIST_INIT(special_traits, build_special_traits())
 	if(bonus in GLOB.roguetraits)
 		ADD_TRAIT(character, bonus, TRAIT_GENERIC)
 
-/proc/virtue_check(var/datum/virtue/V, heretic = FALSE)
+/proc/virtue_check(datum/virtue/V, heretic = FALSE)
 	if(V)
 		if(istype(V,/datum/virtue/heretic) && !heretic)
 			return FALSE
@@ -106,7 +138,18 @@ GLOBAL_LIST_INIT(special_traits, build_special_traits())
 	return FALSE
 
 /proc/apply_charflaw_equipment(mob/living/carbon/human/character, client/player)
-	if(character.charflaw)
+	// Apply multiple vices system (vice1-vice5)
+	var/applied_new_system = FALSE
+	if(player?.prefs)
+		for(var/i = 1 to 5)
+			var/datum/charflaw/vice = player.prefs.vars["vice[i]"]
+			if(vice)
+				vice.apply_post_equipment(character)
+				record_featured_object_stat(FEATURED_STATS_VICES, vice.name)
+				applied_new_system = TRUE
+	
+	// Legacy single vice support (deprecated) - only apply if new system wasn't used
+	if(character.charflaw && !applied_new_system)
 		character.charflaw.apply_post_equipment(character)
 		record_featured_object_stat(FEATURED_STATS_VICES, character.charflaw.name)
 
@@ -204,3 +247,13 @@ GLOBAL_LIST_INIT(special_traits, build_special_traits())
 	special.on_apply(character, silent)
 	if(!silent && special.greet_text)
 		to_chat(character, special.greet_text)
+
+/proc/apply_prefs_origin(mob/living/carbon/human/character, client/player)
+	if(!player.prefs)
+		return
+	var/datum/origin/O = player.prefs.origin
+	if(!O)
+		O = new /datum/origin/ferentia
+	character.origin = O.origin_title
+	if(O.origin_language)
+		character.grant_language(O.origin_language)

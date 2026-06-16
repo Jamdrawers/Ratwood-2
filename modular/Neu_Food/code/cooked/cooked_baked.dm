@@ -10,6 +10,7 @@
 	cooked_type = /obj/item/reagent_containers/food/snacks/rogue/crackerscooked
 	w_class = WEIGHT_CLASS_NORMAL
 	eat_effect = null
+	dropshrink = 0.8
 
 /*	.................   Hardtack   ................... */
 /obj/item/reagent_containers/food/snacks/rogue/crackerscooked
@@ -23,6 +24,7 @@
 	tastes = list("spelt" = 1)
 	bitesize = 6
 	rotprocess = null
+	dropshrink = 0.8
 
 /obj/item/reagent_containers/food/snacks/rogue/crackerscooked/On_Consume(mob/living/eater)
 	..()
@@ -45,7 +47,8 @@
 	icon = 'modular/Neu_Food/icons/cooked/cooked_baked.dmi'
 	icon_state = "loaf6"
 	slices_num = 6
-	bitesize = 8
+	bitesize = 6
+	eating_slice = TRUE
 	slice_path = /obj/item/reagent_containers/food/snacks/rogue/breadslice
 	list_reagents = list(/datum/reagent/consumable/nutriment = DOUGH_NUTRITION)
 	faretype = FARE_POOR
@@ -60,20 +63,6 @@
 		icon_state = "loaf[slices_num]"
 	else
 		icon_state = "loaf_slice"
-
-/obj/item/reagent_containers/food/snacks/rogue/bread/On_Consume(mob/living/eater)
-	..()
-	if(slices_num)
-		if(bitecount == 3)
-			slices_num = 5
-		if(bitecount == 4)
-			slices_num = 4
-		if(bitecount == 5)
-			slices_num = 3
-		if(bitecount == 6)
-			slices_num = 2
-		if(bitecount == 7)
-			changefood(slice_path, eater)
 
 /*	.................   Breadslice & Toast   ................... */
 /obj/item/reagent_containers/food/snacks/rogue/breadslice
@@ -151,6 +140,19 @@
 			user.put_in_hands(sammich)
 			qdel(I)
 			qdel(src)
+	if(istype(I, /obj/item/reagent_containers/food/snacks/rogue/friedegg/sausagebacon))
+		playsound(get_turf(user), 'sound/foley/dropsound/gen_drop.ogg', 30, TRUE, -1)
+		if(do_after(user,short_cooktime, target = src))
+			new /obj/item/reagent_containers/food/snacks/rogue/friedegg/hammerhold(loc)
+			qdel(I)
+			qdel(src)
+	if(istype(I, /obj/item/reagent_containers/food/snacks/rogue/tartar))
+		playsound(get_turf(user), 'sound/foley/dropsound/gen_drop.ogg', 30, TRUE, -1)
+		if(do_after(user,short_cooktime, target = src))
+			var/obj/item/reagent_containers/food/snacks/rogue/sandwich/tartar/sammich= new(get_turf(user))
+			user.put_in_hands(sammich)
+			qdel(I)
+			qdel(src)
 	else
 		return ..()
 
@@ -214,7 +216,7 @@
 	tastes = list("salty fat" = 1)
 	name = "salo bread"
 	desc = "The salo's smooth consistency helps soften the rough grainy bread."
-	faretype = FARE_IMPOVERISHED
+	faretype = FARE_POOR
 	icon_state = "bread_salo"
 	foodtype = GRAIN | MEAT
 
@@ -222,9 +224,16 @@
 	tastes = list("bacon" = 1)
 	name = "bacon bread"
 	desc = "A slice of bread with crispy bacon on top for the perfect breakfast. Why does it look like a salo?"
-	icon_state = "bread_salo" // Someone forgot the sprite for this one
+	icon_state = "toast_bacon"
 	foodtype = GRAIN | MEAT
 
+/obj/item/reagent_containers/food/snacks/rogue/sandwich/tartar
+	tastes = list("dissapointment" = 1)
+	name = "tartar bread"
+	desc = "A slice of bread with tartar on top for the perfect breakfast. What's that stench?"
+	faretype = FARE_FINE
+	icon_state = "toast_tartar"
+	foodtype = GRAIN | MEAT
 
 /*	.................   Bread bun   ................... */
 /obj/item/reagent_containers/food/snacks/rogue/bun
@@ -385,8 +394,9 @@
 	desc = "A popular dessert amongst the peasantry, this loaf of sweetbread's speckled with fruity surprises. In recent years, it has more palettes amongst the papacy: t'was Rockhill's abbey that christened a variant, glazed with a sugary veneer."
 	icon = 'modular/Neu_Food/icons/cooked/cooked_baked.dmi'
 	icon_state = "raisinbread6"
-	bitesize = 8
+	bitesize = 6
 	slices_num = 6
+	eating_slice = TRUE
 	slice_path = /obj/item/reagent_containers/food/snacks/rogue/raisinbreadslice
 	list_reagents = list(/datum/reagent/consumable/nutriment = MEAL_AVERAGE)
 	faretype = FARE_NEUTRAL
@@ -401,20 +411,6 @@
 		icon_state = "raisinbread[slices_num]"
 	else
 		icon_state = "raisinbread_slice"
-
-/obj/item/reagent_containers/food/snacks/rogue/raisinbread/On_Consume(mob/living/eater)
-	..()
-	if(slices_num)
-		if(bitecount == 3)
-			slices_num = 5
-		if(bitecount == 4)
-			slices_num = 4
-		if(bitecount == 5)
-			slices_num = 3
-		if(bitecount == 6)
-			slices_num = 2
-		if(bitecount == 7)
-			changefood(slice_path, eater)
 
 /obj/item/reagent_containers/food/snacks/rogue/raisinbreadslice
 	name = "raisin loaf slice"

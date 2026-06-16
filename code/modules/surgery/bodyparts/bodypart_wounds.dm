@@ -56,6 +56,7 @@
 	for(var/datum/wound/wound as anything in wounds)
 		if(heal_amount <= 0)
 			continue
+
 		var/amount_healed = wound.heal_wound(heal_amount)
 		heal_amount -= amount_healed
 		healed_any = TRUE
@@ -104,7 +105,7 @@
 /obj/item/bodypart/proc/get_bleed_rate()
 	var/bleed_rate = bleeding
 	if(bandage && !HAS_BLOOD_DNA(bandage))
-		try_bandage_expire(bleed_rate)
+		process_bandage(bleed_rate)
 		var/obj/item/natural/cloth/cloth = bandage
 		bleed_rate *= cloth.bandage_effectiveness
 		if(bleed_rate <= 1) //if the bleeding is below this after being bandaged, bleeding stops completely, but the bandage still takes damage
@@ -124,10 +125,9 @@
 		bleed_rate *= grab.bleed_suppressing
 	bleed_rate = max(round(bleed_rate, 0.1), 0)
 
-	// temporarily disabling below because it is niche use and a LOT of performance drain
-	/*var/surgery_flags = get_surgery_flags()
+	var/surgery_flags = get_surgery_flags()
 	if(surgery_flags & SURGERY_CLAMPED)
-		return min(bleed_rate, 0.5)*/
+		return min(bleed_rate, 0.5)
 	return bleed_rate
 
 /// Called after a bodypart is attacked so that wounds and critical effects can be applied
@@ -166,6 +166,20 @@
 		var/crit_attempt = try_crit(sundering ? BCLASS_SUNDER : bclass, dam, user, zone_precise, silent, crit_message)
 		if(crit_attempt)
 			return crit_attempt
+
+	if(owner?.has_status_effect(/datum/status_effect/debuff/exposed))
+		playsound(owner, 'sound/combat/exposed_pop.ogg', 100, TRUE)
+		owner.remove_status_effect(/datum/status_effect/debuff/exposed)
+		visible_message(span_danger("[src] suffers a savage hit while exposed!"))
+		if(!do_crit)	//We aren't already screaming from a crit.
+			owner.emote("painmoan", forced = TRUE)
+	else if(owner?.has_status_effect(/datum/status_effect/debuff/vulnerable))
+		playsound(owner, 'sound/combat/vulnerable_pop.ogg', 100, TRUE)
+		owner.remove_status_effect(/datum/status_effect/debuff/vulnerable)
+		visible_message(span_danger("[src] is struck while vulnerable!"))
+		if(!do_crit)	//We aren't already screaming from a crit.
+			owner.emote("pain", forced = TRUE)
+
 	return dynwound
 
 /obj/item/bodypart/proc/manage_dynamic_wound(bclass, dam, armor)
@@ -188,16 +202,17 @@
 		else	//Wrong bclass type for wounds, skip adding this.
 			return
 	var/datum/wound/dynwound = has_wound(woundtype)
+	var/exposed = owner.has_status_effect(/datum/status_effect/debuff/exposed)
 	if(!isnull(dynwound))
-		dynwound.upgrade(dam, armor)
+		dynwound.upgrade(dam, armor, exposed)
 	else
 		if(ispath(woundtype) && woundtype)
 			if(!isnull(woundtype))
 				var/datum/wound/newwound = add_wound(woundtype)
 				dynwound = newwound
 				if(newwound && !isnull(newwound))	//don't even ask - Free
-					owner.visible_message(span_red("A new [newwound.name] appears on [owner]'s [lowertext(bodyzone2readablezone(bodypart_to_zone(newwound.bodypart_owner)))]!"))
-					newwound.upgrade(dam, armor)
+					owner.visible_message(span_red("A new [newwound.name] appears on [owner]'s [LOWER_TEXT(bodyzone2readablezone(bodypart_to_zone(newwound.bodypart_owner)))]!"))
+					newwound.upgrade(dam, armor, exposed)
 	return dynwound
 
 /// Behemoth of a proc used to apply a wound after a bodypart is damaged in an attack
@@ -257,6 +272,15 @@
 			used = round(damage_dividend * 20 + (dam / 2))
 			if(prob(used))
 				attempted_wounds += /datum/wound/sunder
+	if((bclass in GLOB.charring_bclasses))
+		used = round(damage_dividend * 20 + (dam / 3))
+		if(user && istype(user.rmb_intent, /datum/rmb_intent/strong))
+			dam += 10
+		if(HAS_TRAIT(src, TRAIT_CRITICAL_WEAKNESS))
+			attempted_wounds += /datum/wound/burn/strong
+		if(prob(used))
+			attempted_wounds += /datum/wound/burn
+
 
 	// Check if critical resistance applies
 	var/has_crit_attempt = length(attempted_wounds)
@@ -554,14 +578,27 @@
 	new_bandage.forceMove(src)
 	return TRUE
 
-/obj/item/bodypart/proc/try_bandage_expire(bleed_rate)
+/obj/item/bodypart/proc/process_bandage(bleed_rate)
 	if(!bandage)
 		return FALSE
+	var/obj/item/natural/cloth/cloth
+	if(istype(bandage, /obj/item/natural/cloth))
+		cloth = bandage
+	if(cloth.medicine_quality)
+		if(cloth.medicine_amount >= 0)
+			heal_wounds(cloth.medicine_quality * 1)
+			heal_damage(cloth.medicine_quality * 1, cloth.medicine_quality * 1, 0, null, FALSE)
+			cloth.medicine_amount -= 0.25
+		else
+			cloth.medicine_amount = 0
+			cloth.medicine_quality = 0
+			cloth.detail_color = null
+			cloth.desc = initial(cloth.desc)
+			cloth.update_icon()
 	if(!bleed_rate)
 		return FALSE
 	var/bandage_health = 1
 	if(istype(bandage, /obj/item/natural/cloth))
-		var/obj/item/natural/cloth/cloth = bandage
 		cloth.bandage_health -= bleed_rate
 		bandage_health = cloth.bandage_health
 	if(bandage_health <= 0)
@@ -621,6 +658,13 @@
 			continue
 		returned_flags |= SURGERY_INCISED
 		break
+	if(owner?.construct) // Construct snowflake check.
+		for(var/datum/wound/slash/incision/construct/incision in wounds)
+			if(incision.is_sewn())
+				continue
+			returned_flags |= SURGERY_INCISED
+			break
+		returned_flags |= SURGERY_CONSTRUCT
 	var/static/list/retracting_behaviors = list(
 		TOOL_RETRACTOR,
 		TOOL_CROWBAR,

@@ -46,7 +46,7 @@
 	STASTR = 8
 	STASPD = 8
 
-/mob/living/simple_animal/hostile/retaliate/rogue/elemental/crawler/Initialize()
+/mob/living/simple_animal/hostile/retaliate/rogue/elemental/crawler/Initialize(mapload)
 	src.adjust_skillrank(/datum/skill/combat/unarmed, 2, TRUE)
 	. = ..()
 
@@ -60,5 +60,4 @@
 	new /obj/item/magic/elemental/mote(deathspot)
 	new /obj/item/magic/elemental/mote(deathspot)
 	update_icon()
-	sleep(1)
-	qdel(src)
+	QDEL_IN(src, 1)

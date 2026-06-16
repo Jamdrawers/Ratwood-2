@@ -3,6 +3,8 @@
 	domain = "Medicine, Pestilence, Decay"
 	desc = "The Panacea is the only of the Ten to be born to a wildkin, She taught us the arts of medicine and surgery. Her followers are obsessed with rot and decay to a concerning degree to the other Tennites."
 	worshippers = "The Sick, Chirurgeons, Apothecaries"
+	virtues = "Compassion, Decay, Curiosity"
+	sins = "Arrogance, Wrath, Denying Healthcare to Anyone"
 	mob_traits = list(TRAIT_EMPATH, TRAIT_ROT_EATER)
 	miracles = list(/obj/effect/proc_holder/spell/targeted/touch/orison			= CLERIC_ORI,
 					/obj/effect/proc_holder/spell/invoked/diagnose				= CLERIC_ORI,
@@ -46,12 +48,12 @@
 	return FALSE
 
 /datum/patron/divine/pestra/on_lesser_heal(
-    mob/living/user,
-    mob/living/target,
-    message_out,
-    message_self,
-    conditional_buff,
-    situational_bonus
+	mob/living/user,
+	mob/living/target,
+	message_out,
+	message_self,
+	conditional_buff,
+	situational_bonus
 )
 	*message_out = span_info("An aura of clinical care encompasses [target]!")
 	*message_self = span_notice("I'm sewn back together by sacred medicine!")

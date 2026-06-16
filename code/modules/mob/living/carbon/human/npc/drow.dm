@@ -31,7 +31,7 @@ GLOBAL_LIST_INIT(drowraider_aggro, world.file2list("strings/rt/drowaggrolines.tx
 		return FALSE
 	. = ..()
 
-/mob/living/carbon/human/species/elf/dark/drowraider/Initialize()
+/mob/living/carbon/human/species/elf/dark/drowraider/Initialize(mapload)
 	. = ..()
 	set_species(/datum/species/elf/dark)
 	addtimer(CALLBACK(src, PROC_REF(after_creation)), 1 SECONDS)
@@ -57,7 +57,7 @@ GLOBAL_LIST_INIT(drowraider_aggro, world.file2list("strings/rt/drowaggrolines.tx
 						/datum/sprite_accessory/hair/head/countryponytailalt, 
 						/datum/sprite_accessory/hair/head/stacy, 
 						/datum/sprite_accessory/hair/head/kusanagi_alt))
-	var/hairm = pick(list(/datum/sprite_accessory/hair/head/ponytailyeager, 
+	var/hairm = pick(list(/datum/sprite_accessory/hair/head/ponytailwitcher, 
 						/datum/sprite_accessory/hair/head/dave, 
 						/datum/sprite_accessory/hair/head/emo, 
 						/datum/sprite_accessory/hair/head/sabitsuki,
@@ -75,6 +75,7 @@ GLOBAL_LIST_INIT(drowraider_aggro, world.file2list("strings/rt/drowaggrolines.tx
 	hair_color = "#DDDDDD"
 
 	head.add_bodypart_feature(new_hair)
+	
 	head.sellprice = 40
 
 	dna.update_ui_block(DNA_HAIR_COLOR_BLOCK)
@@ -126,6 +127,20 @@ GLOBAL_LIST_INIT(drowraider_aggro, world.file2list("strings/rt/drowaggrolines.tx
 	neck = /obj/item/clothing/neck/roguetown/bevor/iron
 	if(prob(50))
 		neck = /obj/item/clothing/neck/roguetown/gorget
+	belt = /obj/item/storage/belt/rogue/leather/black
+	if(prob(5))
+		beltl = /obj/item/storage/belt/rogue/pouch/medicine
+	switch(rand(1, 100))
+		if(1 to 50)
+			beltr = null
+		if(51 to 85)
+			beltr = /obj/item/storage/belt/rogue/pouch/coins/poor/
+		if(86 to 95)
+			beltr = /obj/item/storage/belt/rogue/pouch/treasure/
+		if(96 to 100)
+			beltr = /obj/item/storage/belt/rogue/pouch/treasure/lucky
+	if(prob(60))
+		id = /obj/item/clothing/ring/silver
 	gloves = /obj/item/clothing/gloves/roguetown/chain/iron
 	shoes = /obj/item/clothing/shoes/roguetown/boots/leather/reinforced
 	H.STASTR = 14 // 8 Points

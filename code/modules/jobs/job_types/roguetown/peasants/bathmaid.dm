@@ -74,7 +74,8 @@
 	backl = /obj/item/storage/backpack/rogue/satchel
 	shoes = /obj/item/clothing/shoes/roguetown/sandals
 	backpack_contents = list(
-		/obj/item/soap/bath = 1
+		/obj/item/soap/bath = 1,
+		/obj/item/mini_flagpole/bathhouse,
 	)
 	if(should_wear_femme_clothes(H))
 		shirt = /obj/item/clothing/suit/roguetown/shirt/undershirt
@@ -123,6 +124,7 @@
 		/obj/item/candle/eora = 1,
 		/obj/item/rogueweapon/whip = 1,
 		/obj/item/clothing/mask/rogue/blindfold = 1,
+		/obj/item/mini_flagpole/bathhouse,
 	)
 	if(should_wear_femme_clothes(H))
 		mask = /obj/item/clothing/mask/rogue/exoticsilkmask
@@ -139,28 +141,42 @@
 
 	if(H.mind)
 		H.mind.AddSpell(new /obj/effect/proc_holder/spell/invoked/massage)
-		var/weapons = list("Harp","Lute","Accordion","Guitar","Hurdy-Gurdy","Viola","Vocal Talisman","Flute", "Psyaltery")
+		var/weapons = list("Accordion","Bagpipe", "Banjo","Drum","Flute","Guitar","Harmonica","Harp","Hurdy-Gurdy","Jaw Harp","Lute","Psyaltery","Shamisen","Trumpet","Viola","Vocal Talisman")
 		var/weapon_choice = input(H, "Choose your instrument.", "TAKE UP ARMS") as anything in weapons
 		H.set_blindness(0)
 		switch(weapon_choice)
-			if("Harp")
-				backr = /obj/item/rogue/instrument/harp
-			if("Lute")
-				backr = /obj/item/rogue/instrument/lute
 			if("Accordion")
 				backr = /obj/item/rogue/instrument/accord
+			if("Bagpipe")
+				backr = /obj/item/rogue/instrument/bagpipe
+			if("Banjo")
+				backr = /obj/item/rogue/instrument/banjo
+			if("Drum")
+				backr = /obj/item/rogue/instrument/drum
+			if("Flute")
+				backr = /obj/item/rogue/instrument/flute
 			if("Guitar")
 				backr = /obj/item/rogue/instrument/guitar
+			if("Harmonica")
+				backr = /obj/item/rogue/instrument/harmonica
+			if("Harp")
+				backr = /obj/item/rogue/instrument/harp
 			if("Hurdy-Gurdy")
 				backr = /obj/item/rogue/instrument/hurdygurdy
+			if("Jaw Harp")
+				backr = /obj/item/rogue/instrument/jawharp
+			if("Lute")
+				backr = /obj/item/rogue/instrument/lute
+			if("Psyaltery")
+				backr = /obj/item/rogue/instrument/psyaltery
+			if("Shamisen")
+				backr = /obj/item/rogue/instrument/shamisen
+			if("Trumpet")
+				backr = /obj/item/rogue/instrument/trumpet
 			if("Viola")
 				backr = /obj/item/rogue/instrument/viola
 			if("Vocal Talisman")
 				backr = /obj/item/rogue/instrument/vocals
-			if("Flute")
-				backr = /obj/item/rogue/instrument/flute
-			if("Psyaltery")
-				backr = /obj/item/rogue/instrument/psyaltery
 
 /datum/advclass/nightmaiden/dominatrix
 	name = "Tickler"
@@ -189,6 +205,7 @@
 		/obj/item/clothing/mask/rogue/blindfold = 1,
 		/obj/item/clothing/neck/roguetown/collar/catbell,
 		/obj/item/leash/leather,
+		/obj/item/mini_flagpole/bathhouse,
 	)
 	if(should_wear_femme_clothes(H))
 		armor = /obj/item/clothing/suit/roguetown/armor/leather/bikini
@@ -262,6 +279,7 @@
 		/obj/item/reagent_containers/powder/moondust = 2,
 		/obj/item/reagent_containers/glass/bottle/rogue/wine = 1,
 		/obj/item/toy/cards/deck = 1,
+		/obj/item/mini_flagpole/bathhouse,
 	)
 	if(should_wear_femme_clothes(H))
 		armor = /obj/item/clothing/suit/roguetown/shirt/dress/silkydress/random
@@ -275,38 +293,44 @@
 		shoes = /obj/item/clothing/shoes/roguetown/boots/leather/reinforced/short
 
 	if(H.mind)
-		var/weapons = list("Harp","Lute","Accordion","Guitar","Hurdy-Gurdy","Viola","Vocal Talisman","Flute")
+		var/weapons = list("Accordion","Bagpipe", "Banjo","Drum","Flute","Guitar","Harmonica","Harp","Hurdy-Gurdy","Jaw Harp","Lute","Psyaltery","Shamisen","Trumpet","Viola","Vocal Talisman")
 		var/weapon_choice = input(H, "Choose your instrument.", "TAKE UP ARMS") as anything in weapons
 		H.mind.AddSpell(new /obj/effect/proc_holder/spell/invoked/massage)
 		H.set_blindness(0)
 		switch(weapon_choice)
-			if("Harp")
-				backr = /obj/item/rogue/instrument/harp
-			if("Lute")
-				backr = /obj/item/rogue/instrument/lute
 			if("Accordion")
 				backr = /obj/item/rogue/instrument/accord
+			if("Bagpipe")
+				backr = /obj/item/rogue/instrument/bagpipe
+			if("Banjo")
+				backr = /obj/item/rogue/instrument/banjo
+			if("Drum")
+				backr = /obj/item/rogue/instrument/drum
+			if("Flute")
+				backr = /obj/item/rogue/instrument/flute
 			if("Guitar")
 				backr = /obj/item/rogue/instrument/guitar
+			if("Harmonica")
+				backr = /obj/item/rogue/instrument/harmonica
+			if("Harp")
+				backr = /obj/item/rogue/instrument/harp
 			if("Hurdy-Gurdy")
 				backr = /obj/item/rogue/instrument/hurdygurdy
+			if("Jaw Harp")
+				backr = /obj/item/rogue/instrument/jawharp
+			if("Lute")
+				backr = /obj/item/rogue/instrument/lute
+			if("Psyaltery")
+				backr = /obj/item/rogue/instrument/psyaltery
+			if("Shamisen")
+				backr = /obj/item/rogue/instrument/shamisen
+			if("Trumpet")
+				backr = /obj/item/rogue/instrument/trumpet
 			if("Viola")
 				backr = /obj/item/rogue/instrument/viola
 			if("Vocal Talisman")
 				backr = /obj/item/rogue/instrument/vocals
-			if("Flute")
-				backr = /obj/item/rogue/instrument/flute
 
 /obj/item/soap/bath
 	name = "herbal soap"
-	desc = "A soap made from various herbs"
-	icon = 'icons/obj/items_and_weapons.dmi'
-	icon_state = "soap"
-	lefthand_file = 'icons/mob/inhands/equipment/custodial_lefthand.dmi'
-	righthand_file = 'icons/mob/inhands/equipment/custodial_righthand.dmi'
-	w_class = WEIGHT_CLASS_TINY
-	item_flags = NOBLUDGEON
-
-/obj/item/bath/soap/ComponentInitialize()
-	. = ..()
-	AddComponent(/datum/component/slippery, 80)
+	desc = "A soap made from various herbs."

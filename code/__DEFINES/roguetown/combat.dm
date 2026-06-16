@@ -4,6 +4,8 @@
 #define BAD_GUARD_FATIGUE_DRAIN 20 //Percentage of your green bar lost on letting a guard expire.
 #define GUARD_PEEL_REDUCTION 2	//How many Peel stacks to lose if a Guard is hit.
 #define BAIT_PEEL_REDUCTION 1	//How many Peel stacks to lose if we perfectly bait.
+#define EXPOSED_INTEG_MOD 2.5
+#define VULN_INTEG_MOD 1.5
 
 /*
 Medical defines
@@ -13,7 +15,7 @@ Medical defines
 #define CONSTITUTION_BLEEDRATE_CAP 15	//The CON value up to which we get a bleedrate reduction.
 
 /*
- Misc. Category. Spin it out if needed
+Misc. Category. Spin it out if needed
 */
 #define CRIT_DISMEMBER_DAMAGE_THRESHOLD 0.75 // 75% damage threshold for dismemberment / crit
 

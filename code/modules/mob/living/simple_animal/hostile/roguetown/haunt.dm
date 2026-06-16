@@ -121,7 +121,7 @@
 	var/spawning = FALSE
 	attacked_sound = 'sound/vo/mobs/ghost/skullpile_hit.ogg'
 
-/obj/structure/bonepile/Initialize()
+/obj/structure/bonepile/Initialize(mapload)
 	. = ..()
 	soundloop = new(src, FALSE)
 	soundloop.start()
@@ -158,9 +158,8 @@
 /obj/structure/bonepile/Destroy()
 	soundloop.stop()
 	spawning = FALSE
-	for(var/H in haunts)
-		var/mob/living/simple_animal/hostile/rogue/haunt/D = H
-		D.death()
+	for(var/mob/living/simple_animal/hostile/rogue/haunt/ghost in haunts)
+		INVOKE_ASYNC(ghost, TYPE_PROC_REF(/mob/living/simple_animal/hostile/rogue/haunt, death))
 	var/spawned = pick(/obj/item/reagent_containers/powder/spice)
 	new spawned(get_turf(src))
 	. = ..()
@@ -176,7 +175,7 @@
 	GiveTarget(user)
 	return
 
-/mob/living/simple_animal/hostile/rogue/haunt/Initialize()
+/mob/living/simple_animal/hostile/rogue/haunt/Initialize(mapload)
 	. = ..()
 	set_light(2, 2, 2, l_color = "#c0523f")
 	ADD_TRAIT(src, TRAIT_IGNOREDAMAGESLOWDOWN, TRAIT_GENERIC)

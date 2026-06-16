@@ -1,7 +1,8 @@
 
 /mob/living/proc/run_armor_check(def_zone = null, attack_flag = "blunt", absorb_text = null, soften_text = null, armor_penetration, penetrated_text, damage, blade_dulling, peeldivisor, intdamfactor, used_weapon = null)
+	SEND_SIGNAL(src, COMSIG_LIVING_ARMOR_CHECKED)
 	var/armor = getarmor(def_zone, attack_flag, damage, armor_penetration, blade_dulling, peeldivisor, intdamfactor, used_weapon)
-
+	src.mob_timers[MT_SNEAKATTACK] = world.time //Stops sneaking after being hit. No more bullshit where you can just run away into fullstealth. Lose your tail first!
 	//the if "armor" check is because this is used for everything on /living, including humans
 	if(armor > 0 && armor_penetration)
 		armor = max(0, armor - armor_penetration)
@@ -12,6 +13,9 @@
 	else if(armor >= 100)
 		if(absorb_text)
 			to_chat(src, span_notice("[absorb_text]"))
+		var/obj/item/blocked_weapon = used_weapon
+		if(blocked_weapon)
+			SEND_SIGNAL(blocked_weapon, COMSIG_ITEM_ARMOR_BLOCKED)
 //		else
 //			to_chat(src, span_notice("My armor absorbs the blow!"))
 	else if(armor > 0)
@@ -47,6 +51,8 @@
 	return BULLET_ACT_HIT
 
 /mob/living/bullet_act(obj/projectile/P, def_zone = BODY_ZONE_CHEST)
+	if(SEND_SIGNAL(src, COMSIG_ATOM_BULLET_ACT, P, def_zone) & COMPONENT_ATOM_BLOCK_BULLET)
+		return
 	def_zone = bullet_hit_accuracy_check(P.accuracy + P.bonus_accuracy, def_zone)
 	var/ap = (P.flag == "blunt") ? BLUNT_DEFAULT_PENFACTOR : P.armor_penetration
 	var/armor = run_armor_check(def_zone, P.flag, "", "",armor_penetration = ap, damage = P.damage, used_weapon = P)
@@ -119,6 +125,8 @@
 		// Hit the selected zone, or else a random zone centered on the chest
 		var/zone = throwingdatum?.target_zone || ran_zone(BODY_ZONE_CHEST, 65)
 		SEND_SIGNAL(I, COMSIG_MOVABLE_IMPACT_ZONE, src, zone)
+		if(SEND_SIGNAL(src, COMSIG_LIVING_IMPACT_ZONE, I, zone) & COMPONENT_CANCEL_THROW)
+			return FALSE
 		if(!blocked)
 			var/ap = (damage_flag == "blunt") ? BLUNT_DEFAULT_PENFACTOR : I.armor_penetration 
 			var/armor = run_armor_check(zone, damage_flag, "", "", armor_penetration = ap, damage = I.throwforce, used_weapon = I)
@@ -261,7 +269,8 @@
 	if(user != src)
 		if(pulling != user) // If the person we're pulling aggro grabs us don't break the grab
 			stop_pulling()
-		user.set_pull_offsets(src, user.grab_state)
+		if(!is_shifted)
+			user.set_pull_offsets(src, user.grab_state)
 	log_combat(user, src, "grabbed", addition="aggressive grab[add_log]")
 	return 1
 
@@ -360,9 +369,9 @@
 
 
 /mob/living/attack_paw(mob/living/carbon/monkey/M)
-	if(isturf(loc) && istype(loc.loc, /area/start))
-//		to_chat(M, "No attacking people at spawn, you jackass.")
-		return FALSE
+// 	if(isturf(loc) && istype(loc.loc, /area/start))//commented out after deleting the areatype - this is old SS13 code
+// //		to_chat(M, "No attacking people at spawn, you jackass.")
+// 		return FALSE
 
 	if (M.used_intent.type == INTENT_HARM)
 		if(HAS_TRAIT(M, TRAIT_PACIFISM))
@@ -390,9 +399,9 @@
 	..()
 
 /mob/living/attack_paw(mob/living/carbon/monkey/M)
-	if(isturf(loc) && istype(loc.loc, /area/start))
-//		to_chat(M, "No attacking people at spawn, you jackass.")
-		return FALSE
+// 	if(isturf(loc) && istype(loc.loc, /area/start))//commented out after deleting the areatype - this is old SS13 code
+// //		to_chat(M, "No attacking people at spawn, you jackass.")
+// 		return FALSE
 
 	if (M.used_intent.type == INTENT_HARM)
 		if(HAS_TRAIT(M, TRAIT_PACIFISM))
@@ -442,6 +451,9 @@
 		span_hear("I hear a heavy electrical crack.") \
 	)
 	playsound(get_turf(src), pick('sound/misc/elec (1).ogg', 'sound/misc/elec (2).ogg', 'sound/misc/elec (3).ogg'), 100, FALSE)
+	// Home alone 2 Marv scream on electrocution — rare easter egg, 5% chance so it's not common but not impossibly rare.
+	if(ishuman(src) && prob(5))
+		playsound(get_turf(src), 'modular/sound/masomoans/agony/electroscreammarv.ogg', 80, FALSE, 2)
 	return shock_damage
 
 /mob/living/emp_act(severity)

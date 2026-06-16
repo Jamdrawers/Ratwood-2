@@ -1,5 +1,3 @@
-
-
 /mob/living
 	see_invisible = SEE_INVISIBLE_LIVING
 	sight = 0
@@ -46,9 +44,14 @@
 
 	var/infected = FALSE //Used to tell if the mob is in progress of turning into deadite
 
-	//Allows mobs to move through dense areas without restriction. For instance, in space or out of holder objects.
-	var/incorporeal_move = FALSE //FALSE is off, INCORPOREAL_MOVE_BASIC is normal, INCORPOREAL_MOVE_SHADOW is for ninjas
-								 //and INCORPOREAL_MOVE_JAUNT is blocked by holy water/salt
+	/**
+	 * Allows mobs to move through dense areas without restriction. For instance, in space or out of holder objects.
+	 * FALSE is off
+	 * INCORPOREAL_MOVE_BASIC is normal
+	 * INCORPOREAL_MOVE_SHADOW is for ninjas
+	 * INCORPOREAL_MOVE_JAUNT is blocked by holy water/salt
+	 */
+	var/incorporeal_move = FALSE
 
 	var/list/roundstart_quirks
 
@@ -142,8 +145,11 @@
 
 	var/ambushable = 0
 
+	// Tracks whether mob is in surrendering state (right-click combat button)
 	var/surrendering = 0
-	var/compliance = 0 // whether we are choosing to auto-resist grabs and stuff
+
+	// Tracks whether mob is in compliance mode (middle-click combat button)
+	var/compliance = 0
 
 	var/defprob = 50 //base chance to defend against this mob's attacks, for simple mob combat
 	var/encumbrance = 0
@@ -161,6 +167,9 @@
 
 
 	var/datum/component/personal_crafting/craftingthing
+
+	/// Cooldown when you break out of a grab before you can be grabbed again
+	COOLDOWN_DECLARE(broke_free)
 
 	var/obj/item/grabbing/r_grab = null
 	var/obj/item/grabbing/l_grab = null
@@ -195,3 +204,16 @@
 
 	/// If the character has prominent mob descriptors, they'll make extra noise
 	var/loud_sneaking = FALSE
+
+	/// If TRUE, denotes that the character (a human) has not finished picking their subclass yet (if applicable).
+	var/advsetup = FALSE
+
+	/// If TRUE, denotes that the character (a human) has received their class equipment via equip() proc.
+	/// Usually, this also means that they've made all their choices after spawning.
+	var/class_equip_finished = FALSE
+
+	var/tempatarget = null
+	/// Handles check & slowdown for peglegs. Fuckin' bootleg, literally, but hey it at least works.
+	var/pegleg = 0
+	var/construct = 0
+	var/burialrited = FALSE

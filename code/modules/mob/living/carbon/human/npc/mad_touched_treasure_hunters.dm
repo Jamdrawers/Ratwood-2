@@ -16,7 +16,7 @@
 	aggressive = 1
 	wander = TRUE
 
-/mob/living/carbon/human/species/human/northern/mad_touched_treasure_hunter/Initialize()
+/mob/living/carbon/human/species/human/northern/mad_touched_treasure_hunter/Initialize(mapload)
 	. = ..()
 	set_species(/datum/species/human/northern)
 	addtimer(CALLBACK(src, PROC_REF(after_creation)), 1 SECONDS)
@@ -39,8 +39,6 @@
 		organ_eyes.eye_color = pick("27becc", "35cc27", "000000")
 	update_hair()
 	update_body()
-	var/obj/item/bodypart/head/head = get_bodypart(BODY_ZONE_HEAD)
-	head.sellprice = 40
 
 /mob/living/carbon/human/species/human/northern/mad_touched_treasure_hunter/npc_idle()
 	if(m_intent == MOVE_INTENT_SNEAK)
@@ -59,28 +57,36 @@
 		face_atom(get_step(src,pick(GLOB.cardinals)))
 
 /datum/outfit/job/roguetown/human/species/human/northern/mad_touched_treasure_hunter/pre_equip(mob/living/carbon/human/H)
-	wrists = /obj/item/clothing/wrists/roguetown/bracers/paalloy
-	mask = /obj/item/clothing/mask/rogue/facemask/steel/paalloy/mad_touched
+	wrists = /obj/item/clothing/wrists/roguetown/bracers/ancient
+	mask = /obj/item/clothing/mask/rogue/facemask/ancient/mad_touched
 	armor = /obj/item/clothing/suit/roguetown/armor/leather/heavy
 	shirt = /obj/item/clothing/suit/roguetown/armor/gambeson
 	if(prob(20))
 		shirt = /obj/item/clothing/suit/roguetown/armor/gambeson/light
-	pants = /obj/item/clothing/under/roguetown/platelegs/paalloy
+	pants = /obj/item/clothing/under/roguetown/platelegs/ancient
 	belt = /obj/item/storage/belt/rogue/leather
-	if(prob(33))
-		beltl = /obj/item/reagent_containers/glass/bottle/alchemical/healthpot
+	if(prob(15))
+		beltl = /obj/item/storage/belt/rogue/pouch/medicine
+	if(prob(60))
+		beltr = /obj/item/storage/belt/rogue/pouch/treasure/
+	if(prob(20))
+		beltr = /obj/item/storage/belt/rogue/pouch/treasure/lucky
+	if(prob(30))
+		id = /obj/item/clothing/ring/silver
+	else
+		id = /obj/item/clothing/ring/decrepit
 	head = /obj/item/clothing/head/roguetown/menacing/mad_touched_treasure_hunter
 	neck = /obj/item/clothing/neck/roguetown/chaincoif/chainmantle
-	gloves = /obj/item/clothing/gloves/roguetown/plate/paalloy
+	gloves = /obj/item/clothing/gloves/roguetown/plate/ancient
 	cloak = /obj/item/clothing/cloak/wickercloak
 	if(prob(33))
-		r_hand = /obj/item/rogueweapon/greatsword/paalloy
+		r_hand = /obj/item/rogueweapon/greatsword/ancient
 	else if(prob(33))
 		r_hand = /obj/item/rogueweapon/shield/buckler
-		l_hand = /obj/item/rogueweapon/huntingknife/idagger/steel/padagger
+		l_hand = /obj/item/rogueweapon/huntingknife/idagger/steel/ancient
 	else
-		r_hand = /obj/item/rogueweapon/sword/sabre/palloy
-		l_hand = /obj/item/rogueweapon/sword/sabre/palloy
+		r_hand = /obj/item/rogueweapon/sword/sabre/ancient
+		l_hand = /obj/item/rogueweapon/sword/sabre/ancient
 
 	shoes = /obj/item/clothing/shoes/roguetown/boots/leather
 	//carbon ai is still pretty dumb so making them a threat to players requires pretty crazy looking stats. don't think too hard about it.
@@ -112,21 +118,20 @@
 /obj/item/clothing/head/roguetown/menacing/mad_touched_treasure_hunter //its here so it doesnt wind up on some class' loadout.
 	name = "sack hood"
 	desc = "A ragged hood of thick jute fibres. The itchiness is unbearable."
-	sewrepair = TRUE
 	color = "#999999"
 	armor = ARMOR_LEATHER
 
-/obj/item/clothing/mask/rogue/facemask/steel/paalloy/mad_touched
+/obj/item/clothing/mask/rogue/facemask/ancient/mad_touched
 	name = "eerie ancient mask"
 
-/obj/item/clothing/mask/rogue/facemask/steel/paalloy/mad_touched/equipped(mob/user, slot)
+/obj/item/clothing/mask/rogue/facemask/ancient/mad_touched/equipped(mob/user, slot)
 	. = ..()
 	if(slot == SLOT_WEAR_MASK)
 		ADD_TRAIT(src, TRAIT_NODROP, CURSED_ITEM_TRAIT)
 		var/mob/living/carbon/human/mad_touched = user
 		mad_touched.apply_damage(25, BRUTE, BODY_ZONE_HEAD)
 
-/obj/item/clothing/mask/rogue/facemask/steel/paalloy/mad_touched/dropped(mob/user)
+/obj/item/clothing/mask/rogue/facemask/ancient/mad_touched/mad_touched/dropped(mob/user)
 	. = ..()
 	REMOVE_TRAIT(src, TRAIT_NODROP, CURSED_ITEM_TRAIT)
 

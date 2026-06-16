@@ -1,5 +1,3 @@
-
-
 //NOTE: Breathing happens once per FOUR TICKS, unless the last breath fails. In which case it happens once per ONE TICK! So oxyloss healing is done once per 4 ticks while oxyloss damage is applied once per tick!
 
 // bitflags for the percentual amount of protection a piece of clothing which covers the body part offers.
@@ -44,7 +42,7 @@
 
 	if(mind)
 		mind.sleep_adv.add_stress_cycle(get_stress_amount())
-		for(var/datum/antagonist/A in mind.antag_datums)
+		for(var/datum/antagonist/A as anything in mind.antag_datums)
 			A.on_life(src)
 
 	handle_vamp_dreams()
@@ -55,7 +53,6 @@
 				remove_stress(/datum/stressevent/sleepytime)
 				if(mind)
 					mind.sleep_adv.advance_cycle()
-					handle_sleep_triumphs()
 	if(leprosy == 1)
 		adjustToxLoss(2)
 	else if(leprosy == 2)
@@ -72,8 +69,16 @@
 	handle_heart()
 	update_stamina()
 	update_energy()
-	if(charflaw && !charflaw.ephemeral && mind)
+	
+	// Process all vices
+	if(mind && length(vices))
+		for(var/datum/charflaw/vice in vices)
+			if(!vice.ephemeral)
+				vice.flaw_on_life(src)
+	// Legacy single vice support
+	else if(charflaw && !charflaw.ephemeral && mind)
 		charflaw.flaw_on_life(src)
+	
 	if(health <= 0)
 		adjustOxyLoss(0.5)
 	if(mode == NPC_AI_OFF && !client && !HAS_TRAIT(src, TRAIT_NOSLEEP))
@@ -108,7 +113,7 @@
 		return
 
 	if(mind)
-		for(var/datum/antagonist/A in mind.antag_datums)
+		for(var/datum/antagonist/A as anything in mind.antag_datums)
 			A.on_life(src)
 
 	. = ..()
@@ -175,8 +180,12 @@
 //				coverfeet = TRUE
 	if(locations & HEAD)
 		if(!coverhead && patron?.type != /datum/patron/divine/abyssor) //abyssor friends don't care about a bit of water!!!
-			if(!isaxian(src) && !islamia(src))//if you aren't an abyssor spawn creature
-				add_stress(/datum/stressevent/coldhead)
+			if(!is_holding_item_of_type(/obj/item/rogueweapon/mace/parasol))
+				if(!isaxian(src) && !islamia(src))//if you aren't an abyssor spawn creature
+					add_stress(/datum/stressevent/coldhead)
+	if(HAS_TRAIT(src, TRAIT_NOBLE)) // Allows nobles who are holding a parasol & its raining to get a mood buff
+		if(is_holding_item_of_type(/obj/item/rogueweapon/mace/parasol/noble)) 
+			add_stress(/datum/stressevent/parasolrain)
 //	if(locations & FEET)
 //		if(!coverfeet && patron?.type != /datum/patron/divine/abyssor)
 //			if(!isaxian(src) && !islamia(src))
@@ -202,7 +211,7 @@
 			mask_sound = pick('sound/items/confessormask1.ogg', 'sound/items/confessormask2.ogg', 'sound/items/confessormask3.ogg',
 							'sound/items/confessormask4.ogg', 'sound/items/confessormask5.ogg', 'sound/items/confessormask6.ogg',
 							'sound/items/confessormask7.ogg', 'sound/items/confessormask8.ogg', 'sound/items/confessormask9.ogg',
-					 		'sound/items/confessormask10.ogg')
+							'sound/items/confessormask10.ogg')
 			playsound(src, mask_sound, 90, FALSE, 4, 0)
 			return
 
@@ -218,18 +227,27 @@
 	if(wear_armor)
 		if(wear_armor.max_heat_protection_temperature && wear_armor.max_heat_protection_temperature >= temperature)
 			thermal_protection_flags |= wear_armor.heat_protection
+	if(wear_shirt)
+		if(wear_shirt.max_heat_protection_temperature && wear_shirt.max_heat_protection_temperature >= temperature)
+			thermal_protection_flags |= wear_shirt.heat_protection
 	if(wear_pants)
 		if(wear_pants.max_heat_protection_temperature && wear_pants.max_heat_protection_temperature >= temperature)
 			thermal_protection_flags |= wear_pants.heat_protection
 	if(shoes)
 		if(shoes.max_heat_protection_temperature && shoes.max_heat_protection_temperature >= temperature)
 			thermal_protection_flags |= shoes.heat_protection
+	if(wear_wrists)
+		if(wear_wrists.max_heat_protection_temperature && wear_wrists.max_heat_protection_temperature >= temperature)
+			thermal_protection_flags |= wear_wrists.heat_protection
 	if(gloves)
 		if(gloves.max_heat_protection_temperature && gloves.max_heat_protection_temperature >= temperature)
 			thermal_protection_flags |= gloves.heat_protection
 	if(wear_mask)
 		if(wear_mask.max_heat_protection_temperature && wear_mask.max_heat_protection_temperature >= temperature)
 			thermal_protection_flags |= wear_mask.heat_protection
+	if(cloak)
+		if(cloak.max_heat_protection_temperature && cloak.max_heat_protection_temperature >= temperature)
+			thermal_protection_flags |= cloak.heat_protection
 
 	return thermal_protection_flags
 
@@ -275,18 +293,27 @@
 	if(wear_armor)
 		if(wear_armor.min_cold_protection_temperature && wear_armor.min_cold_protection_temperature <= temperature)
 			thermal_protection_flags |= wear_armor.cold_protection
+	if(wear_shirt)
+		if(wear_shirt.min_cold_protection_temperature && wear_shirt.min_cold_protection_temperature <= temperature)
+			thermal_protection_flags |= wear_shirt.cold_protection
 	if(wear_pants)
 		if(wear_pants.min_cold_protection_temperature && wear_pants.min_cold_protection_temperature <= temperature)
 			thermal_protection_flags |= wear_pants.cold_protection
 	if(shoes)
 		if(shoes.min_cold_protection_temperature && shoes.min_cold_protection_temperature <= temperature)
 			thermal_protection_flags |= shoes.cold_protection
+	if(wear_wrists)
+		if(wear_wrists.min_cold_protection_temperature && wear_wrists.min_cold_protection_temperature <= temperature)
+			thermal_protection_flags |= wear_wrists.cold_protection
 	if(gloves)
 		if(gloves.min_cold_protection_temperature && gloves.min_cold_protection_temperature <= temperature)
 			thermal_protection_flags |= gloves.cold_protection
 	if(wear_mask)
 		if(wear_mask.min_cold_protection_temperature && wear_mask.min_cold_protection_temperature <= temperature)
 			thermal_protection_flags |= wear_mask.cold_protection
+	if(cloak)
+		if(cloak.min_cold_protection_temperature && cloak.min_cold_protection_temperature <= temperature)
+			thermal_protection_flags |= cloak.cold_protection
 
 	return thermal_protection_flags
 

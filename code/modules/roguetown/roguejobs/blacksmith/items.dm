@@ -16,7 +16,7 @@
 	smeltresult = /obj/item/ingot/gold
 	sellprice = 120
 
-/obj/item/roguestatue/gold/Initialize()
+/obj/item/roguestatue/gold/Initialize(mapload)
 	. = ..()
 	icon_state = "gstatue[pick(1,2)]"
 
@@ -26,7 +26,7 @@
 	icon_state = "lstatue1"
 	sellprice = 45
 
-/obj/item/roguestatue/gold/loot/Initialize()
+/obj/item/roguestatue/gold/loot/Initialize(mapload)
 	. = ..()
 	sellprice = rand(45,150)
 	icon_state = "lstatue[pick(1,2,3,4)]"
@@ -38,7 +38,7 @@
 	smeltresult = /obj/item/ingot/silver
 	sellprice = 90
 
-/obj/item/roguestatue/silver/Initialize()
+/obj/item/roguestatue/silver/Initialize(mapload)
 	. = ..()
 	icon_state = "sstatue[pick(1,2)]"
 
@@ -49,19 +49,19 @@
 	smeltresult = /obj/item/ingot/steel
 	sellprice = 40
 
-/obj/item/roguestatue/steel/Initialize()
+/obj/item/roguestatue/steel/Initialize(mapload)
 	. = ..()
 	icon_state = "ststatue[pick(1,2)]"
 
-/obj/item/roguestatue/aalloy
+/obj/item/roguestatue/decrepit
 	name = "decrepit statue"
 	desc = "A statue of wrought bronze, forged to venerate an ancient champion."
 	icon_state = "astatue1"
-	smeltresult = /obj/item/ingot/aalloy
+	smeltresult = /obj/item/ingot/aaslag
 	sellprice = 77
 	color = "#bb9696"
 
-/obj/item/roguestatue/aalloy/Initialize()
+/obj/item/roguestatue/decrepit/Initialize(mapload)
 	. = ..()
 	icon_state = "astatue[pick(1,2)]"
 
@@ -72,7 +72,7 @@
 	smeltresult = /obj/item/ingot/iron
 	sellprice = 20
 
-/obj/item/roguestatue/iron/Initialize()
+/obj/item/roguestatue/iron/Initialize(mapload)
 	. = ..()
 	icon_state = "istatue[pick(1,2)]"
 
@@ -83,13 +83,18 @@
 	smeltresult = /obj/item/ingot/blacksteel
 	sellprice = 160
 
-/obj/item/roguestatue/blacksteel/Initialize()
+/obj/item/roguestatue/blacksteel/Initialize(mapload)
 	. = ..()
 	icon_state = "bsstatue[pick(1,2)]"
 //000000000000000000000000000--
 
 /obj/item/var/polished = FALSE
 /obj/item/var/polish_bonus = 0
+/obj/item/var/pottery_quality = 0
+/obj/item/var/creator_skill = 0
+/obj/item/var/pottery_fragile = FALSE
+/obj/item/var/pottery_baked_at = 0
+/obj/item/var/pottery_shatter_chance = 100
 
 /obj/item/examine(mob/user)
 	. = ..()
@@ -100,6 +105,8 @@
 			. += span_info("It's been thoroughly brushed.")
 		if(4)
 			. += span_green("It's been nicely polished.")
+	if(shoddy_repair)
+		. += span_warning("This item has been field-repaired and needs to be fixed by a proper craftsman.")
 
 /obj/item/polishing_cream
 	icon = 'icons/roguetown/items/misc.dmi'
@@ -122,7 +129,7 @@
 	var/obj/item/thing = O
 	if(!thing.anvilrepair)
 		return ..()
-	if((HAS_TRAIT(user, TRAIT_SQUIRE_REPAIR) || user.get_skill_level(thing.anvilrepair)) && thing.polished == 0 && obj_integrity <= max_integrity)
+	if((HAS_TRAIT(user, TRAIT_SQUIRE_REPAIR) || HAS_TRAIT(user, TRAIT_SELF_SUSTENANCE) || user.get_skill_level(thing.anvilrepair)) && thing.polished == 0 && obj_integrity <= max_integrity)
 		to_chat(user, span_info("I start applying some compound to \the [thing]..."))
 		if(do_after(user, 50 - user.STASPD*2, target = O))
 			thing.polished = 1
@@ -143,7 +150,7 @@
 	icon_state = "brush_0"
 	w_class = WEIGHT_CLASS_SMALL
 	smeltresult = null
-	dropshrink = 0.8
+	dropshrink = 0.6
 	grid_width = 32
 	grid_height = 64
 	var/roughness = 0 // 0  for a fine brush, 1 for a coarse brush
@@ -172,7 +179,7 @@
 		return ..()
 	var/obj/item/thing = O
 	if(thing.polished == 1 && roughness)
-		if((HAS_TRAIT(user, TRAIT_SQUIRE_REPAIR) || user.get_skill_level(thing.anvilrepair)))
+		if((HAS_TRAIT(user, TRAIT_SQUIRE_REPAIR) || HAS_TRAIT(user, TRAIT_SELF_SUSTENANCE) || user.get_skill_level(thing.anvilrepair)))
 			to_chat(user, span_info("I start roughly scrubbing the compound on \the [thing]..."))
 			playsound(loc,"sound/foley/scrubbing[pick(1,2)].ogg", 100, TRUE)
 			if(do_after(user, 50 - user.STASTR*1.5, target = O))
@@ -181,7 +188,7 @@
 				thing.add_atom_colour("#9e9e9e", FIXED_COLOUR_PRIORITY)
 
 	else if(thing.polished == 2 && !roughness)
-		if((HAS_TRAIT(user, TRAIT_SQUIRE_REPAIR) || user.get_skill_level(thing.anvilrepair)))
+		if((HAS_TRAIT(user, TRAIT_SQUIRE_REPAIR) || HAS_TRAIT(user, TRAIT_SELF_SUSTENANCE) || user.get_skill_level(thing.anvilrepair)))
 			to_chat(user, span_info("I start gently scrubbing the edges of \the [thing]..."))
 			playsound(loc,"sound/foley/scrubbing[pick(1,2)].ogg", 100, TRUE)
 			if(do_after(user, 50 - user.STASTR*1.5, target = O))
@@ -232,7 +239,7 @@
 	duration = 13
 	plane = -1
 
-/obj/effect/temp_visual/armor_glint/Initialize(mapload, var/extra_rand = 1)
+/obj/effect/temp_visual/armor_glint/Initialize(mapload, extra_rand = 1)
 	. = ..()
 	pixel_x = extra_rand * rand(-5,5)
 	pixel_y = extra_rand * rand(-5,5)

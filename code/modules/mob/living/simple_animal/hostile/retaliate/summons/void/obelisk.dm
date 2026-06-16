@@ -1,4 +1,4 @@
-/mob/living/simple_animal/hostile/retaliate/rogue/voidstoneobelisk/Initialize()
+/mob/living/simple_animal/hostile/retaliate/rogue/voidstoneobelisk/Initialize(mapload)
 	. = ..()
 	ADD_TRAIT(src,TRAIT_NOFIRE, "[type]")
 	ADD_TRAIT(src, TRAIT_NOBREATH, TRAIT_GENERIC)
@@ -102,9 +102,7 @@
 	new /obj/item/magic/voidstone(deathspot)
 	spill_embedded_objects()
 	update_icon()
-	sleep(1)
-	qdel(src)
-
+	QDEL_IN(src, 1)
 
 /mob/living/simple_animal/hostile/retaliate/rogue/voidstoneobelisk/MoveToTarget(list/possible_targets)
 	stop_automated_movement = 1

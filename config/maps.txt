@@ -16,8 +16,9 @@ endmap
 map roguetest
 endmap
 
-map dun_manor
+map roguetest_nootherz
 endmap
+
 
 map dun_world
 	votable
@@ -28,6 +29,9 @@ map rockhill
 	votable
 endmap
 
-map spookmanor
-	votable
+map byos
+	maxplayers 100
+endmap
+
+map deserttown
 endmap

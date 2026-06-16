@@ -28,7 +28,6 @@
 		/datum/skill/craft/tanning = SKILL_LEVEL_APPRENTICE,
 		/datum/skill/labor/fishing = SKILL_LEVEL_APPRENTICE,
 		/datum/skill/labor/butchering = SKILL_LEVEL_APPRENTICE,
-		/datum/skill/craft/traps = SKILL_LEVEL_APPRENTICE,
 		/datum/skill/craft/cooking = SKILL_LEVEL_APPRENTICE,
 		/datum/skill/misc/tracking = SKILL_LEVEL_APPRENTICE,
 	)
@@ -50,7 +49,6 @@
 	backpack_contents = list(
 		/obj/item/bait = 1,
 		/obj/item/rogueweapon/huntingknife = 1,
-		/obj/item/recipe_book/survival = 1,
 		/obj/item/rogueweapon/scabbard/sheath = 1
 		)
 	if(H.mind)
@@ -69,7 +67,7 @@
 
 /datum/advclass/ranger/wayfarer
 	name = "Wayfarer"
-	tutorial = "You've spent countless years homing many trades; man-hunting, picking locks, breaking into places you had no right being.. but you are no mere thief. You are trained to track men and recover stolen goods. And The Vale is a prime paycheck.."
+	tutorial = "You've spent countless years homing many trades; man-hunting, picking locks, breaking into places you had no right being.. but you are no mere thief. You are trained to track men and recover stolen goods. And these lands are a prime paycheck.."
 	outfit = /datum/outfit/job/roguetown/adventurer/assassin
 	cmode_music = 'sound/music/cmode/adventurer/combat_outlander.ogg'
 	subclass_languages = list(/datum/language/thievescant)
@@ -88,7 +86,7 @@
 		/datum/skill/combat/knives = SKILL_LEVEL_JOURNEYMAN,
 		/datum/skill/misc/climbing = SKILL_LEVEL_EXPERT,
 		/datum/skill/misc/reading = SKILL_LEVEL_NOVICE,
-		/datum/skill/craft/traps = SKILL_LEVEL_JOURNEYMAN,
+		/datum/skill/craft/crafting = SKILL_LEVEL_APPRENTICE,
 		/datum/skill/misc/sneaking = SKILL_LEVEL_JOURNEYMAN,
 		/datum/skill/misc/tracking = SKILL_LEVEL_EXPERT,
 		/datum/skill/misc/lockpicking = SKILL_LEVEL_APPRENTICE,
@@ -112,7 +110,6 @@
 	backr = /obj/item/gun/ballistic/revolver/grenadelauncher/crossbow
 	backpack_contents = list(
 		/obj/item/flashlight/flare/torch = 1,
-		/obj/item/recipe_book/survival = 1,
 		/obj/item/rogueweapon/scabbard/sheath = 1
 		)
 	H.set_blindness(0)
@@ -135,7 +132,7 @@
 		/datum/skill/combat/unarmed = SKILL_LEVEL_APPRENTICE,
 		/datum/skill/misc/climbing = SKILL_LEVEL_APPRENTICE,
 		/datum/skill/misc/reading = SKILL_LEVEL_APPRENTICE,
-		/datum/skill/craft/traps = SKILL_LEVEL_EXPERT,
+		/datum/skill/craft/engineering = SKILL_LEVEL_APPRENTICE,
 		/datum/skill/craft/alchemy = SKILL_LEVEL_EXPERT,
 		/datum/skill/craft/crafting = SKILL_LEVEL_APPRENTICE,
 	)
@@ -158,7 +155,6 @@
 	backpack_contents = list(
 		/obj/item/bomb = 4,
 		/obj/item/rogueweapon/huntingknife = 1,
-		/obj/item/recipe_book/survival = 1,
 		/obj/item/rogueweapon/scabbard/sheath = 1
 		)
 	H.set_blindness(0)

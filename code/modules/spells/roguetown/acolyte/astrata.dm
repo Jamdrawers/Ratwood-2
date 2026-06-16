@@ -132,15 +132,6 @@
 		)
 		target.gib()
 		return TRUE
-	if(alert(target, "They are calling for you. Are you ready?", "Revival", "I need to wake up", "Don't let me go") != "I need to wake up")
-		target.visible_message(span_notice("Nothing happens. They are not being let go."))
-		return FALSE
-	target.adjustOxyLoss(-target.getOxyLoss()) //Ye Olde CPR
-	if(!target.revive(full_heal = FALSE))
-		to_chat(user, span_warning("Nothing happens."))
-		revert_cast()
-		return FALSE
-	testing("revived2")
 	var/mob/living/carbon/spirit/underworld_spirit = target.get_spirit()
 	//GET OVER HERE!
 	if(underworld_spirit)
@@ -148,6 +139,16 @@
 		qdel(underworld_spirit)
 		ghost.mind.transfer_to(target, TRUE)
 	target.grab_ghost(force = TRUE) // even suicides
+	if(!target.mind.active)
+		to_chat(user, "[target] will not return from afterlife.")
+		revert_cast()
+		return FALSE
+	target.adjustOxyLoss(-target.getOxyLoss()) //Ye Olde CPR
+	if(!target.revive(full_heal = FALSE))
+		to_chat(user, span_warning("Nothing happens."))
+		revert_cast()
+		return FALSE
+	testing("revived2")
 	target.emote("breathgasp")
 	target.Jitter(100)
 	record_round_statistic(STATS_ASTRATA_REVIVALS)
@@ -260,7 +261,7 @@
 	ispartner = TRUE
 	immolate = TRUE
 
-/datum/component/immolation/Initialize(mob/living/partner_mob, mob/living/carbon/caster_mob, var/holy_skill, var/is_astrata)
+/datum/component/immolation/Initialize(mob/living/partner_mob, mob/living/carbon/caster_mob, holy_skill, is_astrata)
 	if(!isliving(parent) || !iscarbon(partner_mob))
 		return COMPONENT_INCOMPATIBLE
 
@@ -287,7 +288,7 @@
 	START_PROCESSING(SSprocessing, src)
 	RegisterSignal(parent, COMSIG_LIVING_MIRACLE_HEAL_APPLY, PROC_REF(on_heal))
 	RegisterSignal(parent, COMSIG_PARENT_QDELETING, PROC_REF(on_deletion))
-	addtimer(CALLBACK(src, .proc/remove_immolation), duration)
+	addtimer(CALLBACK(src, PROC_REF(remove_immolation)), duration)
 
 	// Apply visual effect
 	var/mob/living/L = parent
@@ -614,7 +615,7 @@
 
 	return TRUE
 
-/obj/item/rogueweapon/light_spear/proc/astratan_spear_damage(var/turf/effect_layer, damage_mod)
+/obj/item/rogueweapon/light_spear/proc/astratan_spear_damage(turf/effect_layer, damage_mod)
 	new /obj/effect/temp_visual/thunderstrike_actual(effect_layer)
 	playsound(effect_layer, 'sound/magic/lightning.ogg', 50)
 	for(var/mob/living/L in effect_layer.contents)

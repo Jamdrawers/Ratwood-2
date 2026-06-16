@@ -26,7 +26,7 @@
 		/datum/skill/misc/tracking = SKILL_LEVEL_MASTER,
 		/datum/skill/misc/climbing = SKILL_LEVEL_EXPERT,
 		/datum/skill/combat/knives = SKILL_LEVEL_JOURNEYMAN,
-		/datum/skill/misc/athletics = SKILL_LEVEL_JOURNEYMAN,
+		/datum/skill/misc/athletics = SKILL_LEVEL_EXPERT,
 		/datum/skill/combat/wrestling = SKILL_LEVEL_JOURNEYMAN,
 		/datum/skill/combat/unarmed = SKILL_LEVEL_JOURNEYMAN,
 		/datum/skill/misc/swimming = SKILL_LEVEL_JOURNEYMAN,
@@ -69,6 +69,10 @@
 		)
 	var/datum/devotion/C = new /datum/devotion(H, H.patron)
 	C.grant_miracles(H, cleric_tier = CLERIC_T2, passive_gain = CLERIC_REGEN_WEAK, devotion_limit = CLERIC_REQ_1)	//Capped to T2 miracles.
+	if(H.mind)
+		H.mind.AddSpell(new /obj/effect/proc_holder/spell/self/psydonic_inviolability)//A shield against the undead.
+		H.mind.AddSpell(new /obj/effect/proc_holder/spell/self/psydonic_lux_bolt)//Take a guess. Exclusive to arbalist.
+		H.mind.AddSpell(new /obj/effect/proc_holder/spell/self/psydonic_sacrosanctity)//To get your blood back, m'lord.
 
 //Stake belt. Here because nothing else uses it. It's just a throwing knife belt, but for stake bolts.
 //A better way to carry them, since these are unobtanium.
@@ -80,7 +84,6 @@
 	strip_delay = 20
 	var/max_storage = 5
 	var/list/stakes = list()
-	sewrepair = TRUE
 	component_type = /datum/component/storage/concrete/roguetown/belt/knife_belt
 
 /obj/item/storage/belt/rogue/leather/stakebelt/attackby(obj/A, loc, params)
@@ -113,7 +116,7 @@
 	if(stakes.len)
 		. += span_notice("[stakes.len] inside.")
 
-/obj/item/storage/belt/rogue/leather/stakebelt/Initialize()
+/obj/item/storage/belt/rogue/leather/stakebelt/Initialize(mapload)
 	. = ..()
 	for(var/i in 1 to max_storage)
 		var/obj/item/ammo_casing/caseless/rogue/heavy_bolt/holy/K = new()

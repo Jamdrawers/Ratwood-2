@@ -2,7 +2,7 @@
 	//used by the basic ai controller /datum/ai_behavior/basic_melee_attack to determine how fast a mob can attack
 	var/melee_cooldown = CLICK_CD_MELEE
 
-/mob/living/Initialize()
+/mob/living/Initialize(mapload)
 	. = ..()
 	update_a_intents()
 	swap_rmb_intent(num=1)
@@ -26,6 +26,8 @@
 		ranged_ability.remove_ranged_ability(src)
 	if(buckled)
 		buckled.unbuckle_mob(src,force=1)
+
+	stop_offering_item()
 
 	GLOB.mob_living_list -= src
 	for(var/s in ownedSoullinks)
@@ -108,14 +110,12 @@
 /mob/living/proc/MobBump(mob/M)
 	//Even if we don't push/swap places, we "touched" them, so spread fire
 	spreadFire(M)
-
+	M.mob_timers[MT_SNEAKBUMP] = world.time //Here we go again. Make people suddenly lose stealth if they're bumped. No more rogueshittery.
 	if(now_pushing)
 		return TRUE
 
-	var/they_can_move = TRUE
 	if(isliving(M))
 		var/mob/living/L = M
-		they_can_move = L.mobility_flags & MOBILITY_MOVE
 
 		//Should stop you pushing a restrained person out of the way
 		if(L.pulledby && L.pulledby != src && L.pulledby != L && L.restrained())
@@ -132,53 +132,6 @@
 
 	if(moving_diagonally)//no mob swap during diagonal moves.
 		return TRUE
-
-	if(!M.buckled && !M.has_buckled_mobs())
-		var/mob_swap = FALSE
-		var/too_strong = (M.move_resist > move_force) //can't swap with immovable objects unless they help us
-		if(istype(M,/mob/living/simple_animal/hostile/retaliate))
-			if(!M:aggressive)
-				mob_swap = TRUE
-		if(!they_can_move) //we have to physically move them
-			if(!too_strong)
-				mob_swap = FALSE
-		else
-			//You can swap with the person you are dragging on grab intent, and restrained people in most cases
-			if(M.pulledby == src && !too_strong)
-				mob_swap = FALSE
-			else if(
-				!( HAS_TRAIT(M, TRAIT_NOMOBSWAP) || HAS_TRAIT(src, TRAIT_NOMOBSWAP) ) &&\
-				( (M.restrained() && !too_strong) ) &&\
-				( restrained() )
-				)
-				mob_swap = FALSE
-		if(mob_swap)
-			//switch our position with M
-			if(loc && !loc.Adjacent(M.loc))
-				return TRUE
-			now_pushing = 1
-			var/oldloc = loc
-			var/oldMloc = M.loc
-
-			var/M_passmob = (M.pass_flags & PASSMOB) // we give PASSMOB to both mobs to avoid bumping other mobs during swap.
-			var/src_passmob = (pass_flags & PASSMOB)
-			M.pass_flags |= PASSMOB
-			pass_flags |= PASSMOB
-
-			var/move_failed = FALSE
-			if(!M.Move(oldloc) || !Move(oldMloc))
-				M.forceMove(oldMloc)
-				forceMove(oldloc)
-				move_failed = TRUE
-			if(!src_passmob)
-				pass_flags &= ~PASSMOB
-			if(!M_passmob)
-				M.pass_flags &= ~PASSMOB
-
-			now_pushing = 0
-
-			if(!move_failed)
-				return TRUE
 
 	if(m_intent == MOVE_INTENT_RUN && dir == get_dir(src, M))
 		if(isliving(M))
@@ -417,7 +370,6 @@
 
 	if(isliving(AM))
 		var/mob/living/target = AM
-		log_combat(src, target, "grabbed", addition="passive grab")
 		if(!iscarbon(src))
 			target.LAssailant = null
 		else
@@ -456,10 +408,11 @@
 				return
 
 		// Makes it so people who recently broke out of grabs cannot be grabbed again
-		if(TIMER_COOLDOWN_RUNNING(target, "broke_free") && target.stat == CONSCIOUS)
+		if(COOLDOWN_TIMELEFT(target, broke_free) && target.stat == CONSCIOUS)
 			target.visible_message(span_warning("[target] slips from [src]'s grip."), \
 					span_warning("I slip from [src]'s grab."))
 			log_combat(src, target, "tried grabbing", addition="passive grab")
+			stop_pulling()
 			return
 
 		log_combat(src, target, "grabbed", addition="passive grab")
@@ -470,11 +423,11 @@
 			var/used_limb = C.find_used_grab_limb(src)
 			O.name = "[C]'s [parse_zone(used_limb)]"
 			var/obj/item/bodypart/BP = C.get_bodypart(check_zone(used_limb))
-			C.grabbedby += O
+			LAZYADD(C.grabbedby, O)
 			O.grabbed = C
 			O.grabbee = src
 			O.limb_grabbed = BP
-			BP.grabbedby += O
+			LAZYADD(BP.grabbedby, O)
 			if(item_override)
 				O.sublimb_grabbed = item_override
 			else
@@ -510,7 +463,8 @@
 				return FALSE
 
 		update_pull_movespeed()
-		set_pull_offsets(target, state)
+		if(!target.is_shifted)
+			set_pull_offsets(target, state)
 	else
 		if(!supress_message)
 			var/sound_to_play = 'sound/combat/shove.ogg'
@@ -624,7 +578,8 @@
 		if(ismob(pulling))
 			var/mob/living/M = pulling
 			M.reset_offsets("pulledby")
-			reset_pull_offsets(pulling)
+			if(!M.is_shifted)
+				reset_pull_offsets(pulling)
 			if(HAS_TRAIT(M, TRAIT_GARROTED))
 				var/obj/item/inqarticles/garrote/gcord = src.get_active_held_item()
 				if(!gcord)
@@ -880,7 +835,7 @@
 /mob/living/proc/revive(full_heal = FALSE, admin_revive = FALSE)
 	SEND_SIGNAL(src, COMSIG_LIVING_REVIVE, full_heal, admin_revive)
 	if(full_heal)
-		fully_heal(admin_revive = admin_revive)
+		fully_heal(admin_revive = admin_revive, break_restraints = admin_revive)
 	if(stat == DEAD && (admin_revive || can_be_revived())) //in some cases you can't revive (e.g. no brain)
 		GLOB.dead_mob_list -= src  //If any more forms of revival are added, better to use a proc to do this - easier to search
 		GLOB.alive_mob_list += src
@@ -899,8 +854,7 @@
 		if(mind)
 			if(admin_revive)
 				mind.remove_antag_datum(/datum/antagonist/zombie)
-			for(var/S in mind.spell_list)
-				var/obj/effect/proc_holder/spell/spell = S
+			for(var/obj/effect/proc_holder/spell/spell as anything in mind.spell_list)
 				spell.updateButtonIcon()
 		qdel(GetComponent(/datum/component/rot))
 
@@ -917,15 +871,12 @@
 
 /mob/living/Crossed(atom/movable/AM)
 	. = ..()
-	for(var/i in get_equipped_items())
+	for(var/i as anything in get_equipped_items())
 		var/obj/item/item = i
 		SEND_SIGNAL(item, COMSIG_ITEM_WEARERCROSSED, AM, src)
 
-
-
-//proc used to completely heal a mob.
-//admin_revive = TRUE is used in other procs, for example mob/living/carbon/fully_heal()
-/mob/living/proc/fully_heal(admin_revive = FALSE)
+/// proc used to completely heal a mob. admin_revive = TRUE is used in other procs, for example mob/living/carbon/fully_heal()
+/mob/living/proc/fully_heal(admin_revive = FALSE, break_restraints = FALSE)
 	restore_blood()
 	setToxLoss(0, 0) //zero as second argument not automatically call updatehealth().
 	setOxyLoss(0, 0)
@@ -1000,7 +951,6 @@
 	reset_offsets("wall_press")
 	update_wallpress_slowdown()
 
-
 /mob/living/Move(atom/newloc, direct, glide_size_override)
 
 	var/old_direction = dir
@@ -1020,6 +970,7 @@
 			lying = 270
 		update_transform()
 		lying_prev = lying
+
 	if (buckled && buckled.loc != newloc) //not updating position
 		if (!buckled.anchored)
 			return buckled.Move(newloc, direct, glide_size)
@@ -1117,15 +1068,14 @@
 
 	SEND_SIGNAL(src, COMSIG_LIVING_RESIST, src)
 	//resisting grabs (as if it helps anyone...)
-	if(pulledby)
-		var/mob/living/P
-		if(isliving(pulledby))
-			P = pulledby
+	if(isliving(pulledby))
+		var/mob/living/puller = pulledby
 		if(!restrained(ignore_grab = 1))
 			log_combat(src, pulledby, "resisted grab")
-			resist_grab()
+			if(resist_grab())
+				COOLDOWN_START(src, broke_free, 1 SECONDS)
 			return
-		else if(P.compliance) // we ARE handcuffed apart from the grab, but grabber has Compliance Mode on
+		else if(puller.compliance) // we ARE handcuffed apart from the grab, but grabber has Compliance Mode on
 			log_combat(src, pulledby, "resisted grab (is restrained, compliance mode bypass)") // if you try baiting prisoners with this, I'll know.
 			resist_grab() // resisting out of his grab (100% success) takes priority here
 			return
@@ -1159,11 +1109,11 @@
 					riding_datum.force_dismount(M)
 			return
 
-/mob/living/proc/submit(var/instant = FALSE)
+/mob/living/proc/submit(instant = FALSE)
 	set name = "Yield"
 	set category = "IC"
 	set hidden = 1
-	if(surrendering || stat)
+	if(surrendering || stat == DEAD)
 		return
 	if(!instant)
 		if(alert(src, "Do you yield?", "SURRENDER", "Yes", "No") == "No")
@@ -1198,6 +1148,9 @@
 		notifyme = client.prefs.compliance_notifs
 
 	if(has_status_effect(/datum/status_effect/compliance))
+		if(HAS_TRAIT(src, TRAIT_COMPLIANT))
+			to_chat(src, span_alert("My vice makes me compliant against my will.")) //only for people who take the compliant vice
+			return
 		src.compliance = 0
 		remove_status_effect(/datum/status_effect/compliance)
 		if(notifyme)
@@ -1219,6 +1172,7 @@
 		client.chargedprog = 0
 		client.tcompare = null //so we don't shoot the attack off
 		client.mouse_pointer_icon = 'icons/effects/mousemice/human.dmi'
+		STOP_PROCESSING(SSmousecharge, client)
 	if(used_intent)
 		used_intent.on_mouse_up()
 	if(mmb_intent)
@@ -1238,6 +1192,8 @@
 	var/wrestling_diff = 0
 	var/resist_chance = 55
 	var/mob/living/L = pulledby
+	if(!L)
+		return TRUE
 	var/combat_modifier = 1
 	var/agg_grab = FALSE
 
@@ -1396,6 +1352,9 @@
 			return
 		if(L.compliance || L.surrendering)
 			surrender_mod = 0.5
+		else if(HAS_TRAIT(L, TRAIT_NUDE_SLEEPER))
+			if(what.nudist_approved && L.IsSleeping())
+				surrender_mod = 0.5 // concession for letting nude sleepers wear certain items: people can swipe them fast
 
 	if(!who.Adjacent(src))
 		return
@@ -1659,7 +1618,7 @@
  */
 
 /mob/living/proc/on_fire_stack(seconds_per_tick, datum/status_effect/fire_handler/fire_stacks/fire_handler)
-	adjust_bodytemperature(((fire_handler.stacks * 12)) * 0.5 * seconds_per_tick)
+	adjust_bodytemperature(((fire_handler.stacks)) * 0.5 * seconds_per_tick)
 
 /**
  * Adjust the amount of fire stacks on a mob
@@ -1838,7 +1797,7 @@
 			fall(!canstand_involuntary)
 		layer = LYING_MOB_LAYER //so mob lying always appear behind standing mobs
 		if (is_shifted)
-			layer = 3.99 + pixelshift_layer //So mobs can pixelshift layers while lying down
+			layer = LYING_MOB_LAYER + pixelshift_layer //So mobs can pixelshift layers while lying down
 	else
 		if(layer == LYING_MOB_LAYER)
 			layer = initial(layer)
@@ -2091,6 +2050,7 @@
 						found_ping(get_turf(M), client, "hidden")
 
 		for(var/obj/O in view(7,src))
+			SEND_SIGNAL(O, COMSIG_LOOK_AROUND_SPOTTED, src)
 			if(istype(O, /obj/item/restraints/legcuffs/beartrap))
 				var/obj/item/restraints/legcuffs/beartrap/M = O
 				if(isturf(M.loc) && M.armed)
@@ -2144,21 +2104,12 @@
 		visible_message(span_info("[src] looks up."))
 	var/turf/ceiling = get_step_multiz(src, UP)
 	var/turf/T = get_turf(src)
+	var/datum/controller/subsystem/ParticleWeather/PW = SSParticleWeather //used so we can see what's the weather outside
 	if(!ceiling) //We are at the highest z-level.
 		if(T.can_see_sky())
-			switch(GLOB.forecast)
-				if("prerain")
-					to_chat(src, span_warning("Dark clouds gather..."))
-					return
-				if("rain")
-					to_chat(src, span_warning("A wet wind blows."))
-					return
-				if("rainbow")
-					to_chat(src, span_notice("A beautiful rainbow!"))
-					return
-				if("fog")
-					to_chat(src, span_warning("I can't see anything, the fog has set in."))
-					return
+			if(PW.runningWeather)
+				to_chat(src, span_warning("[PW.runningWeather.warning_message]"))
+				return
 			to_chat(src, span_warning("There is nothing special to say about this weather."))
 			do_time_change()
 		return
@@ -2167,6 +2118,8 @@
 		return
 
 	if(T.can_see_sky())
+		if(PW.runningWeather)
+			to_chat(src, span_warning("[PW.runningWeather.warning_message]"))
 		do_time_change()
 
 	var/ttime = 10
@@ -2237,9 +2190,11 @@
 			_y += offset
 		else if(_y != 0)
 			_y -= offset
-	if(m_intent != MOVE_INTENT_SNEAK)
 		if(_y == 0 && _x == 0)	//Their PER was too low to see anything.
 			message = span_info("[src] oafishly stares in front of themselves.")
+	if(m_intent == MOVE_INTENT_SNEAK)
+		to_chat(src, message)
+	else
 		visible_message(message)
 	animate(client, pixel_x = world.icon_size*_x, pixel_y = world.icon_size*_y, ttime)
 //	RegisterSignal(src, COMSIG_MOVABLE_PRE_MOVE, PROC_REF(stop_looking))
@@ -2271,7 +2226,10 @@
 		if(ttime < 0)
 			ttime = 0
 
-	visible_message(span_info("[src] looks down through [T]."))
+	if(m_intent != MOVE_INTENT_SNEAK)
+		visible_message(span_info("[src] looks down through [T]."))
+	else
+		to_chat(src, span_info("[src] looks down through [T]."))
 
 	if(!do_after(src, ttime, target = src))
 		return
@@ -2315,3 +2273,92 @@
 /mob/living/proc/get_fire_overlay(stacks, on_fire)
 	RETURN_TYPE(/mutable_appearance)
 	return null
+
+/mob/living/proc/offer_item(mob/living/offered_to, obj/offered_item)
+	if(isnull(offered_to) || isnull(offered_item))
+		stack_trace("no offered_to or offered_item in offer_item()")
+		return
+
+	var/time_left = COOLDOWN_TIMELEFT(src, offer_cooldown)
+
+	if(time_left)
+		to_chat(src, span_danger("I must wait [time_left / 10] seconds before offering again."))
+		return FALSE
+
+	offered_item_ref = WEAKREF(offered_item)
+
+	var/stealthy = (m_intent == MOVE_INTENT_SNEAK)
+	var/obj/item/reagent_containers/glass/offered_item_other = null
+	if(istype(offered_item, /obj/item/reagent_containers/glass) && offered_item?.reagents?.maximum_volume > 0) // we have a drink in our hand
+		offered_item_other = offered_to.offered_item_ref?.resolve()
+
+	if(stealthy)
+		to_chat(src, span_notice("I secretly offer [offered_item] to [offered_to]."))
+		to_chat(offered_to, span_notice("[offered_to] secretly offers [offered_item] to me..."))
+	else if(!isnull(offered_item_other) && istype(offered_item_other) && offered_item_other?.reagents?.maximum_volume > 0) // clink drinks
+		playsound(src,offered_item_other.reagents.maximum_volume > 50 ? 'sound/misc/clink_drink_big.ogg' : 'sound/misc/clink_drink.ogg', 100, TRUE)
+		addtimer(CALLBACK(src, PROC_REF(stop_offering_item)), 0.6 SECONDS)
+		addtimer(CALLBACK(offered_to, PROC_REF(stop_offering_item)), 0.6 SECONDS)
+		visible_message(
+			span_notice("[src] clinks [offered_item] with [offered_to]!"), \
+			span_notice("I clink [offered_item] with [offered_to]!"), \
+			vision_distance = COMBAT_MESSAGE_RANGE, \
+			ignored_mobs = list(offered_to)
+		)
+		to_chat(offered_to, span_notice("[src] clinks [offered_item] with me!"))
+	else
+		visible_message(
+			span_notice("[src] offers [offered_item] to [offered_to] with an outstretched hand."), \
+			span_notice("I offer [offered_item] to [offered_to] with an outstretched hand."), \
+			vision_distance = COMBAT_MESSAGE_RANGE, \
+			ignored_mobs = list(offered_to)
+		)
+		to_chat(offered_to, span_notice("[src] offers [offered_item] to me..."))
+
+	new /obj/effect/temp_visual/offered_item_effect(get_turf(src), offered_item, src, offered_to, stealthy)
+
+/mob/living/proc/cancel_offering_item(stealthy)
+	var/obj/offered_item = offered_item_ref?.resolve()
+	if(isnull(offered_item))
+		stop_offering_item()
+		return
+	if(stealthy)
+		to_chat(src, "I stop offering [offered_item ? offered_item : "the item"].")
+	else
+		visible_message(
+			span_notice("[src] puts their hand back down."), \
+			span_notice("I stop offering [offered_item ? offered_item : "the item"]."), \
+			vision_distance = COMBAT_MESSAGE_RANGE, \
+		)
+	stop_offering_item()
+
+/mob/living/proc/stop_offering_item()
+	COOLDOWN_START(src, offer_cooldown, 1 SECONDS)
+	SEND_SIGNAL(src, COMSIG_LIVING_STOPPED_OFFERING_ITEM)
+	offered_item_ref = null
+	update_a_intents()
+
+/mob/living/proc/try_accept_offered_item(mob/living/offerer, obj/offered_item, stealthy)
+	if(get_active_held_item())
+		to_chat(src, span_warning("I need a free hand to take it!"))
+		return FALSE
+
+	accept_offered_item(offerer, offered_item, stealthy)
+	return TRUE
+
+/mob/living/proc/accept_offered_item(mob/living/offerer, obj/offered_item, stealthy)
+	transferItemToLoc(offered_item, src)
+	put_in_active_hand(offered_item)
+	if(stealthy)
+		to_chat(offerer, span_notice("[src] takes the secretly offered [offered_item]."))
+		to_chat(src, span_notice("I take the secretly offered [offered_item] from [offerer]."))
+	else
+		to_chat(offerer, span_notice("[src] takes [offered_item] from my outstretched hand."))
+		visible_message(
+			span_warning("[src] takes [offered_item] from [offerer]'s outstretched hand!"), \
+			span_notice("I take [offered_item] from [offerer]'s outstretched hand."), \
+			vision_distance = COMBAT_MESSAGE_RANGE, \
+			ignored_mobs = list(offerer)
+		)
+	SEND_SIGNAL(offered_item, COMSIG_OBJ_HANDED_OVER, src, offerer)
+	offerer.stop_offering_item()

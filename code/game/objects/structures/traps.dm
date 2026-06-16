@@ -61,13 +61,13 @@
 	if(iscarbon(user) && armed && isturf(loc))
 		if(!BP)
 			return FALSE
-		if(C.get_skill_level(/datum/skill/craft/traps) < 1)
+		if(C.get_skill_level(/datum/skill/craft/crafting) < 1)
 			C.visible_message(span_notice("I don't know how to disarm \the [src]."))
 			return FALSE
 		else
 			used_time = 14 SECONDS
 			if(C.mind)
-				used_time -= max((C.get_skill_level(/datum/skill/craft/traps) * 2 SECONDS), 2 SECONDS)
+				used_time -= max((C.get_skill_level(/datum/skill/craft/crafting) * 2 SECONDS), 2 SECONDS)
 				C.visible_message(span_notice("[C] begins disarming \the [src]."), \
 						span_notice("I start disarming \the [src]."))
 			if(do_after(user, used_time, target = src))
@@ -80,13 +80,13 @@
 	if(iscarbon(user) && !armed && isturf(loc))
 		if(!BP)
 			return FALSE
-		if(C.get_skill_level(/datum/skill/craft/traps) < 1)
+		if(C.get_skill_level(/datum/skill/craft/crafting) < 1)
 			C.visible_message(span_notice("I don't know how to arm \the [src]."))
 			return FALSE
 		else
 			used_time = 8 SECONDS
 			if(C.mind)
-				used_time -= max((C.get_skill_level(/datum/skill/craft/traps) * 2 SECONDS), 2 SECONDS)
+				used_time -= max((C.get_skill_level(/datum/skill/craft/crafting) * 2 SECONDS), 2 SECONDS)
 			if(do_after(user, used_time, target = src))
 				armed = TRUE
 				update_icon()
@@ -225,7 +225,7 @@
 /obj/structure/trap/chill/trap_effect(mob/living/L)
 	to_chat(L, span_danger("<B>You're frozen solid!</B>"))
 	L.Paralyze(20)
-	L.adjust_bodytemperature(-400)
+	L.adjust_bodytemperature(-100)
 	L.apply_status_effect(/datum/status_effect/freon)
 
 /obj/structure/trap/damage
@@ -247,7 +247,7 @@
 	density = TRUE
 	time_between_triggers = 1200 //Exists for 2 minutes
 
-/obj/structure/trap/ward/Initialize()
+/obj/structure/trap/ward/Initialize(mapload)
 	. = ..()
 	QDEL_IN(src, time_between_triggers)
 
@@ -463,8 +463,8 @@
 	if(!H || !H.mind)
 		return FALSE
 
-	var/assigned = lowertext("[H.mind.assigned_role]")
-	var/special  = lowertext("[H.mind.special_role]")
+	var/assigned = LOWER_TEXT("[H.mind.assigned_role]")
+	var/special  = LOWER_TEXT("[H.mind.special_role]")
 
 //We don't care about anyone but the MAAs/Wardens.
 	if(retinue_planted)
@@ -511,8 +511,8 @@
 /obj/structure/trap/bogtrap/proc/is_exempt_viewer(mob/living/H)
 	if(!H || !H.mind)
 		return FALSE
-	var/assigned = lowertext("[H.mind.assigned_role]")
-	var/special  = lowertext("[H.mind.special_role]")
+	var/assigned = LOWER_TEXT("[H.mind.assigned_role]")
+	var/special  = LOWER_TEXT("[H.mind.special_role]")
 
 //Is this hacky? Yeah. Does it work? I guess.
 	if(retinue_planted)
@@ -570,7 +570,7 @@
 /obj/structure/trap/bogtrap/freeze/trap_effect(mob/living/L)
 	to_chat(L, span_danger("<B>You're frozen solid!</B>"))
 	L.Paralyze(50)
-	L.adjust_bodytemperature(-300)
+	L.adjust_bodytemperature(-100)
 	playsound(src, 'sound/misc/explode/bottlebomb (1).ogg', 60, TRUE)
 
 

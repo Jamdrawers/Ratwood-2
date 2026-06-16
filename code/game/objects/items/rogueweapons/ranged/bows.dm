@@ -5,12 +5,13 @@
 	chargedrain = 2
 	charging_slowdown = 3
 
-/datum/intent/shoot/bow/can_charge()
-	if(mastermob)
-		if(mastermob.get_num_arms(FALSE) < 2)
-			return FALSE
-		if(mastermob.get_inactive_held_item())
-			return FALSE
+/datum/intent/shoot/bow/can_charge(atom/clicked_object)
+	if(mastermob?.get_num_arms(FALSE) < 2 || mastermob.get_inactive_held_item())
+		to_chat(mastermob, span_warning("I need a free hand to draw [masteritem]!"))
+		return FALSE
+	if(istype(clicked_object, /obj/item/quiver) && istype(mastermob?.get_active_held_item(), /obj/item/gun/ballistic))
+		return FALSE
+
 	return TRUE
 
 /datum/intent/shoot/bow/prewarning()
@@ -42,12 +43,12 @@
 	chargedrain = 2
 	charging_slowdown = 3
 
-/datum/intent/arc/bow/can_charge()
-	if(mastermob)
-		if(mastermob.get_num_arms(FALSE) < 2)
-			return FALSE
-		if(mastermob.get_inactive_held_item())
-			return FALSE
+/datum/intent/arc/bow/can_charge(atom/clicked_object)
+	if(mastermob?.get_num_arms(FALSE) < 2 || mastermob.get_inactive_held_item())
+		to_chat(mastermob, span_warning("I need a free hand to draw [masteritem]!"))
+		return FALSE
+	if(istype(clicked_object, /obj/item/quiver) && istype(mastermob?.get_active_held_item(), /obj/item/gun/ballistic))
+		return FALSE
 	return TRUE
 
 /datum/intent/arc/bow/prewarning()
@@ -77,35 +78,36 @@
 //bow objs ฅ^•ﻌ•^ฅ
 
 /obj/item/gun/ballistic/revolver/grenadelauncher/bow
-	name = "simple shortbow"
-	desc = "This simply hewn shortbow is functional enough. Not the greatest length, \
-	or poundage, nor the quickest shot, but it works"
+	name = "shortbow"
+	desc = "This simply hewn shortbow is functional enough. What it lacks in poundage or accuracy, \
+	it makes up for with a decently swift draw."
 	icon = 'icons/roguetown/weapons/32.dmi'
 	icon_state = "bow"
 	item_state = "bow"
 	experimental_onhip = TRUE
 	experimental_onback = TRUE
-	possible_item_intents = list(
-		/datum/intent/shoot/bow,
-		/datum/intent/arc/bow,
-		INTENT_GENERIC,
-		)
 	mag_type = /obj/item/ammo_box/magazine/internal/shot/bow
 	fire_sound = 'sound/combat/Ranged/flatbow-shot-01.ogg'
 	slot_flags = ITEM_SLOT_BACK|ITEM_SLOT_HIP
 	w_class = WEIGHT_CLASS_BULKY
-	randomspread = 0
-	spread = 0
 	can_parry = TRUE
-	force = 10
 	verbage = "nock"
 	cartridge_wording = "arrow"
 	load_sound = 'sound/foley/nockarrow.ogg'
 	obj_flags = UNIQUE_RENAME
 	var/heavy_bow = FALSE //used for adding a STR check to the charge time of a bow
 	metalizer_result = /obj/item/restraints/legcuffs/beartrap/armed
+	possible_item_intents = list(
+		/datum/intent/shoot/bow/short,
+		/datum/intent/arc/bow/short,
+		INTENT_GENERIC,
+		)
+	randomspread = 1
+	spread = 1
+	force = 9
+	damfactor = 0.9//combat stats at the end - these are tuned for a Shortbow - high spread, low damage
 
-/obj/item/gun/ballistic/revolver/grenadelauncher/bow/Initialize()
+/obj/item/gun/ballistic/revolver/grenadelauncher/bow/Initialize(mapload)
 	. = ..()
 	if(heavy_bow == TRUE)
 		src.possible_item_intents = list(
@@ -211,9 +213,8 @@
 			update_icon()
 
 /obj/item/gun/ballistic/revolver/grenadelauncher/bow/process_fire(atom/target, mob/living/user, message = TRUE, params = null, zone_override = "", bonus_spread = 0)
-	if(user.get_num_arms(FALSE) < 2)
-		return FALSE
-	if(user.get_inactive_held_item())
+	if(user.get_inactive_held_item() || user.get_num_arms(FALSE) < 2)
+		to_chat(user, span_warning("I need a free hand to fire \the [src]!"))
 		return FALSE
 	if(user.client)
 		if(user.client.chargedprog >= 100)
@@ -235,10 +236,7 @@
 		else
 			BB.damage = BB.damage
 		BB.damage *= damfactor * (user.STAPER > 10 ? user.STAPER / 10 : 1)
-	if(user.has_status_effect(/datum/status_effect/buff/clash) && ishuman(user))
-		var/mob/living/carbon/human/H = user
-		H.bad_guard(span_warning("I can't focus on my Guard and loose arrows! This drains me!"), cheesy = TRUE)
-	. = ..()
+	return ..()
 
 /obj/item/gun/ballistic/revolver/grenadelauncher/bow/update_icon()
 	..()
@@ -265,8 +263,7 @@
 
 /obj/item/gun/ballistic/revolver/grenadelauncher/bow/recurve
 	name = "recurve bow"
-	desc = "A medium length composite bow of glued horn, wood, and sinew with good shooting \
-	characteristics."
+	desc = "A medium length composite bow of glued horn, wood, and sinew with a good balance of strength, speed and accuracy."
 	icon = 'icons/roguetown/weapons/64.dmi'
 	icon_state = "recurve_bow"
 	force = 9
@@ -276,6 +273,15 @@
 	inhand_y_dimension = 64
 	bigboy = TRUE
 	dropshrink = 0.8
+	possible_item_intents = list(
+		/datum/intent/shoot/bow,
+		/datum/intent/arc/bow,
+		INTENT_GENERIC,
+		)
+	randomspread = 0
+	spread = 0
+	force = 10
+	damfactor = 1
 
 /obj/item/gun/ballistic/revolver/grenadelauncher/bow/recurve/getonmobprop(tag)
 	. = ..()
@@ -359,8 +365,6 @@
 	icon = 'icons/roguetown/weapons/64.dmi'
 	icon_state = "longbow"
 	slot_flags = ITEM_SLOT_BACK
-	damfactor = 1.2
-	accfactor = 0.9
 	pixel_y = -16
 	pixel_x = -16
 	inhand_x_dimension = 64
@@ -368,6 +372,16 @@
 	bigboy = TRUE
 	dropshrink = 0.8
 	heavy_bow = TRUE
+	possible_item_intents = list(
+		/datum/intent/shoot/bow,
+		/datum/intent/arc/bow,
+		INTENT_GENERIC,
+		)
+	randomspread = 0
+	spread = 0
+	force = 12
+	damfactor = 1.2
+	accfactor = 0.9
 
 /obj/item/gun/ballistic/revolver/grenadelauncher/bow/longbow/getonmobprop(tag)
 	. = ..()
@@ -428,7 +442,7 @@
 	name = "blackhorn bow"
 	desc = "When a northern black-horned saiga is old enough, it will shed its two-metre long antlers. As time passes, they harden progressively more but keep a degree of flexibility that can outdo even yew.\
 		Wardens often collect such antlers in the rare occasion they are found and send them to be filed, strung and treated by a master bowyer. Such tradition carries merit even todae, \
-		and thus one can see the vale's wardens carrying their endemic blackhorn bows with pride."
+		and thus one can see the realm's wardens carrying their endemic blackhorn bows with pride."
 	icon_state = "recurve_warden"
 
 /obj/item/gun/ballistic/revolver/grenadelauncher/bow/longbow/warden
@@ -442,22 +456,6 @@
 	desc = "A short recurve warbow made for the express purpose of shooting on saigaback, a skill every archer in Aavnr takes much more seriously than their Northern counterparts. Every seasoned Druzhina is themselves a good bowyer and usually makes their own bow, this one is made with the purpure-ish crimson wood of a Vörötslevé tree."
 	icon_state = "recurve_riding"
 
-/obj/item/gun/ballistic/revolver/grenadelauncher/bow/short
-	name = "short bow"
-	desc = "As the eagle was killed by the arrow winged with his own feather, so the hand of the world is wounded by its own skill."
-	icon = 'icons/roguetown/weapons/misc32.dmi'
-	icon_state = "bow" //No time for sprite this shit
-	item_state = "bow" 
-	possible_item_intents = list(
-		/datum/intent/shoot/bow/short,
-		/datum/intent/arc/bow/short,
-		INTENT_GENERIC,
-		)
-	randomspread = 1
-	spread = 1
-	force = 9
-	damfactor = 0.9
-
 /datum/intent/shoot/bow/short
 	chargetime = 0.75
 	chargedrain = 1.5
@@ -467,3 +465,32 @@
 	chargetime = 0.75
 	chargedrain = 1.5
 	charging_slowdown = 2.5
+
+
+
+/obj/item/gun/ballistic/revolver/grenadelauncher/bow/longbow/eora
+	name = "eoran harp-bow"
+	desc = "Strings to pluck."
+	icon = 'icons/roguetown/weapons/special/boweoran64.dmi'
+	icon_state = "harpbow"
+	dropshrink = 0
+	// randomspread = 1
+	// spread = 1
+	force = 15
+	damfactor = 1.25
+
+/obj/item/gun/ballistic/revolver/grenadelauncher/bow/recurve/eora//subtype of recurve bow for the sprite sizes, but stats of a shortbow
+	name = "eoran harp-bow"
+	desc = "Strings to pluck."
+	icon = 'icons/roguetown/weapons/special/boweoran64.dmi'
+	icon_state = "harpbowb"
+	dropshrink = 0
+	randomspread = 1
+	spread = 1
+	force = 9
+	damfactor = 0.95
+	possible_item_intents = list(
+		/datum/intent/shoot/bow/short,
+		/datum/intent/arc/bow/short,
+		INTENT_GENERIC,
+		)

@@ -10,6 +10,7 @@
 	)
 	outfit = /datum/outfit/job/roguetown/wretch/blackoak
 	cmode_music = 'sound/music/combat_blackoak.ogg'
+	class_select_category = CLASS_CAT_RACIAL
 	maximum_possible_slots = 1
 	category_tags = list(CTAG_WRETCH)
 	traits_applied = list(TRAIT_AZURENATIVE, TRAIT_OUTDOORSMAN, TRAIT_RACISMISBAD, TRAIT_DODGEEXPERT, TRAIT_ARCYNE_T2)
@@ -23,6 +24,7 @@
 	subclass_spellpoints = 10
 	subclass_skills = list(
 		/datum/skill/combat/polearms = SKILL_LEVEL_EXPERT,
+		/datum/skill/combat/swords = SKILL_LEVEL_EXPERT,
 		/datum/skill/misc/athletics = SKILL_LEVEL_EXPERT,
 		/datum/skill/combat/unarmed = SKILL_LEVEL_JOURNEYMAN,
 		/datum/skill/combat/knives = SKILL_LEVEL_JOURNEYMAN,
@@ -31,7 +33,7 @@
 		/datum/skill/misc/swimming = SKILL_LEVEL_JOURNEYMAN,
 		/datum/skill/misc/climbing = SKILL_LEVEL_JOURNEYMAN,
 		/datum/skill/misc/reading = SKILL_LEVEL_JOURNEYMAN,
-		/datum/skill/misc/tracking = SKILL_LEVEL_APPRENTICE,
+		/datum/skill/misc/tracking = SKILL_LEVEL_EXPERT,
 		/datum/skill/craft/carpentry = SKILL_LEVEL_APPRENTICE,
 		/datum/skill/misc/medicine = SKILL_LEVEL_NOVICE,
 		/datum/skill/craft/tanning = SKILL_LEVEL_APPRENTICE,
@@ -55,16 +57,29 @@
 	armor = /obj/item/clothing/suit/roguetown/armor/leather/trophyfur
 	neck = /obj/item/clothing/neck/roguetown/chaincoif
 	beltl = /obj/item/rogueweapon/huntingknife/idagger/steel/special
-	beltr = /obj/item/flashlight/flare/torch
+	beltr = /obj/item/rogueweapon/scabbard/sword
 	r_hand = /obj/item/rogueweapon/halberd/glaive
 	backr = /obj/item/rogueweapon/scabbard/gwstrap
 	backpack_contents = list(
 				/obj/item/storage/belt/rogue/pouch/coins/poor = 1,
-				/obj/item/rogueweapon/scabbard/sheath = 1
+				/obj/item/rogueweapon/scabbard/sheath = 1,
+				/obj/item/flashlight/flare/torch
 				)
 
 	if(H.mind)
+		wretch_select_bounty(H)
 		H.mind.AddSpell(new /obj/effect/proc_holder/spell/invoked/mockery)
 		H.mind.AddSpell(new /obj/effect/proc_holder/spell/invoked/enchant_weapon)
 		H.mind.AddSpell(new /obj/effect/proc_holder/spell/invoked/conjure_weapon)
+
+		var/weapons = list("Elven Swordspear and Longsword","Elven Curveblade and Shortsword",)
+		var/weapon_choice = input(H, "Choose your weapon.", "TAKE UP ARMS") as anything in weapons
+		H.set_blindness(0)
+		switch(weapon_choice)
+			if("Elven Swordspear and Longsword")
+				r_hand = /obj/item/rogueweapon/spear/naginata/elf
+				l_hand = /obj/item/rogueweapon/sword/long/elf
+			if("Elven Curveblade and Shortsword")
+				r_hand = /obj/item/rogueweapon/greatsword/elf
+				l_hand = /obj/item/rogueweapon/sword/short/elf
 

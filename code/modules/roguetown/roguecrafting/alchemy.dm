@@ -112,7 +112,7 @@
 	category = "Table"
 	result = list(/obj/item/reagent_containers/glass/bottle/revival = 1)
 	reqs = list(/obj/item/reagent_containers/food/snacks/eoran_aril/auric = 1,
-	 			/obj/item/alch/viscera = 2,
+				/obj/item/alch/viscera = 2,
 				/obj/item/reagent_containers/glass/bottle/alchemical,
 				/obj/item/reagent_containers/spidervenom_inert = 1,
 				/obj/item/alch/horn = 1)
@@ -124,7 +124,7 @@
 	category = "Table"
 	result = list(/obj/item/reagent_containers/glass/bottle/revival = 1)
 	reqs = list(/obj/item/reagent_containers/food/snacks/eoran_aril/auric = 1,
-	 			/obj/item/alch/viscera = 2,
+				/obj/item/alch/viscera = 2,
 				/obj/item/reagent_containers/glass/bottle/alchemical,
 				/obj/item/reagent_containers/spidervenom_inert = 3)
 	craftdiff = 5
@@ -210,7 +210,7 @@
 	category = "Transmutation"
 	result = list(/obj/item/rogueore/coal = 1)
 	reqs = list(/obj/item/natural/stone = 4)
-	craftdiff = 2
+	craftdiff = 4
 	verbage_simple = "transmute"
 
 /datum/crafting_recipe/roguetown/alchemy/c2irn
@@ -218,7 +218,7 @@
 	category = "Transmutation"
 	result = list(/obj/item/rogueore/iron = 1)
 	reqs = list(/obj/item/rogueore/coal = 2)
-	craftdiff = 3
+	craftdiff = 4
 	verbage_simple = "transmute"
 
 /datum/crafting_recipe/roguetown/alchemy/i2gol
@@ -226,7 +226,7 @@
 	category = "Transmutation"
 	result = list(/obj/item/rogueore/gold = 1)
 	reqs = list(/obj/item/rogueore/iron = 4)
-	craftdiff = 4
+	craftdiff = 5
 	verbage_simple = "transmute"
 
 /datum/crafting_recipe/roguetown/alchemy/g2top
@@ -234,7 +234,7 @@
 	category = "Transmutation"
 	result = list(/obj/item/roguegem/yellow = 1)
 	reqs = list(/obj/item/rogueore/gold = 2, /obj/item/natural/stone = 1)
-	craftdiff = 4
+	craftdiff = 5
 	verbage_simple = "transmute"
 
 /datum/crafting_recipe/roguetown/alchemy/t2gem
@@ -242,7 +242,7 @@
 	category = "Transmutation"
 	result = list(/obj/item/roguegem/green = 1)
 	reqs = list(/obj/item/roguegem/yellow = 1, /obj/item/rogueore/gold = 2)
-	craftdiff = 4
+	craftdiff = 5
 	verbage_simple = "transmute"
 
 /datum/crafting_recipe/roguetown/alchemy/g2saf
@@ -250,7 +250,7 @@
 	category = "Transmutation"
 	result = list(/obj/item/roguegem/violet = 1)
 	reqs = list(/obj/item/roguegem/green = 1, /obj/item/rogueore/gold = 2)
-	craftdiff = 4
+	craftdiff = 5
 	verbage_simple = "transmute"
 
 /datum/crafting_recipe/roguetown/alchemy/s2blo
@@ -258,7 +258,7 @@
 	category = "Transmutation"
 	result = list(/obj/item/roguegem/blue = 1)
 	reqs = list(/obj/item/roguegem/violet = 1, /obj/item/rogueore/gold = 2)
-	craftdiff = 4
+	craftdiff = 5
 	verbage_simple = "transmute"
 
 /datum/crafting_recipe/roguetown/alchemy/r2dia
@@ -320,3 +320,25 @@
 		/obj/item/alch/bonemeal = 1,
 		)
 	craftdiff = 2
+
+/datum/crafting_recipe/roguetown/alchemy/glut
+	name = "glut (from gnoll flesh)"
+	craftdiff = 4
+	result = list(
+		/obj/item/roguegem/blood_diamond
+		)
+	reqs = list(
+		/obj/item/reagent_containers/food/snacks/rogue/meat/steak/gnoll = 2,
+		)
+	subtype_reqs = TRUE
+
+/datum/crafting_recipe/roguetown/alchemy/gnoll_flesh
+	name = "gnoll flesh (from glut)"
+	craftdiff = 4
+	result = list(
+		/obj/item/reagent_containers/food/snacks/rogue/meat/steak/gnoll
+		)
+	reqs = list(
+		/obj/item/roguegem/blood_diamond = 2,
+		)
+	subtype_reqs = TRUE

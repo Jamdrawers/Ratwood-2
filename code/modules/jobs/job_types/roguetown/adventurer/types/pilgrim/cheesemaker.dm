@@ -8,7 +8,7 @@
 	outfit = /datum/outfit/job/roguetown/adventurer/cheesemaker
 	subclass_social_rank = SOCIAL_RANK_YEOMAN
 	traits_applied = list(TRAIT_HOMESTEAD_EXPERT)
-
+	maximum_possible_slots = 20 // Should never fill, for the purpose of players to know what types towners are in round at the menu
 	category_tags = list(CTAG_PILGRIM, CTAG_TOWNER)
 	horse = /mob/living/simple_animal/hostile/retaliate/rogue/cow
 	subclass_stats = list(
@@ -54,6 +54,9 @@
 	wrists = /obj/item/clothing/wrists/roguetown/bracers/leather
 	beltl = /obj/item/flint
 	beltr = /obj/item/rogueweapon/scabbard/sheath
+	if(SSmapping.config.map_name == "Desert Town")
+		pants = /obj/item/clothing/under/roguetown/sirwal/plainrandom
+		shoes = /obj/item/clothing/shoes/roguetown/sandals
 	backpack_contents = list(
 		/obj/item/reagent_containers/powder/salt = 3,
 		/obj/item/reagent_containers/food/snacks/rogue/cheddar = 2,
@@ -61,6 +64,11 @@
 		/obj/item/reagent_containers/food/snacks/grown/wheat = 6,
 		/obj/item/natural/cloth = 2,
 		/obj/item/book/rogue/yeoldecookingmanual = 1,
-		/obj/item/recipe_book/survival = 1,
 		)
 	r_hand = /obj/item/flashlight/flare/torch
+	if(H.age == AGE_MIDDLEAGED)
+		H.adjust_skillrank_up_to(/datum/skill/craft/cooking, 5, TRUE)
+		H.adjust_skillrank_up_to(/datum/skill/labor/farming, 3, TRUE)
+	if(H.age == AGE_OLD)
+		H.adjust_skillrank_up_to(/datum/skill/craft/cooking, 6, TRUE)
+		H.adjust_skillrank_up_to(/datum/skill/labor/farming, 4, TRUE)

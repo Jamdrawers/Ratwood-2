@@ -9,6 +9,7 @@
 	sellprice = 10
 	grid_width = 32
 	grid_height = 32
+	dropshrink = 0.75
 
 /obj/item/reagent_containers/powder/spice
 	name = "spice"
@@ -43,7 +44,7 @@
 		else
 			M.emote(pick("twitch_s","chuckle"))
 	if(M.has_flaw(/datum/charflaw/addiction/junkie))
-		M.sate_addiction()
+		M.sate_addiction(/datum/charflaw/addiction/junkie)
 	M.apply_status_effect(/datum/status_effect/buff/druqks)
 	..()
 
@@ -175,7 +176,7 @@
 	volume = 1
 	sellprice = 0
 
-/obj/item/reagent_containers/powder/rocknut/Initialize()
+/obj/item/reagent_containers/powder/rocknut/Initialize(mapload)
 	. = ..()
 	var/static/list/slapcraft_recipe_list = list(
 		/datum/crafting_recipe/roguetown/survival/rocknutdry,
@@ -252,7 +253,7 @@
 
 /datum/reagent/ozium/on_mob_life(mob/living/carbon/M)
 	if(M.has_flaw(/datum/charflaw/addiction/junkie))
-		M.sate_addiction()
+		M.sate_addiction(/datum/charflaw/addiction/junkie)
 	M.apply_status_effect(/datum/status_effect/buff/ozium)
 	..()
 
@@ -297,7 +298,7 @@
 	if(M.reagents.has_reagent(/datum/reagent/moondust_purest))
 		M.Sleeping(40, 0)
 	if(M.has_flaw(/datum/charflaw/addiction/junkie))
-		M.sate_addiction()
+		M.sate_addiction(/datum/charflaw/addiction/junkie)
 	M.apply_status_effect(/datum/status_effect/buff/moondust)
 	if(prob(10))
 		M.flash_fullscreen("whiteflash")
@@ -346,7 +347,7 @@
 		if(!HAS_TRAIT(M, TRAIT_CRACKHEAD))
 			M.Sleeping(40, 0)
 	if(M.has_flaw(/datum/charflaw/addiction/junkie))
-		M.sate_addiction()
+		M.sate_addiction(/datum/charflaw/addiction/junkie)
 	M.apply_status_effect(/datum/status_effect/buff/moondust_purest)
 	if(prob(20))
 		M.flash_fullscreen("whiteflash")
@@ -408,7 +409,7 @@
 		M.emote(pick("twitch", "shiver", "sniff"))
 	narcolepsy_drug_up(M)
 	if(M.has_flaw(/datum/charflaw/addiction/junkie))
-		M.sate_addiction()
+		M.sate_addiction(/datum/charflaw/addiction/junkie)
 	M.apply_status_effect(/datum/status_effect/buff/starsugar)
 	if(prob(20))
 		M.flash_fullscreen("whiteflash")
@@ -452,7 +453,7 @@
 	sellprice = 30
 
 /atom/movable/screen/fullscreen/herozium
-	icon = 'icons/roguetown/maniac/fullscreen_wakeup.dmi'
+	icon = 'icons/roguetown/maniac/fullscreen_wakeup_lossy_compression.dmi'
 	icon_state = "wake_up"
 	plane = FLOOR_PLANE
 	layer = ABOVE_OPEN_TURF_LAYER
@@ -476,7 +477,7 @@
 	if(prob(15))
 		M.playsound_local(M, 'sound/misc/heroin_rush.ogg', 100, FALSE)
 	if(M.has_flaw(/datum/charflaw/addiction/junkie))
-		M.sate_addiction()
+		M.sate_addiction(/datum/charflaw/addiction/junkie)
 	..()
 	. = 1
 

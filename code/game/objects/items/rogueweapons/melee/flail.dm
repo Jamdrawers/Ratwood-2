@@ -23,6 +23,7 @@
 	minstr = 4
 	grid_width = 32
 	grid_height = 96
+	special = /datum/special_intent/flail_sweep
 
 /datum/intent/flail/strike
 	name = "strike"
@@ -34,6 +35,9 @@
 	icon_state = "instrike"
 	item_d_type = "blunt"
 	intent_intdamage_factor = BLUNT_DEFAULT_INT_DAMAGEFACTOR
+	//We want chipping, m'lord.
+	blunt_chipping = TRUE
+	blunt_chip_strength = BLUNT_CHIP_WEAK
 
 /datum/intent/flail/strike/matthiosflail
 	reach = 2
@@ -52,6 +56,9 @@
 	icon_state = "instrike"
 	item_d_type = "blunt"
 	intent_intdamage_factor = BLUNT_DEFAULT_INT_DAMAGEFACTOR
+	//We want chipping, m'lord.
+	blunt_chipping = TRUE
+	blunt_chip_strength = BLUNT_CHIP_WEAK
 
 /datum/intent/mace/smash/flail
 	name = "flail smash"
@@ -96,28 +103,26 @@
 			if("onbelt")
 				return list("shrink" = 0.3,"sx" = -2,"sy" = -5,"nx" = 4,"ny" = -5,"wx" = 0,"wy" = -5,"ex" = 2,"ey" = -5,"nturn" = 0,"sturn" = 0,"wturn" = 0,"eturn" = 0,"nflip" = 0,"sflip" = 0,"wflip" = 0,"eflip" = 0,"northabove" = 0,"southabove" = 1,"eastabove" = 1,"westabove" = 0)
 
-/obj/item/rogueweapon/flail/aflail
-	name = "decrepit flail"
-	desc = "A spiked ball of wrought bronze, chained to a rotwooden handle. The chains groan with every twirl, strained by forces it hadn't felt in millenia; swing it a bit too hard, and there's a chance that the flailhead might completely fly off."
-	icon_state = "aflail"
-	force = 22
-	max_integrity = 175
-	color = "#bb9696"
-	smeltresult = /obj/item/ingot/aaslag
-	anvilrepair = null
-
-/obj/item/rogueweapon/flail/sflail/paflail
-	name = "ancient flail"
-	desc = "A spiked ball of polished gilbranze, chained to a reinforced handle. They say that His children worshipped the flail above all else, for its twirls replicated the Comet Syon's blazing flights."
-	icon_state = "aflail"
-	smeltresult = /obj/item/ingot/aaslag
-
 /obj/item/rogueweapon/flail/sflail
 	force = 30
 	icon_state = "flail"
 	desc = "This is a swift, steel flail. Strikes hard and far."
 	smeltresult = /obj/item/ingot/steel
 	minstr = 5
+
+/obj/item/rogueweapon/flail/sflail/ancient
+	name = "ancient flail"
+	desc = "A spiked ball of polished gilbranze, chained to a reinforced handle. They say that His children worshipped the flail above all else, for its twirls replicated the Comet Syon's blazing flights."
+	icon_state = "aflail"
+	smeltresult = /obj/item/ingot/aaslag
+
+/obj/item/rogueweapon/flail/sflail/ancient/decrepit
+	name = "decrepit flail"
+	desc = "A spiked ball of wrought bronze, chained to a rotwooden handle. The chains groan with every twirl, strained by forces it hadn't felt in millennia; swing it a bit too hard, and there's a chance that the flailhead might completely fly off."
+	force = 22
+	max_integrity = 175
+	color = "#bb9696"
+	anvilrepair = null
 
 /obj/item/rogueweapon/flail/sflail/silver
 	force = 35
@@ -259,7 +264,7 @@
 	anvilrepair = /datum/skill/craft/weaponsmithing
 
 
-/obj/item/rogueweapon/flail/peasantwarflail/matthios/Initialize()
+/obj/item/rogueweapon/flail/peasantwarflail/matthios/Initialize(mapload)
 	. = ..()
 	AddComponent(/datum/component/cursed_item, TRAIT_COMMIE, "FLAIL")
 

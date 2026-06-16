@@ -34,22 +34,16 @@
 	shoes = /obj/item/clothing/shoes/roguetown/boots/leather/reinforced
 	belt = /obj/item/storage/belt/rogue/leather
 	beltl = /obj/item/storage/keyring/squire
-	cloak = /obj/item/clothing/cloak/stabard/surcoat/guard
 	id = /obj/item/scomstone/bad/garrison
+	neck = /obj/item/clothing/neck/roguetown/chaincoif
+	backr = /obj/item/storage/backpack/rogue/satchel
+
 	job_bitflag = BITFLAG_GARRISON		//Move this role to garrison section later. Shouldn't be under youngroles for transparancy they are garrison.
 
 /datum/job/roguetown/squire/after_spawn(mob/living/L, mob/M, latejoin = TRUE)
 	. = ..()
 	if(ishuman(L))
-		var/mob/living/carbon/human/H = L
-		if(istype(H.cloak, /obj/item/clothing/cloak/stabard/surcoat/guard))
-			var/obj/item/clothing/S = H.cloak
-			var/index = findtext(H.real_name, " ")
-			if(index)
-				index = copytext(H.real_name, 1,index)
-			if(!index)
-				index = H.real_name
-			S.name = "squire's tabard ([index])"
+		addtimer(CALLBACK(L, TYPE_PROC_REF(/mob, cloak_and_title_setup)), 50)
 
 /datum/advclass/squire/lancer
 	name = "Lancer Squire"
@@ -67,13 +61,14 @@
 		STATKEY_INT = 1,
 	)
 	subclass_skills = list(
-		/datum/skill/combat/maces = SKILL_LEVEL_NOVICE,
+		/datum/skill/combat/maces = SKILL_LEVEL_APPRENTICE,
 		/datum/skill/combat/crossbows = SKILL_LEVEL_NOVICE,
 		/datum/skill/combat/wrestling = SKILL_LEVEL_APPRENTICE,
 		/datum/skill/combat/unarmed = SKILL_LEVEL_APPRENTICE,
 		/datum/skill/combat/polearms = SKILL_LEVEL_JOURNEYMAN,
-		/datum/skill/combat/swords = SKILL_LEVEL_APPRENTICE,
+		/datum/skill/combat/swords = SKILL_LEVEL_JOURNEYMAN,
 		/datum/skill/combat/knives = SKILL_LEVEL_APPRENTICE,
+		/datum/skill/combat/whipsflails = SKILL_LEVEL_APPRENTICE,
 		/datum/skill/misc/swimming = SKILL_LEVEL_APPRENTICE,
 		/datum/skill/misc/climbing = SKILL_LEVEL_JOURNEYMAN,
 		/datum/skill/misc/athletics = SKILL_LEVEL_JOURNEYMAN,
@@ -89,13 +84,14 @@
 	gloves = /obj/item/clothing/gloves/roguetown/leather
 	wrists = /obj/item/clothing/wrists/roguetown/bracers/leather
 	pants = /obj/item/clothing/under/roguetown/chainlegs/iron
-	backr = /obj/item/storage/backpack/rogue/satchel
 	backl = /obj/item/rogueweapon/scabbard/gwstrap
 	backpack_contents = list(
+		/obj/item/rogueweapon/huntingknife/idagger,
 		/obj/item/storage/belt/rogue/pouch,
-		/obj/item/clothing/neck/roguetown/chaincoif,
+		/obj/item/rogueweapon/scabbard/sheath,
 		/obj/item/reagent_containers/glass/bottle/rogue/healthpot,
-	)
+		/obj/item/rogueweapon/hammer/copper
+		)
 
 /datum/advclass/squire/footman
 	name = "Footman Squire"
@@ -119,6 +115,8 @@
 		/datum/skill/combat/unarmed = SKILL_LEVEL_APPRENTICE,
 		/datum/skill/combat/swords = SKILL_LEVEL_JOURNEYMAN,
 		/datum/skill/combat/knives = SKILL_LEVEL_NOVICE,
+		/datum/skill/combat/polearms = SKILL_LEVEL_NOVICE,
+		/datum/skill/combat/whipsflails = SKILL_LEVEL_NOVICE,
 		/datum/skill/misc/swimming = SKILL_LEVEL_APPRENTICE,
 		/datum/skill/misc/climbing = SKILL_LEVEL_JOURNEYMAN,
 		/datum/skill/misc/athletics = SKILL_LEVEL_JOURNEYMAN,
@@ -132,12 +130,14 @@
 	gloves = /obj/item/clothing/gloves/roguetown/leather
 	wrists = /obj/item/clothing/wrists/roguetown/bracers/leather
 	pants = /obj/item/clothing/under/roguetown/chainlegs/iron
-	backr = /obj/item/storage/backpack/rogue/satchel
 	backpack_contents = list(
+		/obj/item/rogueweapon/huntingknife/idagger,
 		/obj/item/storage/belt/rogue/pouch,
-		/obj/item/clothing/neck/roguetown/chaincoif,
-		/obj/item/reagent_containers/glass/bottle/rogue/healthpot
-	)
+		/obj/item/rogueweapon/scabbard/sheath,
+		/obj/item/reagent_containers/glass/bottle/rogue/healthpot,
+		/obj/item/rogueweapon/hammer/copper
+		)
+
 	H.adjust_blindness(-3)
 	if(H.mind)
 		var/weapons = list("Iron Sword","Cudgel",)
@@ -167,10 +167,14 @@
 	)
 	subclass_skills = list(
 		/datum/skill/combat/bows = SKILL_LEVEL_JOURNEYMAN,
-		/datum/skill/combat/crossbows = SKILL_LEVEL_NOVICE,
-		/datum/skill/combat/wrestling = SKILL_LEVEL_NOVICE,
+		/datum/skill/combat/crossbows = SKILL_LEVEL_JOURNEYMAN,
+		/datum/skill/combat/slings = SKILL_LEVEL_JOURNEYMAN,
+		/datum/skill/combat/wrestling = SKILL_LEVEL_APPRENTICE,
 		/datum/skill/combat/unarmed = SKILL_LEVEL_NOVICE,
 		/datum/skill/combat/swords = SKILL_LEVEL_APPRENTICE,
+		/datum/skill/combat/maces = SKILL_LEVEL_APPRENTICE,
+		/datum/skill/combat/polearms = SKILL_LEVEL_APPRENTICE,
+		/datum/skill/combat/whipsflails = SKILL_LEVEL_APPRENTICE,
 		/datum/skill/combat/knives = SKILL_LEVEL_JOURNEYMAN,
 		/datum/skill/misc/swimming = SKILL_LEVEL_APPRENTICE,
 		/datum/skill/misc/climbing = SKILL_LEVEL_EXPERT,
@@ -188,11 +192,10 @@
 	backl = /obj/item/gun/ballistic/revolver/grenadelauncher/bow/recurve
 	gloves = /obj/item/clothing/gloves/roguetown/leather
 	wrists = /obj/item/clothing/wrists/roguetown/bracers/leather
-	backr = /obj/item/storage/backpack/rogue/satchel
 	backpack_contents = list(
 		/obj/item/rogueweapon/huntingknife/idagger,
 		/obj/item/storage/belt/rogue/pouch,
-		/obj/item/clothing/neck/roguetown/chaincoif,
 		/obj/item/rogueweapon/scabbard/sheath,
-		/obj/item/reagent_containers/glass/bottle/rogue/healthpot
+		/obj/item/reagent_containers/glass/bottle/rogue/healthpot,
+		/obj/item/rogueweapon/hammer/copper
 		)

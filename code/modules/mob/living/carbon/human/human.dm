@@ -36,6 +36,7 @@
 	if(user.zone_selected == BODY_ZONE_PRECISE_GROIN)
 		if(get_location_accessible(src, BODY_ZONE_PRECISE_GROIN, skipundies = TRUE))
 			if(!underwear)
+				modular_handle_chastity_middleclick_strip(user)
 				return
 			src.visible_message(span_notice("[user] begins to take off [(src==user)?" ":"[src]'s"][underwear]..."))
 			if(do_after(user, 30, needhand = 1, target = src))
@@ -87,7 +88,7 @@
 		return TRUE
 #endif
 
-/mob/living/carbon/human/Initialize()
+/mob/living/carbon/human/Initialize(mapload)
 #ifdef MATURESERVER
 	sexcon = new /datum/sex_controller(src)
 #endif
@@ -113,6 +114,7 @@
 	AddComponent(/datum/component/personal_crafting)
 	AddComponent(/datum/component/footstep, footstep_type, 1, 2)
 	GLOB.human_list += src
+	update_tongue_noise_verbs()
 
 /mob/living/carbon/human/ZImpactDamage(turf/T, levels)
 	var/obj/item/bodypart/affecting
@@ -309,6 +311,10 @@
 	dat += "<tr><td><hr></td></tr>"
 	if(get_location_accessible(src, BODY_ZONE_PRECISE_GROIN, skipundies = TRUE))
 		dat += "<tr><td><BR><B>Legwear:</B> <A href='?src=[REF(src)];legwearsthing=1'>[!legwear_socks ? "Nothing" : "Remove"]</A></td></tr>"
+		var/modular_chastity_row = modular_strippanel_chastity_row()
+		if(modular_chastity_row)
+			dat += "<tr><td><hr></td></tr>"
+			dat += modular_chastity_row
 #endif
 
 	dat += {"</table>"}
@@ -469,8 +475,16 @@
 
 			if(vision && vision.viewing_head && user_head.eyes)
 				. = user_head.eyes.tint
+				remove_client_colour(/datum/client_colour/monochrome/blind/dullahan)
+				clear_fullscreen("dullahan_body_vision")
+			else if(vision && !vision.viewing_head && user_head.eyes)
+				. = user_head.eyes.tint
+				add_client_colour(/datum/client_colour/monochrome/blind/dullahan)
+				overlay_fullscreen("dullahan_body_vision", /atom/movable/screen/fullscreen/curse)
 			else
 				. = INFINITY
+				remove_client_colour(/datum/client_colour/monochrome/blind)
+				clear_fullscreen("dullahan_body_vision")
 			return
 
 	. = ..()
@@ -492,40 +506,67 @@
 		if(hud_used.bloods)
 			var/bloodloss = ((BLOOD_VOLUME_NORMAL - blood_volume) / BLOOD_VOLUME_NORMAL) * 100
 
-			var/burnhead = 0
-			var/brutehead = 0
-			var/obj/item/bodypart/head = get_bodypart(BODY_ZONE_HEAD)
-			if(head)
-				burnhead = (head.burn_dam / head.max_damage) * 100
-				brutehead = (head.brute_dam / head.max_damage) * 100
-
 			var/toxloss = getToxLoss()
-			var/oxloss = getOxyLoss()
-
-			var/hungloss = nutrition*-1 //this is smart i think
+			var/oxyloss = getOxyLoss()
+			var/painpercent = get_complex_pain() / pain_threshold
+			painpercent = painpercent * 100
 
 			var/usedloss = 0
 			if(bloodloss > 0)
 				usedloss = bloodloss
-			if(burnhead > usedloss)
-				usedloss = burnhead
-			if(brutehead > usedloss)
-				usedloss = brutehead
-			if(toxloss > usedloss)
-				usedloss = toxloss
-			if(oxloss > usedloss)
-				usedloss = oxloss
-			if(hungloss > usedloss)
-				usedloss = hungloss
 
+			hud_used.bloods.cut_overlays()
 			if(usedloss <= 0)
 				hud_used.bloods.icon_state = "dam0"
+				if(toxloss > 0)
+					var/toxoverlay
+					switch(toxloss)
+						if(1 to 20)
+							toxoverlay = "toxloss20"
+						if(21 to 49)
+							toxoverlay = "toxloss40"
+						if(50 to 79)
+							toxoverlay = "toxloss60"
+						if(80 to 99)
+							toxoverlay = "toxloss80"
+						if(100 to 999)
+							toxoverlay = "toxloss100"
+					hud_used.bloods.add_overlay(toxoverlay)
+
+				if(oxyloss > 0)
+					var/oxyoverlay
+					switch(oxyloss)
+						if(1 to 20)
+							oxyoverlay = "oxyloss20"
+						if(21 to 49)
+							oxyoverlay = "oxyloss40"
+						if(50 to 79)
+							oxyoverlay = "oxyloss60"
+						if(80 to 99)
+							oxyoverlay = "oxyloss80"
+						if(100 to 999)
+							oxyoverlay = "oxyloss100"
+					hud_used.bloods.add_overlay(oxyoverlay)
 			else
 				var/used = round(usedloss, 10)
 				if(used <= 80)
 					hud_used.bloods.icon_state = "dam[used]"
 				else
 					hud_used.bloods.icon_state = "damelse"
+			if(painpercent > 0)
+				var/painoverlay
+				switch(painpercent)
+					if(1 to 29)
+						painoverlay = "painloss20"
+					if(30 to 59)
+						painoverlay = "painloss40"
+					if(60 to 79)
+						painoverlay = "painloss60"
+					if(80 to 99)
+						painoverlay = "painloss80"
+					if(100 to 999)
+						painoverlay = "painloss100"
+				hud_used.bloods.add_overlay(painoverlay)
 
 /*		if(hud_used.healthdoll)
 			hud_used.healthdoll.cut_overlays()
@@ -607,11 +648,21 @@
 					hud_used.energy.icon_state = "energy20"
 				else if(energy > 0)
 					hud_used.energy.icon_state = "energy10"
+		if(hud_used.temperature)
+			if(stat != DEAD)
+				. = 1
+				if(bodytemperature >= BODYTEMP_NORMAL_MIN && bodytemperature <= BODYTEMP_NORMAL_MAX)
+					hud_used.temperature.icon_state = "tempnormal"
+				else if(bodytemperature < BODYTEMP_NORMAL_MIN && bodytemperature >= BODYTEMP_COLD_LEVEL_ONE_MAX)
+					hud_used.temperature.icon_state = "tempcold"
+				else if(bodytemperature < BODYTEMP_COLD_LEVEL_ONE_MAX)
+					hud_used.temperature.icon_state = "tempverycold"
+				else if(bodytemperature >= BODYTEMP_NORMAL_MAX && bodytemperature <= BODYTEMP_HEAT_LEVEL_ONE_MAX)
+					hud_used.temperature.icon_state = "temphot"
+				else if(bodytemperature > BODYTEMP_HEAT_LEVEL_ONE_MAX)
+					hud_used.temperature.icon_state = "tempveryhot"
 
-		if(hud_used.zone_select)
-			hud_used.zone_select.update_icon()
-
-/mob/living/carbon/human/fully_heal(admin_revive = FALSE)
+/mob/living/carbon/human/fully_heal(admin_revive = FALSE, break_restraints = FALSE)
 	dna?.species.spec_fully_heal(src)
 	if(admin_revive)
 		regenerate_limbs()
@@ -619,7 +670,7 @@
 	spill_embedded_objects()
 	set_heartattack(FALSE)
 	drunkenness = 0
-	..()
+	return ..()
 
 /mob/living/carbon/human/check_weakness(obj/item/weapon, mob/living/attacker)
 	. = ..()
@@ -651,7 +702,6 @@
 	. = ..()
 	VV_DROPDOWN_OPTION("", "---------")
 	VV_DROPDOWN_OPTION(VV_HK_REAPPLY_PREFS, "Reapply Preferences")
-	VV_DROPDOWN_OPTION(VV_HK_COPY_OUTFIT, "Copy Outfit")
 	VV_DROPDOWN_OPTION(VV_HK_SET_SPECIES, "Set Species")
 	VV_DROPDOWN_OPTION(VV_HK_PURGE_PARTOF_SLOT, "Purge Part of Slot")
 	VV_DROPDOWN_OPTION(VV_HK_PURGE_SLOT, "Purge Slot")
@@ -671,7 +721,15 @@
 						if("Flavor")
 							flavortext = null
 							nsfwflavortext = null
+							ooc_extra_img = null
+							ooc_extra_img_link = null
+							nsfw_ooc_extra_img = null
+							nsfw_ooc_extra_img_link = null
 							client.prefs?.flavortext = null
+							client.prefs?.ooc_extra_img = null
+							client.prefs?.ooc_extra_img_link = null
+							client.prefs?.nsfw_ooc_extra_img = null
+							client.prefs?.nsfw_ooc_extra_img_link = null
 						if("Notes")
 							ooc_notes = null
 							erpprefs = null
@@ -701,6 +759,10 @@
 			if(alert(usr,"This cannot be undone. Are you sure?","DON'T FATFINGER THIS","Yes","No") == "Yes")
 				flavortext = null
 				nsfwflavortext = null
+				ooc_extra_img = null
+				ooc_extra_img_link = null
+				nsfw_ooc_extra_img = null
+				nsfw_ooc_extra_img_link = null
 				erpprefs = null
 				ooc_notes = null
 				ooc_extra = null
@@ -711,6 +773,10 @@
 				if(client)
 					client.prefs?.flavortext = null
 					client.prefs?.nsfwflavortext = null
+					client.prefs?.ooc_extra_img = null
+					client.prefs?.ooc_extra_img_link = null
+					client.prefs?.nsfw_ooc_extra_img = null
+					client.prefs?.nsfw_ooc_extra_img_link = null
 					client.prefs?.erpprefs = null
 					client.prefs?.ooc_notes = null
 					client.prefs?.ooc_extra = null
@@ -728,11 +794,14 @@
 			return
 		if(!client || !client.prefs)
 			return
-		client.prefs.copy_to(src, TRUE, FALSE)
-	if(href_list[VV_HK_COPY_OUTFIT])
-		if(!check_rights(R_SPAWN))
-			return
-		copy_outfit()
+		//make reapply prefs work for gnolls
+		if(dna?.species?.id == "gnoll")
+			if(!apply_gnoll_preferences(FALSE))
+				reapply_live_preferences()
+			set_blindness(0)
+			regenerate_icons()
+		else
+			reapply_live_preferences()
 	if(href_list[VV_HK_SET_SPECIES])
 		if(!check_rights(R_SPAWN))
 			return
@@ -771,6 +840,13 @@
 
 /mob/living/carbon/human/proc/can_be_firemanned(mob/living/carbon/target)
 	return (ishuman(target) && !(target.mobility_flags & MOBILITY_STAND))
+
+/mob/living/carbon/human/get_mob_buckling_height(mob/seat)
+	if(istype(seat, /mob/living/simple_animal))
+		var/mob/living/simple_animal/animal_mount = seat
+		if(animal_mount.GetComponent(/datum/component/riding))
+			return 0
+	return ..()
 
 /mob/living/carbon/human/proc/fireman_carry(mob/living/carbon/target)
 	var/carrydelay = 50 //if you have latex you are faster at grabbing
@@ -874,6 +950,9 @@
 
 /mob/living/carbon/human/adjust_nutrition(change) //Honestly FUCK the oldcoders for putting nutrition on /mob someone else can move it up because holy hell I'd have to fix SO many typechecks
 	if(HAS_TRAIT(src, TRAIT_NOHUNGER))
+		remove_status_effect(/datum/status_effect/debuff/hungryt1)
+		remove_status_effect(/datum/status_effect/debuff/hungryt2)
+		remove_status_effect(/datum/status_effect/debuff/hungryt3)
 		return FALSE
 	return ..()
 
@@ -884,6 +963,9 @@
 
 /mob/living/carbon/human/adjust_hydration(change)
 	if(HAS_TRAIT(src, TRAIT_NOHUNGER))
+		remove_status_effect(/datum/status_effect/debuff/thirstyt1)
+		remove_status_effect(/datum/status_effect/debuff/thirstyt2)
+		remove_status_effect(/datum/status_effect/debuff/thirstyt3)
 		return FALSE
 	return ..()
 
@@ -975,7 +1057,7 @@
 /mob/living/carbon/human/species
 	var/race = null
 
-/mob/living/carbon/human/species/Initialize()
+/mob/living/carbon/human/species/Initialize(mapload)
 	. = ..()
 	if(race)
 		set_species(race)
@@ -1008,6 +1090,129 @@
 		visible_message(span_warning("[src] spits out [mouth]."))
 		dropItemToGround(mouth, silent = FALSE)
 
+/mob/living/carbon/human/proc/cold_warn()
+	if(src.bodytemperature <= BODYTEMP_COLD_LEVEL_ONE_MAX)
+		to_chat(src, span_danger("I feel so cold and numb, I can't stop shivering."))
+	else
+		to_chat(src, span_warning("Everything is cold."))
+	return
+/mob/living/carbon/human/proc/heat_warn()
+	if(src.bodytemperature >= BODYTEMP_HEAT_LEVEL_ONE_MAX)
+		to_chat(src, span_danger("My lips feel cracked and dry, and it is unbearably hot."))
+	else
+		to_chat(src, span_warning("Sweat drips down my brow."))
+	return
+
+/mob/living/carbon/human/proc/apply_hypothermia()
+	if(bodytemperature >= BODYTEMP_COLD_LEVEL_ONE_MAX)
+		return
+	src.hypothermia_timer_id = null
+	var/list/zones = list(
+		BODY_ZONE_HEAD,
+		BODY_ZONE_CHEST,
+		BODY_ZONE_R_ARM,
+		BODY_ZONE_L_ARM,
+		BODY_ZONE_R_LEG,
+		BODY_ZONE_L_LEG
+	)
+
+	var/list/valid = list()
+
+	for(var/zone in zones)
+		var/obj/item/bodypart/BP = get_bodypart(zone)
+		if(!BP)
+			continue
+
+		var/has_hypo = FALSE
+		for(var/datum/wound/W in BP.wounds)
+			if(istype(W, /datum/wound/hypothermia) || istype(W, /datum/wound/frostbite))
+				has_hypo = TRUE
+
+		if(!has_hypo)
+			valid += zone
+
+	if(!length(valid))
+		return
+
+	var/def_zone = pick(valid)
+	var/obj/item/bodypart/BP = get_bodypart(def_zone)
+
+	if(BP)
+		to_chat(src, span_warning("I feel painfully cold in my [BP]..."))
+		BP.add_wound(/datum/wound/hypothermia)
+
+
+/mob/living/carbon/human/proc/apply_heatexhaust()
+	var/mob/living/carbon/human/H = src
+	if(H.bodytemperature <= BODYTEMP_HEAT_LEVEL_ONE_MAX)	//if not hot enough after timer, kill
+		return
+	H.heatstroke_timer_id = null
+	var/def_zone = BODY_ZONE_HEAD
+	var/obj/item/bodypart/BP = H.get_bodypart(def_zone)
+	for(var/datum/wound/W in BP.wounds)
+		if(istype(W, /datum/wound/heatexhaustion)||istype(W, /datum/wound/heatstroke))
+			return
+	if(BP)
+		to_chat(H, span_userdanger("My head is spinning and I feel terrible!"))
+		BP.add_wound(/datum/wound/heatexhaustion)
+		BP.update_disabled()
+
+/mob/living/carbon/human/proc/relieve_heatstroke_from_cold()
+	var/found = FALSE
+	clear_fullscreen("heatstroke")
+	for(var/obj/item/bodypart/BP in bodyparts)
+		if(!length(BP.wounds))
+			continue
+
+		for(var/datum/wound/W in BP.wounds)
+			if(istype(W, /datum/wound/heatstroke))
+				W.remove_from_bodypart()
+				found = TRUE
+
+	if(found)
+		visible_message(
+			span_notice("[src]'s breathing steadies as the heat leaves their body."),
+			span_notice("The cold helps draw the heat out of your body.")
+		)
+
+/mob/living/carbon/human/proc/apply_weather_temperature(base_delta, exposure_temp = null)
+
+	if(!base_delta)
+		return 0
+
+	var/current_temp = bodytemperature
+	var/new_temp = current_temp + base_delta
+
+	// If caller didn't supply exposure temp, assume resulting temp
+	if(isnull(exposure_temp))
+		exposure_temp = new_temp
+
+	var/protection = 0
+
+	if(base_delta > 0)
+		// Only apply protection if:
+		// Normal temperature to overheating
+		if(current_temp >= BODYTEMP_NORMAL_MIN || new_temp > BODYTEMP_NORMAL_MIN)
+			protection = get_heat_protection(exposure_temp)
+
+	else if(base_delta < 0)
+		// Only apply protection if:
+		// Normal temperature to cold
+		if(current_temp <= BODYTEMP_NORMAL_MAX || new_temp < BODYTEMP_NORMAL_MAX)
+			protection = get_cold_protection(exposure_temp)
+
+	// ---------------------------
+	// APPLY PROTECTION SCALING
+	// ---------------------------
+	var/final_delta = base_delta
+	var/three_quarter_delta = (base_delta * 0.75)
+	if(protection > 0)
+		(final_delta -= (three_quarter_delta * protection))
+
+	adjust_bodytemperature(final_delta)
+
+	return final_delta
+
 /*/mob/living/carbon/human/proc/update_heretic_commune()
 	if(HAS_TRAIT(src, TRAIT_COMMIE) || HAS_TRAIT(src, TRAIT_CABAL) || HAS_TRAIT(src, TRAIT_HORDE) || HAS_TRAIT(src, TRAIT_DEPRAVED))
 		verbs |= /mob/living/carbon/human/verb/commune
@@ -1017,6 +1222,46 @@
 		verbs -= /mob/living/carbon/human/verb/commune
 		verbs -= /mob/living/carbon/human/verb/show_heretics
 		verbs -= /mob/living/carbon/human/verb/bad_omen*/
+
+/mob/living/carbon/human/proc/reapply_live_preferences()
+	if(!client?.prefs)
+		return FALSE
+
+	var/datum/language_holder/language_holder = get_language_holder()
+	var/list/preserved_languages = language_holder?.languages?.Copy()
+	var/selected_default_language = language_holder?.selected_default_language
+
+	client.prefs.copy_to(src, TRUE, FALSE)
+	refresh_live_vocal_preferences()
+
+	if(language_holder && length(preserved_languages))
+		for(var/language_type in preserved_languages)
+			grant_language(language_type)
+		language_holder.selected_default_language = selected_default_language
+
+	return TRUE
+
+/mob/living/carbon/human/proc/refresh_live_vocal_preferences()
+	if(!client?.prefs)
+		return FALSE
+
+	if(dna?.species)
+		var/default_soundpack_m = initial(dna.species.soundpack_m)
+		var/default_soundpack_f = initial(dna.species.soundpack_f)
+		if(default_soundpack_m)
+			dna.species.soundpack_m = new default_soundpack_m()
+		if(default_soundpack_f)
+			dna.species.soundpack_f = new default_soundpack_f()
+
+	voice_color = client.prefs.voice_color
+	voice_pitch = client.prefs.voice_pitch
+	voice_type = client.prefs.voice_type
+	set_bark(client.prefs.bark_id)
+	vocal_speed = client.prefs.bark_speed
+	vocal_pitch = client.prefs.bark_pitch
+	vocal_pitch_range = client.prefs.bark_variance
+	apply_voicepacks(src, client)
+	return TRUE
 
 /mob/living/carbon/human/Topic(href, href_list)
 	..()

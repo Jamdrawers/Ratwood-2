@@ -4,6 +4,8 @@
 	footstep_type = FOOTSTEP_MOB_CLAW
 	ambushable = FALSE
 	skin_armor = new /obj/item/clothing/suit/roguetown/armor/skin_armor/bear_skin
+	wildshape_icon = 'icons/roguetown/mob/monster/direbear.dmi'
+	wildshape_icon_state = "direbear"
 	// Slow, tanky melee form that is purely focused on melee and some swimming
 
 //BUCKLING
@@ -19,14 +21,18 @@
 		src.adjust_skillrank(/datum/skill/misc/athletics, 4, TRUE)
 
 		src.STASTR = 15 //Might be too high, but then again you're a bear, and you gotta wrestle
-		src.STACON = 6 
-		src.STAWIL = 6
-		src.STAPER = 12
+		src.STACON = 10
+		src.STAWIL = 10
+		src.STAPER = 7
 		src.STASPD = 5 // You are a hulking mass of muscle, and this is for balance reasons
+		src.STAINT = 5
 
 		AddSpell(new /obj/effect/proc_holder/spell/self/bearclaws)
-		real_name = "Direbear" //So we don't get a random name
 		faction += "bears" // It IS a bear
+		if (src.client.prefs?.wildshape_name)
+			real_name = "direbear ([stored_mob.real_name])"
+		else
+			real_name = "direbear"
 
 // BEAR SPECIES DATUM //
 /datum/species/shapebear
@@ -152,10 +158,17 @@
 /obj/item/rogueweapon/bear_claw/left
 	icon_state = "claw_l"
 
-/obj/item/rogueweapon/bear_claw/Initialize()
+/obj/item/rogueweapon/bear_claw/Initialize(mapload)
 	. = ..()
-	ADD_TRAIT(src, TRAIT_NODROP, TRAIT_GENERIC)
 	ADD_TRAIT(src, TRAIT_NOEMBED, TRAIT_GENERIC)
+
+/obj/item/rogueweapon/bear_claw/attack_self(mob/living/user)
+	var/obj/item/rogueweapon/bear_claw/active = user.get_active_held_item()
+	var/obj/item/rogueweapon/bear_claw/inactive = user.get_inactive_held_item()
+	if(active)
+		user.dropItemToGround(active, TRUE)
+	if(inactive && inactive != active)
+		user.dropItemToGround(inactive, TRUE)
 
 // BEAR SPELLS //
 /obj/effect/proc_holder/spell/self/bearclaws
@@ -171,22 +184,20 @@
 	..()
 	var/obj/item/rogueweapon/bear_claw/left/l
 	var/obj/item/rogueweapon/bear_claw/right/r
+	var/active = user.get_active_held_item()
+	var/inactive = user.get_inactive_held_item()
 
-	l = user.get_active_held_item()
-	r = user.get_inactive_held_item()
-	if(extended)
-		if(istype(l, /obj/item/rogueweapon/bear_claw))
-			user.dropItemToGround(l, TRUE)
-			qdel(l)
-		if(istype(r, /obj/item/rogueweapon/bear_claw))
-			user.dropItemToGround(r, TRUE)
-			qdel(r)
-		//user.visible_message("Your claws retract.", "You feel your claws retracting.", "You hear a sound of claws retracting.")
+	if(istype(active, /obj/item/rogueweapon/bear_claw) || istype(inactive, /obj/item/rogueweapon/bear_claw))
+		if(istype(active, /obj/item/rogueweapon/bear_claw))
+			user.dropItemToGround(active, TRUE)
+		if(istype(inactive, /obj/item/rogueweapon/bear_claw) && inactive != active)
+			user.dropItemToGround(inactive, TRUE)
+		to_chat(user, span_notice("My claws retract."))
 		extended = FALSE
 	else
-		l = new(user,1)
-		r = new(user,2)
+		l = new(user, 1)
+		r = new(user, 2)
 		user.put_in_hands(l, TRUE, FALSE, TRUE)
 		user.put_in_hands(r, TRUE, FALSE, TRUE)
-		//user.visible_message("Your claws extend.", "You feel your claws extending.", "You hear a sound of claws extending.")
+		to_chat(user, span_notice("My claws extend."))
 		extended = TRUE

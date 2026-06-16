@@ -11,8 +11,9 @@
 	var/penis_type = PENIS_TYPE_PLAIN
 	var/penis_size = DEFAULT_PENIS_SIZE
 	var/functional = TRUE
+	var/branded_writing = ""
 
-/obj/item/organ/penis/Initialize()
+/obj/item/organ/penis/Initialize(mapload)
 	. = ..()
 
 /obj/item/organ/penis/proc/update_erect_state()
@@ -45,6 +46,11 @@
 /obj/item/organ/penis/equine
 	name = "equine penis"
 	penis_type = PENIS_TYPE_EQUINE
+	sheath_type = SHEATH_TYPE_NORMAL
+
+/obj/item/organ/penis/equine_knotted
+	name = "equine knotted penis"
+	penis_type = PENIS_TYPE_EQUINE_KNOTTED
 	sheath_type = SHEATH_TYPE_NORMAL
 
 /obj/item/organ/penis/tapered_mammal
@@ -113,18 +119,20 @@
 	var/pregnant = FALSE
 	var/fertility = TRUE
 	var/impregnation_probability = IMPREG_PROB_DEFAULT
+	var/branded_writing = ""
 
 /obj/item/organ/vagina/proc/be_impregnated(mob/living/carbon/human/father)
-    if(!owner)
-        return
-    if(owner.stat == DEAD)
-        return
-    if(pregnant)
-        to_chat(owner, span_love("I feel a surge of warmth in my belly again..."))
-        return
-    to_chat(owner, span_love("I feel a surge of warmth in my belly, I’m definitely pregnant!"))
-    pregnant = TRUE
+	if(!owner)
+		return FALSE
+	if(owner.stat == DEAD)
+		return FALSE
+	if(pregnant)
+		to_chat(owner, span_love("I feel a surge of warmth in my belly again..."))
+		return FALSE
+	to_chat(owner, span_love("I feel a surge of warmth in my belly, I’m definitely pregnant!"))
+	pregnant = TRUE
 	//TODO add a way to trigger lactating when pregnancy happens
+	return TRUE
 
 /obj/item/organ/breasts
 	name = "breasts"
@@ -138,6 +146,7 @@
 	var/lactating = FALSE
 	var/milk_stored = 0
 	var/milk_max = 75
+	var/branded_writing = ""
 
 /obj/item/organ/breasts/New()
 	..()
@@ -153,6 +162,7 @@
 	accessory_type = /datum/sprite_accessory/testicles/pair
 	var/ball_size = DEFAULT_TESTICLES_SIZE
 	var/virility = TRUE
+	var/branded_writing = ""
 
 /obj/item/organ/testicles/internal
 	name = "internal testicles"

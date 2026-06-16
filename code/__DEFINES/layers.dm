@@ -84,6 +84,11 @@
 #define SPACEVINE_LAYER 4.8
 #define SPACEVINE_MOB_LAYER 4.9
 //#define FLY_LAYER 5 //For easy recordkeeping; this is a byond define
+#define MOB_EFFECT_LAYER_FEINT 5.01
+#define MOB_EFFECT_LAYER_VULNERABLE 5.016
+#define MOB_EFFECT_LAYER_EXPOSED 5.02	//For some INEXPLICABLE reason 4.0x gets wiped on MMB intent updates and 3.0x go under the mob (bad).
+#define MOB_EFFECT_LAYER_OFFBALANCED 5.03
+#define MOB_EFFECT_LAYER_GUARD 5.04
 #define GASFIRE_LAYER 5.05
 #define RIPPLE_LAYER 5.1
 
@@ -156,9 +161,13 @@
 #define ABOVE_HUD_PLANE 26
 #define ABOVE_HUD_LAYER 25
 
+#define SENSORY_PLANE 25.5
+#define SENSORY_LAYER 25.5
+
 #define SPLASHSCREEN_LAYER 26
 #define SPLASHSCREEN_PLANE 27
 
 #define BALLOON_CHAT_PLANE 31
+#define POINT_PLANE 90
 
 #define FOV_EFFECTS_LAYER 10000

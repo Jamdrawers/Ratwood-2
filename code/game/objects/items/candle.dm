@@ -10,6 +10,7 @@
 	possible_item_intents = list(/datum/intent/use) //If this affects candles lighting anything, remove this entire line to fix it.
 	light_color = LIGHT_COLOR_FIRE
 	heat = 1000
+	dropshrink = 0.85
 	var/wax = 1000
 	var/lit = FALSE
 	var/infinite = FALSE
@@ -19,7 +20,7 @@
 	start_lit = TRUE
 	icon_state = "candle1_lit"
 
-/obj/item/candle/Initialize()
+/obj/item/candle/Initialize(mapload)
 	. = ..()
 	if(start_lit)
 		light()
@@ -136,6 +137,7 @@
 
 /obj/item/candle/candlestick/gold
 	name = "three-stick gold candlestick"
+	desc = "The three-headed golden version of the candlestick, now with more sticks and candles per candlestick."
 	icon_state = "gcandelabra"
 	sellprice = 40
 
@@ -148,6 +150,7 @@
 
 /obj/item/candle/candlestick/silver
 	name = "three-stick silver candlestick"
+	desc = "The three-headed silver version of the candlestick, now with more sticks and candles per candlestick."
 	icon_state = "scandelabra"
 	sellprice = 60
 	is_silver = TRUE
@@ -161,6 +164,7 @@
 
 /obj/item/candle/candlestick/gold/single
 	name = "one-stick gold candlestick"
+	desc = "A golden stick with a little prick at the end made to hold candles on a comfortable way. You could also probably whack someone with it if you're really desperate."
 	icon_state = "singlegcandelabra"
 	sellprice = 30
 
@@ -173,6 +177,7 @@
 
 /obj/item/candle/candlestick/silver/single
 	name = "one-stick silver candlestick"
+	desc = "A golden stick with a little prick at the end made to hold candles on a comfortable way. You could also probably whack someone with it if you're really desperate."
 	icon_state = "singlescandelabra"
 	sellprice = 50
 
@@ -185,6 +190,7 @@
 
 /obj/item/candle/gold
 	name = "gold candle"
+	icon = 'icons/roguetown/items/lighting.dmi'
 	icon_state = "gcandle"
 	sellprice = 30
 

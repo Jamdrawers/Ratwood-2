@@ -1,6 +1,6 @@
 // Special Mercenary Weapons, at exorbitant prices
 /datum/supply_pack/rogue/merc_weapons
-	group = "Weapons (Foreign)"
+	group = "Weapons (Exotic)"
 	crate_name = "merchant guild's crate"
 	crate_type = /obj/structure/closet/crate/chest/merchant
 
@@ -34,35 +34,65 @@
 	cost = 80
 	contains = list(/obj/item/rogueweapon/stoneaxe/woodcut/pick)
 
-/datum/supply_pack/rogue/merc_weapons/nagaika
-	name = "Nagaika Whip"
-	cost = 80
-	contains = list(/obj/item/rogueweapon/whip/nagaika)
-
 /datum/supply_pack/rogue/merc_weapons/navaja
 	name = "Navaja"
 	cost = 80
 	contains = list(/obj/item/rogueweapon/huntingknife/idagger/navaja)
 
 /datum/supply_pack/rogue/merc_weapons/naginata
-	name = "Naginata"
+	name = "Kazengun Naginata (Polearm)"
 	cost = 80
 	contains = list(/obj/item/rogueweapon/spear/naginata)
 
+/datum/supply_pack/rogue/merc_weapons/kanabo
+	name = "Kazengun Kanabo (Greatclub)"
+	cost = 200
+	contains = list(/obj/item/rogueweapon/mace/goden/kanabo)
+
+/datum/supply_pack/rogue/merc_weapons/ssangsudo
+	name = "Kazengun Ssangsudo (Greatsword)"
+	cost = 200
+	contains = list(/obj/item/rogueweapon/sword/long/kriegmesser/ssangsudo)
+
 /datum/supply_pack/rogue/merc_weapons/katana
-	name = "Kazengun Hwando"
+	name = "Kazengun Hwando (Sword)"
 	cost = 80
 	contains = list(/obj/item/rogueweapon/sword/sabre/mulyeog)
 
-/datum/supply_pack/rogue/merc_weapons/kazengunscabbard
-	name = "Kazengun Scabbard"
-	cost = 250
-	contains = list(/obj/item/rogueweapon/scabbard/sword/kazengun)
+/datum/supply_pack/rogue/merc_weapons/kazengunkodachi
+	name = "Kazengun Kodachi (Shortsword)"
+	cost = 70
+	contains = list(/obj/item/rogueweapon/sword/short/kazengun)
+
+/datum/supply_pack/rogue/merc_weapons/kazengundagger
+	name = "Kazengun Tanto (Dagger)"
+	cost = 80
+	contains = list(/obj/item/rogueweapon/huntingknife/idagger/steel/kazengun)
 
 /datum/supply_pack/rogue/merc_weapons/kazengunhookblade
 	name = "Kazengun Hook Sword"
 	cost = 100
 	contains = list(/obj/item/rogueweapon/sword/sabre/hook)
+
+/datum/supply_pack/rogue/merc_weapons/kazengunscabbard
+	name = "Kazengun Scabbard (Reinforced)"
+	cost = 80
+	contains = list(/obj/item/rogueweapon/scabbard/sword/kazengun)
+
+/datum/supply_pack/rogue/merc_weapons/kazengunscabbard_noparry
+	name = "Kazengun Scabbard (Ceremonial)"
+	cost = 40
+	contains = list(/obj/item/rogueweapon/scabbard/sword/kazengun/noparry/loadout)
+
+/datum/supply_pack/rogue/merc_weapons/kazengunsheath
+	name = "Small Lacquer Sheath"
+	cost = 20
+	contains = list(/obj/item/rogueweapon/scabbard/sheath/kazengun)
+
+/datum/supply_pack/rogue/merc_weapons/nagaika
+	name = "Nagaika Whip"
+	cost = 80
+	contains = list(/obj/item/rogueweapon/whip/nagaika)
 
 /datum/supply_pack/rogue/merc_weapons/glaive
 	name = "Glaive"
@@ -88,3 +118,30 @@
 	name = "Grenzelhoftian Blacksteel Staff"
 	cost = 100
 	contains = list(/obj/item/rogueweapon/woodstaff/emerald/blacksteelstaff)
+
+//// Elven Weapons
+/datum/supply_pack/rogue/merc_weapons/elfsword
+	name = "Elven Shortsword"
+	cost = 60
+	contains = list(/obj/item/rogueweapon/sword/short/elf)
+	
+/datum/supply_pack/rogue/merc_weapons/elflongsword
+	name = "Elven Longsword"
+	cost = 80
+	contains = list(/obj/item/rogueweapon/sword/long/elf)
+
+/datum/supply_pack/rogue/merc_weapons/elfswordspear
+	name = "Elven Swordspear"
+	cost = 100
+	contains = list(/obj/item/rogueweapon/spear/naginata/elf)
+
+/datum/supply_pack/rogue/merc_weapons/elfcurveblade
+	name = "Elven Curveblade"
+	cost = 120
+	contains = list(/obj/item/rogueweapon/greatsword/elf)
+
+//adding it here because... it's a weapon!
+/datum/supply_pack/rogue/merc_weapons/silverdagger
+	name = "Silver Dagger"
+	cost = 120 //Silver weapons have been made much less powerful but much more common over time
+	contains = list(/obj/item/rogueweapon/huntingknife/idagger/silver)

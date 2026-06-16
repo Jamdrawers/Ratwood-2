@@ -47,13 +47,14 @@
 	var/mob/living/carbon/human/species/skeleton/no_equipment/target = new /mob/living/carbon/human/species/skeleton/no_equipment(T)
 	target.key = C.key
 	SSjob.EquipRank(target, "Fortified Skeleton", TRUE)
+	target.copy_known_languages_from(user, TRUE)
 	target.visible_message(span_warning("[target]'s eyes light up with an eerie glow!"))
 	addtimer(CALLBACK(target, TYPE_PROC_REF(/mob/living/carbon/human, choose_name_popup), "FORTIFIED SKELETON"), 3 SECONDS)
 	addtimer(CALLBACK(target, TYPE_PROC_REF(/mob/living/carbon/human, choose_pronouns_and_body)), 7 SECONDS)
 	target.mind.AddSpell(new /obj/effect/proc_holder/spell/self/suicidebomb/lesser)
 	return TRUE
 
-/obj/effect/proc_holder/spell/invoked/raise_undead/proc/backup_summon(var/turf/T)
+/obj/effect/proc_holder/spell/invoked/raise_undead/proc/backup_summon(turf/T)
 	var/skeleton_roll = rand(1, 3)
 	// 66% chance of medium 33% of heavy
 	switch(skeleton_roll)

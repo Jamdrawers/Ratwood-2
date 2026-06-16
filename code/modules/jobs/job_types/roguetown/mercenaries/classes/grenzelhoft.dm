@@ -1,6 +1,6 @@
 /datum/advclass/mercenary/grenzelhoft
 	name = "Doppelsoldner"
-	tutorial = "You are a Doppelsoldner - \"Double-pay Mercenary\" - an experienced frontline swordsman trained by the Zenitstadt fencing guild."
+	tutorial = "You are a Doppelsöldner - \"Double-pay Mercenary\" - an experienced frontline swordsman trained by the Zenitstadt fencing guild."
 	allowed_sexes = list(MALE, FEMALE)
 	allowed_races = RACES_ALL_KINDS
 	outfit = /datum/outfit/job/roguetown/mercenary/grenzelhoft
@@ -35,7 +35,7 @@
 
 /datum/outfit/job/roguetown/mercenary/grenzelhoft/pre_equip(mob/living/carbon/human/H)
 	..()
-	to_chat(H, span_warning("You are a Doppelsoldner - \"Double-pay Mercenary\" - an experienced frontline swordsman trained by the Zenitstadt fencing guild."))
+	to_chat(H, span_warning("You are a Doppelsöldner - \"Double-pay Mercenary\" - an experienced frontline swordsman trained by the Zenitstadt fencing guild."))
 	armor = /obj/item/clothing/suit/roguetown/armor/plate/blacksteel_half_plate
 	if(H.mind)
 		var/weapons = list("Zweihander", "Kriegmesser & Buckler")
@@ -55,7 +55,7 @@
 	shirt = /obj/item/clothing/suit/roguetown/armor/gambeson/heavy/grenzelhoft
 	head = /obj/item/clothing/head/roguetown/grenzelhofthat
 	pants = /obj/item/clothing/under/roguetown/heavy_leather_pants/grenzelpants
-	shoes = /obj/item/clothing/shoes/roguetown/grenzelhoft
+	shoes = /obj/item/clothing/shoes/roguetown/boots/grenzelhoft
 	gloves = /obj/item/clothing/gloves/roguetown/angle/grenzelgloves
 	backr = /obj/item/storage/backpack/rogue/satchel/black
 	backpack_contents = list(
@@ -68,7 +68,7 @@
 	H.merctype = 7
 
 /datum/advclass/mercenary/grenzelhoft/halberdier
-	name = "Halberdier"
+	name = "Hellebardier"
 	tutorial = "You're an experienced soldier skilled in the use of polearms and axes. Your equals make up the bulk of the mercenary guild's forces."
 	outfit = /datum/outfit/job/roguetown/mercenary/grenzelhoft_halberdier
 	traits_applied = list(TRAIT_HEAVYARMOR, TRAIT_STEELHEARTED)
@@ -101,13 +101,15 @@
 	backl = /obj/item/rogueweapon/scabbard/gwstrap
 	armor = /obj/item/clothing/suit/roguetown/armor/plate/blacksteel_half_plate
 	if(H.mind)
-		var/weapons = list("Halberd", "Partizan")
+		var/weapons = list("Halberd", "Partizan", "Eagle's Beak")
 		var/weapon_choice = input(H, "Choose your weapon.", "TAKE UP ARMS") as anything in weapons
 		switch(weapon_choice)
 			if("Halberd")
 				r_hand = /obj/item/rogueweapon/halberd
 			if("Partizan")
 				r_hand = /obj/item/rogueweapon/spear/partizan
+			if("Eagle's Beak")
+				r_hand = /obj/item/rogueweapon/eaglebeak
 	//General gear regardless of class.
 	wrists = /obj/item/clothing/wrists/roguetown/bracers
 	belt = /obj/item/storage/belt/rogue/leather
@@ -115,7 +117,7 @@
 	shirt = /obj/item/clothing/suit/roguetown/armor/gambeson/heavy/grenzelhoft
 	head = /obj/item/clothing/head/roguetown/grenzelhofthat
 	pants = /obj/item/clothing/under/roguetown/heavy_leather_pants/grenzelpants
-	shoes = /obj/item/clothing/shoes/roguetown/grenzelhoft
+	shoes = /obj/item/clothing/shoes/roguetown/boots/grenzelhoft
 	gloves = /obj/item/clothing/gloves/roguetown/angle/grenzelgloves
 	backr = /obj/item/storage/backpack/rogue/satchel/black
 	backpack_contents = list(
@@ -129,7 +131,7 @@
 
 //crossbow and axe class. Rearguard. Utility skills, no medium armor, no dodge expert. This is NOT a go-face-first-into-war class.
 /datum/advclass/mercenary/grenzelhoft/crossbowman
-	name = "Armbrustschutze"
+	name = "Armbrustschütze"
 	tutorial = "You're a proved marksman with a crossbow, and learned how to set up camp and defenses in the wild. The guild needs you."
 	outfit = /datum/outfit/job/roguetown/mercenary/grenzelhoft_crossbowman
 	traits_applied = list( TRAIT_STEELHEARTED)
@@ -148,10 +150,11 @@
 		/datum/skill/combat/crossbows = SKILL_LEVEL_MASTER,		//every combat class with a ranged weapon gets this . eat my jorts. They have no dodge expert.
 		/datum/skill/combat/wrestling = SKILL_LEVEL_JOURNEYMAN,
 		/datum/skill/combat/unarmed = SKILL_LEVEL_NOVICE,
-		/datum/skill/combat/swords = SKILL_LEVEL_APPRENTICE,
+		/datum/skill/combat/swords = SKILL_LEVEL_JOURNEYMAN,  // as a treat? so they can go pick one up bc axes are dookie?
+		/datum/skill/misc/tracking = SKILL_LEVEL_EXPERT, 	// >camps and makes defenses in the wild >doesnt know how to track
 		/datum/skill/combat/knives = SKILL_LEVEL_APPRENTICE,
 		/datum/skill/misc/reading = SKILL_LEVEL_NOVICE,
-		/datum/skill/misc/athletics = SKILL_LEVEL_JOURNEYMAN,		// Make your energy count, little silly individual
+		/datum/skill/misc/athletics = SKILL_LEVEL_EXPERT,		// Make your ene- no. The adventurer has better athletics, you're a trained mercenary.
 		/datum/skill/labor/butchering = SKILL_LEVEL_APPRENTICE,		// meant to live off the land and set up camp.
 		/datum/skill/craft/sewing = SKILL_LEVEL_APPRENTICE,		// learn 2 maintain your uniform.
 		/datum/skill/craft/cooking = SKILL_LEVEL_NOVICE,		// Just so you don't suck at cooking
@@ -181,7 +184,7 @@
 	shirt = /obj/item/clothing/suit/roguetown/armor/gambeson/heavy/grenzelhoft
 	head = /obj/item/clothing/head/roguetown/grenzelhofthat
 	pants = /obj/item/clothing/under/roguetown/heavy_leather_pants/grenzelpants
-	shoes = /obj/item/clothing/shoes/roguetown/grenzelhoft
+	shoes = /obj/item/clothing/shoes/roguetown/boots/grenzelhoft
 	gloves = /obj/item/clothing/gloves/roguetown/angle/grenzelgloves
 	backr = /obj/item/storage/backpack/rogue/satchel/black
 	backpack_contents = list(
@@ -229,7 +232,7 @@
 
 /datum/outfit/job/roguetown/mercenary/grenzelhoft_mage/pre_equip(mob/living/carbon/human/H)
 	..()
-	to_chat(H, span_warning("You are a Gefechtgelehrter - \"Combat Scholar\" - A proud magos from the Celestial Academy of Magos, who's skills in Siege Magic and Arcyne Physics are unmatched."))
+	to_chat(H, span_warning("You are a Gefechtsgelehrter - \"Combat Scholar\" - A proud magos from the Celestial Academy of Magos, who's skills in Siege Magic and Arcyne Physics are unmatched."))
 	belt = /obj/item/storage/belt/rogue/leather/battleskirt
 	backl = /obj/item/rogueweapon/woodstaff/emerald/blacksteelstaff
 	cloak = /obj/item/clothing/cloak/stabard/grenzelmage
@@ -240,7 +243,7 @@
 	shirt = /obj/item/clothing/suit/roguetown/armor/gambeson/heavy/grenzelhoft
 	head = /obj/item/clothing/head/roguetown/grenzelhofthat
 	pants = /obj/item/clothing/under/roguetown/heavy_leather_pants/grenzelpants
-	shoes = /obj/item/clothing/shoes/roguetown/grenzelhoft
+	shoes = /obj/item/clothing/shoes/roguetown/boots/grenzelhoft
 	gloves = /obj/item/clothing/gloves/roguetown/angle/grenzelgloves
 	backr = /obj/item/storage/backpack/rogue/satchel/black
 	backpack_contents = list(

@@ -60,7 +60,7 @@
 
 	if(client || mind)
 		record_round_statistic(STATS_DEATHS)
-		var/area_of_death = lowertext(get_area_name(src))
+		var/area_of_death = LOWER_TEXT(get_area_name(src))
 		if(area_of_death == "wilderness")
 			record_round_statistic(STATS_FOREST_DEATHS)
 		if(is_noble())
@@ -162,6 +162,10 @@
 	if(SSticker.HasRoundStarted())
 		SSblackbox.ReportDeath(src)
 		log_message("has died (BRUTE: [src.getBruteLoss()], BURN: [src.getFireLoss()], TOX: [src.getToxLoss()], OXY: [src.getOxyLoss()], CLONE: [src.getCloneLoss()])", LOG_ATTACK)
+		if(client || mind)
+			var/death_admin_message = "[key_name(src)] [loc_name(src)] [ADMIN_FLW(src)] has died (BRUTE: [src.getBruteLoss()], BURN: [src.getFireLoss()], TOX: [src.getToxLoss()], OXY: [src.getOxyLoss()], CLONE: [src.getCloneLoss()])"
+			message_admins(death_admin_message)
+			log_admin(death_admin_message)
 
 /mob/living/carbon/human/revive(full_heal, admin_revive)
 	. = ..()

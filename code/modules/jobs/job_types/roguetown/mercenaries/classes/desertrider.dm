@@ -4,7 +4,7 @@
 	allowed_sexes = list(MALE, FEMALE)
 	allowed_races = RACES_ALL_KINDS
 	outfit = /datum/outfit/job/roguetown/mercenary/desert_rider
-	class_select_category = CLASS_CAT_RANESHENI
+	class_select_category = CLASS_CAT_ZYBANTU
 	category_tags = list(CTAG_MERCENARY)
 	cmode_music = 'sound/music/combat_desertrider.ogg' //GREATEST COMBAT TRACK IN THE GAME SO FAR BESIDES MAYBE MANIAC2.OGG
 	subclass_languages = list(/datum/language/celestial)
@@ -35,10 +35,10 @@
 /datum/outfit/job/roguetown/mercenary/desert_rider/pre_equip(mob/living/carbon/human/H)
 	..()
 	to_chat(H, span_warning("The Janissaries are the Empire's elite infantry units, wielding mace and shield. We do not break."))
-	head = /obj/item/clothing/head/roguetown/helmet/sallet/raneshen
+	head = /obj/item/clothing/head/roguetown/helmet/sallet/zyb
 	neck = /obj/item/clothing/neck/roguetown/bevor
 	armor = /obj/item/clothing/suit/roguetown/armor/plate/scale
-	shirt = /obj/item/clothing/suit/roguetown/armor/gambeson/heavy/raneshen
+	shirt = /obj/item/clothing/suit/roguetown/armor/gambeson/heavy/zyb
 	wrists = /obj/item/clothing/wrists/roguetown/splintarms
 	gloves = /obj/item/clothing/gloves/roguetown/chain
 	pants = /obj/item/clothing/under/roguetown/splintlegs
@@ -61,22 +61,22 @@
 				backl = /obj/item/rogueweapon/mace/goden
 			if("Shamshir and Shield")
 				H.adjust_skillrank_up_to(/datum/skill/combat/swords, 4, TRUE)
-				backl = /obj/item/rogueweapon/shield/tower/raneshen
+				backl = /obj/item/rogueweapon/shield/tower/zyb
 				beltr = /obj/item/rogueweapon/scabbard/sword
 			if("Spear and Shield")
 				H.adjust_skillrank_up_to(/datum/skill/combat/polearms, 4, TRUE)
 				r_hand = /obj/item/rogueweapon/spear
-				backl = /obj/item/rogueweapon/shield/tower/raneshen
+				backl = /obj/item/rogueweapon/shield/tower/zyb
 			if("Axe and Shield")
 				H.adjust_skillrank_up_to(/datum/skill/combat/axes, 4, TRUE)	//lets see if people pick it!
 				r_hand = /obj/item/rogueweapon/stoneaxe/woodcut
-				backl = /obj/item/rogueweapon/shield/tower/raneshen
+				backl = /obj/item/rogueweapon/shield/tower/zyb
 
 	shoes = /obj/item/clothing/shoes/roguetown/shalal
 	belt = /obj/item/storage/belt/rogue/leather/shalal
 	beltl = /obj/item/rogueweapon/scabbard/sword
 	l_hand = /obj/item/rogueweapon/sword/sabre/shamshir
-	
+
 	H.merctype = 4
 
 /datum/advclass/mercenary/desert_rider/zeybek
@@ -90,7 +90,7 @@
 		STATKEY_INT = 1,
 	)
 	subclass_skills = list(
-		/datum/skill/combat/swords = SKILL_LEVEL_JOURNEYMAN, 
+		/datum/skill/combat/swords = SKILL_LEVEL_JOURNEYMAN,
 		/datum/skill/combat/knives = SKILL_LEVEL_JOURNEYMAN,
 		/datum/skill/combat/whipsflails = SKILL_LEVEL_JOURNEYMAN,
 		/datum/skill/combat/maces = SKILL_LEVEL_APPRENTICE,
@@ -110,14 +110,14 @@
 /datum/outfit/job/roguetown/mercenary/desert_rider_zeybek/pre_equip(mob/living/carbon/human/H)
 	..()
 	to_chat(H, span_warning("Zybantine 'Blade Dancers' are famed and feared the world over. Their expertise in blades both long and short is well known."))
-	head = /obj/item/clothing/head/roguetown/roguehood/shalal/hijab/raneshen
+	head = /obj/item/clothing/head/roguetown/roguehood/shalal/hijab/zyb
 	neck = /obj/item/clothing/neck/roguetown/leather
-	mask = /obj/item/clothing/mask/rogue/facemask/steel/paalloy
-	armor = /obj/item/clothing/suit/roguetown/armor/leather/heavy/coat/raneshen
-	shirt = /obj/item/clothing/suit/roguetown/armor/gambeson/heavy/raneshen
+	mask = /obj/item/clothing/mask/rogue/facemask/ancient
+	armor = /obj/item/clothing/suit/roguetown/armor/leather/heavy/coat/zyb
+	shirt = /obj/item/clothing/suit/roguetown/armor/gambeson/heavy/zyb
 	wrists = /obj/item/clothing/wrists/roguetown/splintarms
 	gloves = /obj/item/clothing/gloves/roguetown/angle
-	pants = /obj/item/clothing/under/roguetown/trou/leather/pontifex/raneshen
+	pants = /obj/item/clothing/under/roguetown/trou/leather/pontifex/zyb
 	backr = /obj/item/storage/backpack/rogue/satchel/black
 	l_hand = /obj/item/rogueweapon/sword/sabre/shamshir
 	id = /obj/item/clothing/neck/roguetown/shalal
@@ -153,7 +153,7 @@
 	shoes = /obj/item/clothing/shoes/roguetown/shalal
 	belt = /obj/item/storage/belt/rogue/leather/shalal
 
-	
+
 	H.merctype = 4
 
 /datum/advclass/mercenary/desert_rider/almah
@@ -191,14 +191,14 @@
 		H.mind.AddSpell(new /obj/effect/proc_holder/spell/invoked/repulse)
 		H.mind.AddSpell(new /obj/effect/proc_holder/spell/invoked/enchant_weapon)
 		H.mind.AddSpell(new /obj/effect/proc_holder/spell/invoked/projectile/airblade)
-	head = /obj/item/clothing/head/roguetown/roguehood/shalal/hijab/raneshen
+	head = /obj/item/clothing/head/roguetown/roguehood/shalal/hijab/zyb
 	neck = /obj/item/clothing/neck/roguetown/gorget/copper
 	mask = /obj/item/clothing/mask/rogue/facemask/copper
-	armor = /obj/item/clothing/suit/roguetown/armor/leather/heavy/coat/raneshen
-	shirt = /obj/item/clothing/suit/roguetown/armor/gambeson/heavy/raneshen
+	armor = /obj/item/clothing/suit/roguetown/armor/leather/heavy/coat/zyb
+	shirt = /obj/item/clothing/suit/roguetown/armor/gambeson/heavy/zyb
 	wrists = /obj/item/clothing/wrists/roguetown/bracers/copper
 	gloves = /obj/item/clothing/gloves/roguetown/angle
-	pants = /obj/item/clothing/under/roguetown/trou/leather/pontifex/raneshen
+	pants = /obj/item/clothing/under/roguetown/trou/leather/pontifex/zyb
 	backr = /obj/item/storage/backpack/rogue/satchel/black
 	id = /obj/item/clothing/neck/roguetown/shalal
 	backpack_contents = list(

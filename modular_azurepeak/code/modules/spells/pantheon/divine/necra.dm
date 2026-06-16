@@ -75,7 +75,7 @@
 	req_items = list(/obj/item/clothing/neck/roguetown/psicross)
 	sound = 'sound/magic/churn.ogg'
 	associated_skill = /datum/skill/magic/holy
-	invocations = list("The Undermaiden rebukes!")
+	invocations = list("The Undermaiden abhors you!")
 	invocation_type = "shout" //can be none, whisper, emote and shout
 	miracle = TRUE
 	devotion_cost = 20
@@ -261,7 +261,10 @@
 	invocation_type = "whisper"
 	invocations = list("Undermaiden guide my gaze...")
 	associated_skill = /datum/skill/magic/holy
+	overlay_icon = 'icons/mob/actions/necramiracles.dmi'
 	overlay_state = "necraeye"
+	action_icon = 'icons/mob/actions/necramiracles.dmi'
+	action_icon_state = "necraeye"
 	miracle = TRUE
 	devotion_cost = 30
 	range = 1
@@ -297,48 +300,94 @@
 
 /obj/effect/proc_holder/spell/invoked/necras_sight/proc/try_scry(mob/living/carbon/human/user)
 	listclearnulls(marked_objects)
-	var/selected_grave = input(user, "Which Grave shall we peer through?", "") as null|anything in marked_objects
-	if(selected_grave)
-		var/obj/structure/gravemarker/spygrave = selected_grave
-		var/filter = spygrave.get_filter(GRAVE_SPY)
-		if(!filter)
-			spygrave.add_filter(GRAVE_SPY, 2, list("type" = "outline", "color" = outline_color, "alpha" = 200, "size" = 1))
-		var/mob/dead/observer/screye/S = user.scry_ghost()
-		spygrave.visible_message(span_warning("[spygrave] shimmers with an eerie glow."))
-		if(!S)
-			return FALSE
-		S.ManualFollow(spygrave)
-		user.visible_message(span_danger("[user] blinks, [user.p_their()] eyes rolling back into [user.p_their()] head."))
-		user.playsound_local(get_turf(user), 'sound/magic/necra_sight.ogg', 80)
-		addtimer(CALLBACK(S, TYPE_PROC_REF(/mob/dead/observer, reenter_corpse)), (8 SECONDS))
-		addtimer(CALLBACK(spygrave, TYPE_PROC_REF(/atom/movable, remove_filter), GRAVE_SPY), (8 SECONDS))
-		return TRUE
-	else
+
+	if(!length(marked_objects))
 		return FALSE
+
+	// Build a display list: label -> obj
+	var/list/choices = list()
+	for(var/obj/O as anything in marked_objects)
+		choices[marked_objects[O]] = O
+
+	var/choice = input(user, "Which grave shall we peer through?", "") as null|anything in choices
+	if(!choice)
+		return FALSE
+
+	var/obj/structure/gravemarker/spygrave = choices[choice]
+	if(!spygrave)
+		return FALSE
+
+	// Add outline filter if missing
+	var/filter = spygrave.get_filter(GRAVE_SPY)
+	if(!filter)
+		spygrave.add_filter(
+			GRAVE_SPY,
+			2,
+			list(
+				"type" = "outline",
+				"color" = outline_color,
+				"alpha" = 200,
+				"size" = 1
+			)
+		)
+
+	// Create scry eye
+	var/mob/dead/observer/screye/S = user.scry_ghost()
+	if(!S)
+		return FALSE
+
+	spygrave.visible_message(span_warning("[spygrave] shimmers with an eerie glow."))
+	S.ManualFollow(spygrave)
+
+	user.visible_message(
+		span_danger("[user] blinks, [user.p_their()] eyes rolling back into [user.p_their()] head.")
+	)
+
+	user.playsound_local(get_turf(user), 'sound/magic/necra_sight.ogg', 80)
+
+	// Cleanup after duration
+	addtimer(
+		CALLBACK(S, TYPE_PROC_REF(/mob/dead/observer, reenter_corpse)),
+		(8 SECONDS)
+	)
+
+	addtimer(
+		CALLBACK(spygrave, TYPE_PROC_REF(/atom/movable, remove_filter), GRAVE_SPY),
+		(8 SECONDS)
+	)
+
+	return TRUE
 
 #undef GRAVE_SPY
 
 /obj/effect/proc_holder/spell/invoked/necras_sight/proc/add_to_scry(obj/O, mob/living/carbon/human/user)
 	if(O in marked_objects)
-		revert_cast()
+		marked_objects.Remove(O)
+		to_chat(user, span_info("You let the grave slip from your mind..."))
 		return
 	var/holyskill = user.get_skill_level(/datum/skill/magic/holy)
+	var/label = input(user, "Name this grave for your sight:", "Mark Holy Object") as text|null
+	if(!label || !length(label))
+		label = "[O.name]"
+
+// Replace logic when at cap
 	if(length(marked_objects) >= holyskill)
-		to_chat(user, span_warning("I'm focusing on too many gravestones already! I will replace this one with the first I recall."))
-		marked_objects[last_index] = O
+		to_chat(user, span_warning("I'm focusing on too many graves already. One slips from my mind..."))
+
+		var/old_obj = marked_objects[last_index]
+		marked_objects -= old_obj
+
+		marked_objects[O] = label
+
 		last_index++
-		if(last_index >= holyskill)
+		if(last_index > holyskill)
 			last_index = 1
 		return
-	to_chat(user, span_info("I incant a whisper and touch the gravestone, marking it for later use..."))
-	for(var/i in 1 to holyskill)
-		if(!LAZYACCESS(marked_objects, i))
-			LAZYADD(marked_objects, O)
-			break
-		else
-			continue
 
-/obj/effect/proc_holder/spell/invoked/raise_spirits_vengeance
+	to_chat(user, span_info("I whisper a name and mark the grave for later use..."))
+	marked_objects[O] = label
+
+/* /obj/effect/proc_holder/spell/invoked/raise_spirits_vengeance
 	name = "Avenging Spirits"
 	desc = "Summon rancorous spirits to tear at an opponent!"
 	range = 7
@@ -350,7 +399,7 @@
 	no_early_release = TRUE
 	charging_slowdown = 1
 	chargedloop = /datum/looping_sound/invokeholy
-	gesture_required = TRUE 
+	gesture_required = TRUE
 	associated_skill = /datum/skill/magic/holy
 	recharge_time = 90 SECONDS
 	hide_charge_effect = TRUE
@@ -362,8 +411,6 @@
 	action_icon = 'icons/mob/actions/necramiracles.dmi'
 	invocations = list("Awaken, rancor!!")
 	invocation_type = "shout"
-
-
 
 /obj/effect/proc_holder/spell/invoked/raise_spirits_vengeance/cast(list/targets, mob/living/user)
 	. = ..()
@@ -378,8 +425,91 @@
 			new /mob/living/simple_animal/hostile/rogue/spirit_vengeance(get_step(user, NORTH),user)
 			new /mob/living/simple_animal/hostile/rogue/spirit_vengeance(get_step(user, SOUTH),user)
 		for(var/mob/living/simple_animal/hostile/rogue/spirit_vengeance/swarm in view(2, user))
-			swarm.ai_controller.set_blackboard_key(BB_BASIC_MOB_CURRENT_TARGET, target) 
+			swarm.ai_controller.set_blackboard_key(BB_BASIC_MOB_CURRENT_TARGET, target)
 		return TRUE
 	revert_cast()
 	return FALSE
 
+
+/obj/effect/proc_holder/spell/invoked/raise_spirit_respite
+	name = "Aspect of Respite"
+	desc = "Summon an aspect of respite to relentlessly pursue your foe."
+	range = 7
+	sound = list('sound/magic/necra_sight.ogg')
+	req_items = list(/obj/item/clothing/neck/roguetown/psicross)
+	releasedrain = 40
+	chargetime = 30
+	warnie = "spellwarning"
+	no_early_release = TRUE
+	charging_slowdown = 1
+	chargedloop = /datum/looping_sound/invokeholy
+	gesture_required = TRUE
+	associated_skill = /datum/skill/magic/holy
+	recharge_time = 2 MINUTES
+	hide_charge_effect = TRUE
+	miracle = TRUE
+	devotion_cost = 100
+	overlay_icon = 'icons/mob/actions/necramiracles.dmi'
+	overlay_state = "aspect"
+	action_icon_state = "aspect"
+	action_icon = 'icons/mob/actions/necramiracles.dmi'
+	invocations = list("Awaken, aspect of respite!!")//Someone change this.
+	invocation_type = "shout"
+
+/obj/effect/proc_holder/spell/invoked/raise_spirit_respite/cast(list/targets, mob/living/user)
+	. = ..()
+	if(isliving(targets[1]))
+		var/mob/living/target = targets[1]
+		if(user.dir == SOUTH || user.dir == NORTH)
+			new /mob/living/simple_animal/hostile/rogue/spirit_respite(get_turf(user),user)
+		else
+			new /mob/living/simple_animal/hostile/rogue/spirit_respite(get_turf(user),user)
+		for(var/mob/living/simple_animal/hostile/rogue/spirit_respite/avatar in view(2, user))
+			avatar.ai_controller.set_blackboard_key(BB_BASIC_MOB_CURRENT_TARGET, target)
+		return TRUE
+	revert_cast()
+	return FALSE
+*/
+
+/obj/effect/proc_holder/spell/invoked/necra_crows
+	name = "Necra's Crows"
+	desc = "Summon rancorous crows to tear at an opponent!"
+	range = 7
+	sound = list('sound/magic/magnet.ogg')
+	req_items = list(/obj/item/clothing/neck/roguetown/psicross)
+	releasedrain = 40
+	chargetime = 30
+	warnie = "spellwarning"
+	no_early_release = TRUE
+	charging_slowdown = 1
+	chargedloop = /datum/looping_sound/invokeholy
+	gesture_required = TRUE
+	associated_skill = /datum/skill/magic/holy
+	recharge_time = 90 SECONDS
+	hide_charge_effect = TRUE
+	miracle = TRUE
+	devotion_cost = 50
+	overlay_icon = 'icons/mob/actions/necramiracles.dmi'
+	overlay_state = "vengeful_spirit"
+	action_icon_state = "vengeful_spirit"
+	action_icon = 'icons/mob/actions/necramiracles.dmi'
+	invocations = list("Undermaiden, let Your black-winged servants answer my call!!")
+	invocation_type = "shout"
+
+/obj/effect/proc_holder/spell/invoked/necra_crows/cast(list/targets, mob/living/user)
+	. = ..()
+	if(isliving(targets[1]))
+		var/mob/living/target = targets[1]
+		if(user.dir == SOUTH || user.dir == NORTH)
+			new /mob/living/simple_animal/hostile/rogue/crow_vengeance(get_turf(user), user)
+			new /mob/living/simple_animal/hostile/rogue/crow_vengeance(get_step(user, EAST), user)
+			new /mob/living/simple_animal/hostile/rogue/crow_vengeance(get_step(user, WEST), user)
+		else
+			new /mob/living/simple_animal/hostile/rogue/crow_vengeance(get_turf(user), user)
+			new /mob/living/simple_animal/hostile/rogue/crow_vengeance(get_step(user, NORTH), user)
+			new /mob/living/simple_animal/hostile/rogue/crow_vengeance(get_step(user, SOUTH), user)
+		for(var/mob/living/simple_animal/hostile/rogue/crow_vengeance/swarm in view(2, user))
+			swarm.ai_controller.set_blackboard_key(BB_BASIC_MOB_CURRENT_TARGET, target)
+		return TRUE
+	revert_cast()
+	return FALSE

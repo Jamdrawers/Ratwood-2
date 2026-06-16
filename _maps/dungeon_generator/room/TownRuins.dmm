@@ -572,8 +572,8 @@
 /turf/open/floor/rogue/ruinedwood/spiral,
 /area/rogue/under/tomb/indoors)
 "lT" = (
-/obj/structure/curtain/bounty,
-/obj/structure/curtain/bounty,
+/obj/structure/curtain/brown,
+/obj/structure/curtain/brown,
 /turf/closed/wall/mineral/rogue/wooddark/window,
 /area/rogue/under/tomb/indoors)
 "mq" = (
@@ -683,7 +683,7 @@
 "oD" = (
 /obj/effect/decal/cleanable/dirt/dust,
 /obj/structure/rack/rogue/shelf/biggest,
-/obj/item/fishingrod/aalloy{
+/obj/item/fishingrod/decrepit{
 	pixel_y = 6;
 	pixel_x = -8
 	},
@@ -968,7 +968,7 @@
 /turf/closed/wall/mineral/rogue/craftstone,
 /area/rogue/under/tomb)
 "sQ" = (
-/obj/structure/curtain/bounty,
+/obj/structure/curtain/brown,
 /turf/closed/wall/mineral/rogue/wooddark/window,
 /area/rogue/under/tomb/indoors)
 "sY" = (
@@ -1310,7 +1310,7 @@
 /turf/open/floor/rogue/ruinedwood,
 /area/rogue/under/tomb)
 "AC" = (
-/obj/machinery/light/rogue/wallfire,
+/obj/machinery/light/rogue/campfire/fireplace,
 /turf/closed/wall/mineral/rogue/wooddark/end,
 /area/rogue/under/tomb/indoors)
 "AF" = (
@@ -1342,8 +1342,8 @@
 /turf/closed/wall/mineral/rogue/wooddark,
 /area/rogue/under/tomb/indoors)
 "Bc" = (
-/obj/structure/curtain/bounty,
-/obj/structure/curtain/bounty,
+/obj/structure/curtain/brown,
+/obj/structure/curtain/brown,
 /turf/closed/indestructible/rock,
 /area/rogue/under/tomb/indoors)
 "By" = (
@@ -1414,7 +1414,7 @@
 /turf/open/floor/rogue/wood/nosmooth,
 /area/rogue/under/tomb/indoors)
 "CZ" = (
-/obj/structure/curtain/bounty,
+/obj/structure/curtain/brown,
 /turf/closed/indestructible/rock,
 /area/rogue/under/tomb/indoors)
 "Db" = (
@@ -1696,7 +1696,7 @@
 	pixel_y = 5;
 	pixel_x = -9
 	},
-/obj/machinery/light/rogue/wallfire/candle/blue/l,
+/obj/machinery/light/rogue/candle/blue/l,
 /turf/open/floor/rogue/wood/nosmooth,
 /area/rogue/under/tomb/indoors)
 "HW" = (

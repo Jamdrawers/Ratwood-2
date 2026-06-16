@@ -21,7 +21,7 @@
 	advjob_examine = TRUE
 	always_show_on_latechoices = TRUE
 	same_job_respawn_delay = 0
-	class_setup_examine = FALSE	//Nooo thank you
+	class_setup_examine = TRUE
 	cmode_music = 'sound/music/cmode/towner/combat_towner.ogg'
 	social_rank = SOCIAL_RANK_PEASANT
 	job_subclasses = list(
@@ -41,6 +41,12 @@
 		/datum/advclass/witch,
 		/datum/advclass/woodworker
 	)
+
+/datum/job/roguetown/villager/after_spawn(mob/living/L, mob/M, latejoin = TRUE)
+	. = ..()
+	if(ishuman(L))
+		var/mob/living/carbon/human/H = L
+		SSjob.sync_resident_wanderer_knowledge(H)
 
 /*
 /datum/job/roguetown/adventurer/villager/New()

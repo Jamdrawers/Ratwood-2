@@ -20,6 +20,7 @@
 	smelt_bar_num = 2
 	resistance_flags = FIRE_PROOF
 	armor_class = ARMOR_CLASS_HEAVY
+	peel_threshold = 4
 
 /obj/item/clothing/under/roguetown/platelegs/Initialize(mapload)
 	. = ..()
@@ -33,20 +34,18 @@
 	max_integrity = ARMOR_INT_LEG_IRON_PLATE
 	smeltresult = /obj/item/ingot/iron
 
-/obj/item/clothing/under/roguetown/platelegs/aalloy
-	name = "decrepit plate chausses"
-	desc = "Frayed bronze plates, shingled over chausses of rotting leather-and-maille. Voided bowels are all that remains of its former legionnaire."
-	icon_state = "ancientplate_legs"
-	max_integrity = ARMOR_INT_LEG_DECREPIT_PLATE
-	color = "#bb9696"
-	smeltresult = /obj/item/ingot/aaslag
-	anvilrepair = null
-
-/obj/item/clothing/under/roguetown/platelegs/paalloy
+/obj/item/clothing/under/roguetown/platelegs/ancient
 	name = "ancient plate chausses"
 	desc = "Polished gilbranze plates, layered atop silken chausses. Only the few who had embraced undeath were spared from Zizo's ascension; now, they command the undying legionnaires who march forth to sunder creation in Her name."
 	icon_state = "ancientplate_legs"
 	smeltresult = /obj/item/ingot/aaslag
+
+/obj/item/clothing/under/roguetown/platelegs/ancient/decrepit
+	name = "decrepit plate chausses"
+	desc = "Frayed bronze plates, shingled over chausses of rotting leather-and-maille. Voided bowels are all that remains of its former legionnaire."
+	max_integrity = ARMOR_INT_LEG_DECREPIT_PLATE
+	color = "#bb9696"
+	anvilrepair = null
 
 /obj/item/clothing/under/roguetown/platelegs/graggar
 	name = "vicious leggings"
@@ -68,7 +67,7 @@
 	prevent_crits = list(BCLASS_CUT, BCLASS_STAB, BCLASS_CHOP, BCLASS_BLUNT, BCLASS_SMASH, BCLASS_PICK)
 	armor = ARMOR_ASCENDANT
 
-/obj/item/clothing/under/roguetown/platelegs/matthios/Initialize()
+/obj/item/clothing/under/roguetown/platelegs/matthios/Initialize(mapload)
 	. = ..()
 	ADD_TRAIT(src, TRAIT_NODROP, CURSED_ITEM_TRAIT)
 	AddComponent(/datum/component/cursed_item, TRAIT_COMMIE, "ARMOR")
@@ -88,7 +87,7 @@
 	armor = ARMOR_ASCENDANT
 	prevent_crits = list(BCLASS_CUT, BCLASS_STAB, BCLASS_CHOP, BCLASS_BLUNT, BCLASS_SMASH, BCLASS_PICK)
 
-/obj/item/clothing/under/roguetown/platelegs/zizo/Initialize()
+/obj/item/clothing/under/roguetown/platelegs/zizo/Initialize(mapload)
 	. = ..()
 	ADD_TRAIT(src, TRAIT_NODROP, CURSED_ITEM_TRAIT)
 	AddComponent(/datum/component/cursed_item, TRAIT_CABAL, "ARMOR")
@@ -111,3 +110,4 @@
 	item_state = "plate_skirt"
 	body_parts_covered = GROIN
 	armor_class = ARMOR_CLASS_LIGHT
+	dropshrink = null

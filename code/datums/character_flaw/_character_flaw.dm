@@ -1,31 +1,58 @@
+/// Assoc list mapping /datum/charflaw typepaths to detached instances. Mainly for getting stuff like names from the typepath.
+/// Initialized at runtime. Should remain stable if nobody's calling procs on New().
+GLOBAL_LIST_EMPTY(charflaw_singletons)
 
+/// Associative list mapping the "menu name" of each vice in the list to its typepath. This list is all of the vices you can choose. 
+/// Used primarily for adding a vice, but also for randomly picking a vice from the selectable space. Try pick_assoc().
 GLOBAL_LIST_INIT(character_flaws, list(
 	"Alcoholic"=/datum/charflaw/addiction/alcoholic,
-	"Devout Follower"=/datum/charflaw/addiction/godfearing,
-	"Colorblind"=/datum/charflaw/colorblind,
-	"Smoker"=/datum/charflaw/addiction/smoker,
-	"Junkie"=/datum/charflaw/addiction/junkie,
-	"Unintelligible"=/datum/charflaw/unintelligible,
-	"Greedy"=/datum/charflaw/greedy,
-	"Narcoleptic"=/datum/charflaw/narcoleptic,
-	"Nymphomaniac"=/datum/charflaw/addiction/lovefiend,
-	"Sadist"=/datum/charflaw/addiction/sadist,
-	"Masochist"=/datum/charflaw/addiction/masochist,
-	"Paranoid"=/datum/charflaw/paranoid,
+	"Annoying Face"=/datum/charflaw/annoying_face,
+	"Asundered Mind (+1 TRI)"=/datum/charflaw/mind_broken,
+	"Bad Sight (+1 TRI)"=/datum/charflaw/badsight,
+	"Blindness (+1 TRI)"=/datum/charflaw/noeyeall,
 	"Clingy"=/datum/charflaw/clingy,
+	"Colorblind (+1 TRI)"=/datum/charflaw/colorblind,
+	"Compliant"=/datum/charflaw/compliant,
+	"Critical Weakness (+1 TRI)"=/datum/charflaw/critweakness,
+	"Cyclops (L) (+1 TRI)"=/datum/charflaw/noeyel,
+	"Cyclops (R) (+1 TRI)"=/datum/charflaw/noeyer,
+	"Devout Follower"=/datum/charflaw/addiction/godfearing,
+	"Greedy"=/datum/charflaw/greedy,
+	"Marked for Death"=/datum/charflaw/assassintarget,
+	"Marked by Gnolls"=/datum/charflaw/hunted,
 	"Isolationist"=/datum/charflaw/isolationist,
-	"Bad Sight"=/datum/charflaw/badsight,
-	"Cyclops (R)"=/datum/charflaw/noeyer,
-	"Cyclops (L)"=/datum/charflaw/noeyel,
-	"Wood Arm (R)"=/datum/charflaw/limbloss/arm_r,
-	"Wood Arm (L)"=/datum/charflaw/limbloss/arm_l,
-	"Sleepless"=/datum/charflaw/sleepless,
-	"Mute"=/datum/charflaw/mute,
-	"Critical Weakness"=/datum/charflaw/critweakness,
-	"Silver Weakness"=/datum/charflaw/silverweakness,
-	"Hunted"=/datum/charflaw/hunted,
+	"Junkie"=/datum/charflaw/addiction/junkie,
+	"Lawless"=/datum/charflaw/lawless,
+	"Marked by Baotha" =/datum/charflaw/marked_by_baotha,
+	"Leper (+1 TRI)"=/datum/charflaw/leprosy,
+	"Masochist"=/datum/charflaw/addiction/masochist,
+	"Missing Nose"=/datum/charflaw/missing_nose,
+	"Mute (+1 TRI)"=/datum/charflaw/mute,
+	"Narcoleptic (+1 TRI)"=/datum/charflaw/narcoleptic,
+	"No Flaw (-3 TRI)"=/datum/charflaw/noflaw,
+	"Nude Sleeper"=/datum/charflaw/nude_sleeper,
+	"Nudist"=/datum/charflaw/nudist,
+	"Nymphomaniac"=/datum/charflaw/addiction/lovefiend,
+	"Pacifism"=/datum/charflaw/pacifism,
+	"Paranoid"=/datum/charflaw/paranoid,
 	"Random or No Flaw"=/datum/charflaw/randflaw,
-	"No Flaw (3 TRIUMPHS)"=/datum/charflaw/noflaw,
+	"Sadist"=/datum/charflaw/addiction/sadist,
+	"Scarred"=/datum/charflaw/scarred,
+	"Silver Weakness"=/datum/charflaw/silverweakness,
+	"Sleepless (+1 TRI)"=/datum/charflaw/sleepless,
+	"Smoker"=/datum/charflaw/addiction/smoker,
+	"Malodorous"=/datum/charflaw/malodorous,
+	"Ugly"=/datum/charflaw/ugly,
+	"Unintelligible (+1 TRI)"=/datum/charflaw/unintelligible,
+	"Unsettling Beauty"=/datum/charflaw/unsettling_beauty,
+	"Wood Arm (L) (+1 TRI)"=/datum/charflaw/limbloss/arm_l,
+	"Wood Arm (R) (+1 TRI)"=/datum/charflaw/limbloss/arm_r,
+	"Hemophage (+1 TRI)"=/datum/charflaw/hemophage,
+	"Feeble-bodied"=/datum/charflaw/weak,
+	"Frail"=/datum/charflaw/frail,
+	"Doddering"=/datum/charflaw/slow,
+	"Nimrodded"=/datum/charflaw/dull,
+	"Unlucky"=/datum/charflaw/unlucky,
 	))
 
 /datum/charflaw
@@ -42,14 +69,28 @@ GLOBAL_LIST_INIT(character_flaws, list(
 /datum/charflaw/proc/flaw_on_life(mob/user)
 	return
 
+// Called when a vice is removed from a character to clean up persistent effects
+/datum/charflaw/proc/on_removal(mob/user)
+	return
+
+/datum/charflaw/proc/on_bath(mob/user)
+	return
+
 /mob/proc/has_flaw(flaw)
 	return
 
 /mob/living/carbon/human/has_flaw(flaw)
 	if(!flaw)
 		return
+	// Check new multiple vices system
+	if(length(vices))
+		for(var/datum/charflaw/vice in vices)
+			if(istype(vice, flaw))
+				return TRUE
+	// Legacy single vice check
 	if(istype(charflaw, flaw))
 		return TRUE
+	return FALSE
 
 /mob/proc/get_flaw(flaw_type)
 	return
@@ -57,37 +98,37 @@ GLOBAL_LIST_INIT(character_flaws, list(
 /mob/living/carbon/human/get_flaw(flaw_type)
 	if(!flaw_type)
 		return
-	if(charflaw != flaw_type)
-		return
-	return charflaw
+	// Check new multiple vices system
+	if(length(vices))
+		for(var/datum/charflaw/vice in vices)
+			if(istype(vice, flaw_type))
+				return vice
+	// Legacy single vice check
+	if(istype(charflaw, flaw_type))
+		return charflaw
+	return
 
 /datum/charflaw/randflaw
 	name = "Random or None"
 	desc = "A 50% chance to be given a random flaw, or a 50% chance to have NO flaw."
-	var/nochekk = TRUE
 
-/datum/charflaw/randflaw/flaw_on_life(mob/user)
-	if(!nochekk)
-		return
-	if(ishuman(user))
-		var/mob/living/carbon/human/H = user
-		if(H.ckey)
-			nochekk = FALSE
-			if(prob(50))
-				var/flawz = GLOB.character_flaws.Copy()
-				var/charflaw = pick_n_take(flawz)
-				charflaw = GLOB.character_flaws[charflaw]
-				if((charflaw == type) || (charflaw == /datum/charflaw/noflaw))
-					charflaw = pick_n_take(flawz)
-					charflaw = GLOB.character_flaws[charflaw]
-				if((charflaw == type) || (charflaw == /datum/charflaw/noflaw))
-					charflaw = pick_n_take(flawz)
-					charflaw = GLOB.character_flaws[charflaw]
-				H.charflaw = new charflaw()
-				H.charflaw.on_mob_creation(H)
-			else
-				H.charflaw = new /datum/charflaw/eznoflaw()
-				H.charflaw.on_mob_creation(H)
+/datum/charflaw/randflaw/apply_post_equipment(mob/user)
+	var/mob/living/carbon/human/H = user
+	if(prob(50))
+		var/flawz = GLOB.character_flaws.Copy()
+		var/charflaw = pick_n_take(flawz)
+		charflaw = GLOB.character_flaws[charflaw]
+		if((charflaw == type) || (charflaw == /datum/charflaw/noflaw))
+			charflaw = pick_n_take(flawz)
+			charflaw = GLOB.character_flaws[charflaw]
+		if((charflaw == type) || (charflaw == /datum/charflaw/noflaw))
+			charflaw = pick_n_take(flawz)
+			charflaw = GLOB.character_flaws[charflaw]
+		H.charflaw = new charflaw()
+		H.charflaw.on_mob_creation(H)
+	else
+		H.charflaw = new /datum/charflaw/eznoflaw()
+		H.charflaw.on_mob_creation(H)
 
 
 /datum/charflaw/eznoflaw
@@ -95,32 +136,25 @@ GLOBAL_LIST_INIT(character_flaws, list(
 	desc = "I'm a normal person, how rare!"
 
 /datum/charflaw/noflaw
-	name = "No Flaw (3 TRI)"
+	name = "No Flaw (-3 TRI)"
 	desc = "I'm a normal person, how rare! (Consumes 3 triumphs or gives a random flaw.)"
-	var/nochekk = TRUE
 
-/datum/charflaw/noflaw/flaw_on_life(mob/user)
-	if(!nochekk)
-		return
-	if(ishuman(user))
-		var/mob/living/carbon/human/H = user
-		if(H.ckey)
-			if(H.get_triumphs() < 3)
-				nochekk = FALSE
-				var/flawz = GLOB.character_flaws.Copy()
-				var/charflaw = pick_n_take(flawz)
-				charflaw = GLOB.character_flaws[charflaw]
-				if((charflaw == type) || (charflaw == /datum/charflaw/randflaw))
-					charflaw = pick_n_take(flawz)
-					charflaw = GLOB.character_flaws[charflaw]
-				if((charflaw == type) || (charflaw == /datum/charflaw/randflaw))
-					charflaw = pick_n_take(flawz)
-					charflaw = GLOB.character_flaws[charflaw]
-				H.charflaw = new charflaw()
-				H.charflaw.on_mob_creation(H)
-			else
-				nochekk = FALSE
-				H.adjust_triumphs(-3)
+/datum/charflaw/noflaw/apply_post_equipment(mob/user)
+	var/mob/living/carbon/human/H = user
+	if(H.get_triumphs() < 3)
+		var/flawz = GLOB.character_flaws.Copy()
+		var/charflaw = pick_n_take(flawz)
+		charflaw = GLOB.character_flaws[charflaw]
+		if((charflaw == type) || (charflaw == /datum/charflaw/randflaw))
+			charflaw = pick_n_take(flawz)
+			charflaw = GLOB.character_flaws[charflaw]
+		if((charflaw == type) || (charflaw == /datum/charflaw/randflaw))
+			charflaw = pick_n_take(flawz)
+			charflaw = GLOB.character_flaws[charflaw]
+		H.charflaw = new charflaw()
+		H.charflaw.on_mob_creation(H)
+	else
+		H.adjust_triumphs(-3)
 
 /datum/charflaw/badsight
 	name = "Bad Eyesight"
@@ -154,12 +188,68 @@ GLOBAL_LIST_INIT(character_flaws, list(
 		H.equip_to_slot_or_del(new /obj/item/clothing/mask/rogue/spectacles(H), SLOT_WEAR_MASK)
 	else
 		new /obj/item/clothing/mask/rogue/spectacles(get_turf(H))
-	
+
 	// we don't seem to have a mind when on_mob_creation fires, so set up a timer to check when we probably will
 	addtimer(CALLBACK(src, PROC_REF(apply_reading_skill), H), 5 SECONDS)
 
 /datum/charflaw/badsight/proc/apply_reading_skill(mob/living/carbon/human/H)
 	H.adjust_skillrank(/datum/skill/misc/reading, 1, TRUE)
+	H.adjust_triumphs(1)
+
+/datum/charflaw/malodorous
+	name = "Malodorous"
+	desc = "My body odor is unbearable without regular baths, and others can tell."
+	var/last_aura_tick = 0
+	var/aura_tick_delay = 5 SECONDS
+	var/suppressed_until = 0
+	var/next_gas_puff = 0
+
+/datum/charflaw/malodorous/proc/is_reeking()
+	return world.time >= suppressed_until
+
+/datum/charflaw/malodorous/on_bath(mob/user)
+	if(!ishuman(user))
+		return
+	suppressed_until = world.time + 30 MINUTES
+	to_chat(user, span_notice("I scrub the stink away. I should stay fresh for a while."))
+
+/datum/charflaw/malodorous/flaw_on_life(mob/user)
+	if(!ishuman(user))
+		return
+	var/mob/living/carbon/human/H = user
+	if(!is_reeking())
+		return
+	if(!H.can_smell())
+		return
+	if(user.mind?.antag_datums)
+		for(var/datum/antagonist/D in user.mind?.antag_datums)
+			if(istype(D, /datum/antagonist/vampire/lord) || istype(D, /datum/antagonist/werewolf) || istype(D, /datum/antagonist/skeleton) || istype(D, /datum/antagonist/zombie) || istype(D, /datum/antagonist/lich))
+				return
+	if(world.time >= next_gas_puff)
+		var/obj/effect/temp_visual/small_smoke/puff = new /obj/effect/temp_visual/small_smoke(null)
+		puff.duration = rand(100, 150)
+		puff.layer = ABOVE_MOB_LAYER
+		puff.color = "#3a6600"
+		puff.alpha = 150
+
+		H.vis_contents += puff
+		next_gas_puff = world.time + rand(12 SECONDS, 26 SECONDS)
+	if(world.time < last_aura_tick + aura_tick_delay)
+		return
+	last_aura_tick = world.time
+	apply_stink_aura(H)
+
+/datum/charflaw/malodorous/proc/apply_stink_aura(mob/living/carbon/human/H)
+	for(var/mob/living/nearby in view(2, H))
+		if(nearby == H)
+			continue
+		if(nearby.stat)
+			continue
+		if(!nearby.can_smell())
+			continue
+		if(!nearby.has_stress_event(/datum/stressevent/stinky_aura))
+			to_chat(nearby, span_warning("Something nearby reeks."))
+		nearby.add_stress(/datum/stressevent/stinky_aura)
 
 /datum/charflaw/paranoid
 	name = "Paranoid"
@@ -261,6 +351,7 @@ GLOBAL_LIST_INIT(character_flaws, list(
 	var/obj/item/bodypart/head/head = H.get_bodypart(BODY_ZONE_HEAD)
 	head?.add_wound(/datum/wound/facial/eyes/right/permanent)
 	H.update_fov_angles()
+	H.adjust_triumphs(1)
 
 /datum/charflaw/noeyel
 	name = "Cyclops (L)"
@@ -276,6 +367,24 @@ GLOBAL_LIST_INIT(character_flaws, list(
 	var/obj/item/bodypart/head/head = H.get_bodypart(BODY_ZONE_HEAD)
 	head?.add_wound(/datum/wound/facial/eyes/left/permanent)
 	H.update_fov_angles()
+	H.adjust_triumphs(1)
+
+/datum/charflaw/noeyeall
+	name = "Blindness"
+	desc = "I lost both of my eyes long ago."
+
+/datum/charflaw/noeyeall/on_mob_creation(mob/user)
+	..()
+	if(!ishuman(user))
+		return
+	var/mob/living/carbon/human/H = user
+	var/obj/item/woodstaff = new /obj/item/rogueweapon/woodstaff(get_turf(H))
+	H.put_in_hands(woodstaff, forced = TRUE)
+
+	if(!H.wear_mask)
+		H.equip_to_slot_or_del(new /obj/item/clothing/glasses/blindfold(H), SLOT_WEAR_MASK)
+	H.overlay_fullscreen("blind_flaw", /atom/movable/screen/fullscreen/impaired, 2)
+	H.adjust_triumphs(1)
 
 /datum/charflaw/colorblind
 	name = "Colorblind"
@@ -284,13 +393,218 @@ GLOBAL_LIST_INIT(character_flaws, list(
 /datum/charflaw/colorblind/on_mob_creation(mob/user)
 	..()
 	user.add_client_colour(/datum/client_colour/monochrome)
+	if(ishuman(user))
+		var/mob/living/carbon/human/H = user
+		H.adjust_triumphs(1)
+
+/datum/charflaw/compliant
+	name = "Compliant"
+	desc = "No matter how hard I try, I can't put up a fight against others. <br>\
+	<small>I will fail every attempt to resist out of a grab, and others will always be able to break free of mine. Thieves will be able to rob me without issue.</small>"
+
+/datum/charflaw/compliant/on_mob_creation(mob/user)
+	..()
+	if(ishuman(user))
+		var/mob/living/carbon/human/H = user
+		ADD_TRAIT(H, TRAIT_COMPLIANT, TRAIT_GENERIC)
+		H.compliance = 1
+		H.apply_status_effect(/datum/status_effect/compliance)
+
+/datum/charflaw/compliant/on_removal(mob/user)
+	..()
+	if(ishuman(user))
+		var/mob/living/carbon/human/H = user
+		REMOVE_TRAIT(H, TRAIT_COMPLIANT, TRAIT_GENERIC)
+		H.compliance = 0
+		H.remove_status_effect(/datum/status_effect/compliance)
+
+/datum/charflaw/assassintarget
+	name = "Marked for Death"
+	desc = "Something in my past has made me a target. I'm always looking over my shoulder.<br>\
+	YOU MAY BE PERMANENTLY REMOVED FROM THE ROUND WITHOUT ESCALATION BY YOUR ASSASSIN!"
+	var/logged = FALSE
 
 /datum/charflaw/hunted
-	name = "Hunted"
-	desc = "Something in my past has made me a target. I'm always looking over my shoulder.	\
-	\nTHIS IS A DIFFICULT FLAW, YOU WILL BE HUNTED BY ASSASSINS AND HAVE ASSASINATION ATTEMPTS MADE AGAINST YOU WITHOUT ANY ESCALATION. \
-	EXPECT A MORE DIFFICULT EXPERIENCE. PLAY AT YOUR OWN RISK."
+	name = "Marked by Gnolls"
+	desc = "For one reason or another, I have been deemed a target worthy of Graggar's champions. I hear their cackles anywhere I go.<br>\
+	<small>This virtue will encourage Gnolls to hunt you down. You may potentially be killed in the process.</small>"
 	var/logged = FALSE
+
+/datum/charflaw/ugly
+	name = "Ugly"
+	desc = "My face is ugly and makes everyone who looks at me miserable. Incompatible with Beautiful virtue."
+
+/datum/charflaw/ugly/on_mob_creation(mob/user)
+	..()
+	if(ishuman(user))
+		var/mob/living/carbon/human/H = user
+		ADD_TRAIT(H, TRAIT_UNSEEMLY, TRAIT_GENERIC)
+
+/datum/charflaw/ugly/on_removal(mob/user)
+	..()
+	if(ishuman(user))
+		var/mob/living/carbon/human/H = user
+		REMOVE_TRAIT(H, TRAIT_UNSEEMLY, TRAIT_GENERIC)
+
+/datum/charflaw/nudist
+	name = "Nudist"
+	desc = "I refuse to wear clothes. They are a hindrance to my freedom. I can tolerate certain accessories."
+
+/datum/charflaw/nudist/on_mob_creation(mob/user)
+	..()
+	if(ishuman(user))
+		var/mob/living/carbon/human/H = user
+		ADD_TRAIT(H, TRAIT_NUDIST, TRAIT_GENERIC)
+
+/datum/charflaw/nudist/on_removal(mob/user)
+	..()
+	if(ishuman(user))
+		var/mob/living/carbon/human/H = user
+		REMOVE_TRAIT(H, TRAIT_NUDIST, TRAIT_GENERIC)
+
+/datum/charflaw/inhumen_anatomy
+	name = "Inhumen Anatomy"
+	desc = "My anatomy is inhumen, preventing me from wearing hats and shoes."
+
+/datum/charflaw/inhumen_anatomy/on_mob_creation(mob/user)
+	..()
+	if(ishuman(user))
+		var/mob/living/carbon/human/H = user
+		ADD_TRAIT(H, TRAIT_INHUMEN_ANATOMY, TRAIT_GENERIC)
+
+/datum/charflaw/inhumen_anatomy/on_removal(mob/user)
+	..()
+	if(ishuman(user))
+		var/mob/living/carbon/human/H = user
+		REMOVE_TRAIT(H, TRAIT_INHUMEN_ANATOMY, TRAIT_GENERIC)
+
+/datum/charflaw/missing_nose
+	name = "Missing Nose"
+	desc = "I struggle to breathe. My stamina regeneration is halved."
+
+/datum/charflaw/missing_nose/on_mob_creation(mob/user)
+	..()
+	if(ishuman(user))
+		var/mob/living/carbon/human/H = user
+		ADD_TRAIT(H, TRAIT_MISSING_NOSE, TRAIT_GENERIC)
+
+/datum/charflaw/missing_nose/on_removal(mob/user)
+	..()
+	if(ishuman(user))
+		var/mob/living/carbon/human/H = user
+		REMOVE_TRAIT(H, TRAIT_MISSING_NOSE, TRAIT_GENERIC)
+
+/datum/charflaw/disfigured
+	name = "Disfigured"
+	desc = "No one can recognize me. My face has been permanently altered."
+
+/datum/charflaw/disfigured/on_mob_creation(mob/user)
+	..()
+	if(ishuman(user))
+		var/mob/living/carbon/human/H = user
+		ADD_TRAIT(H, TRAIT_DISFIGURED, TRAIT_GENERIC)
+
+/datum/charflaw/disfigured/on_removal(mob/user)
+	..()
+	if(ishuman(user))
+		var/mob/living/carbon/human/H = user
+		REMOVE_TRAIT(H, TRAIT_DISFIGURED, TRAIT_GENERIC)
+
+/datum/charflaw/pacifism
+	name = "Pacifist"
+	desc = "I cannot harm another living being."
+
+/datum/charflaw/pacifism/on_mob_creation(mob/user)
+	..()
+	if(ishuman(user))
+		var/mob/living/carbon/human/H = user
+		ADD_TRAIT(H, TRAIT_PACIFISM, TRAIT_GENERIC)
+
+/datum/charflaw/pacifism/on_removal(mob/user)
+	..()
+	if(ishuman(user))
+		var/mob/living/carbon/human/H = user
+		REMOVE_TRAIT(H, TRAIT_PACIFISM, TRAIT_GENERIC)
+
+/datum/charflaw/annoying_face
+	name = "Annoying Face"
+	desc = "I am cursed with an odd voice and appearance."
+
+/datum/charflaw/annoying_face/on_mob_creation(mob/user)
+	..()
+	if(ishuman(user))
+		var/mob/living/carbon/human/H = user
+		ADD_TRAIT(H, TRAIT_COMICSANS, TRAIT_GENERIC)
+
+/datum/charflaw/annoying_face/on_removal(mob/user)
+	..()
+	if(ishuman(user))
+		var/mob/living/carbon/human/H = user
+		REMOVE_TRAIT(H, TRAIT_COMICSANS, TRAIT_GENERIC)
+
+/datum/charflaw/eerie_beauty
+	name = "Eerie Beauty"
+	desc = "Some would say my visage is an artwork created by the gods themselves; others call me an unsettling abomination. Incompatible with Socialite virtue."
+
+/datum/charflaw/eerie_beauty/on_mob_creation(mob/user)
+	..()
+	if(ishuman(user))
+		var/mob/living/carbon/human/H = user
+		ADD_TRAIT(H, TRAIT_BEAUTIFUL_UNCANNY, TRAIT_GENERIC)
+
+/datum/charflaw/eerie_beauty/on_removal(mob/user)
+	..()
+	if(ishuman(user))
+		var/mob/living/carbon/human/H = user
+		REMOVE_TRAIT(H, TRAIT_BEAUTIFUL_UNCANNY, TRAIT_GENERIC)
+
+/datum/charflaw/nude_sleeper
+	name = "Nude Sleeper"
+	desc = "I can't fall asleep unless I'm nude and in bed. I cannot sleep while wearing equipment. (Unremovable clothing and certain accessories are allowed.)"
+
+/datum/charflaw/nude_sleeper/on_mob_creation(mob/user)
+	..()
+	if(ishuman(user))
+		var/mob/living/carbon/human/H = user
+		ADD_TRAIT(H, TRAIT_NUDE_SLEEPER, TRAIT_GENERIC)
+
+/datum/charflaw/nude_sleeper/on_removal(mob/user)
+	..()
+	if(ishuman(user))
+		var/mob/living/carbon/human/H = user
+		REMOVE_TRAIT(H, TRAIT_NUDE_SLEEPER, TRAIT_GENERIC)
+
+/datum/charflaw/unsettling_beauty
+	name = "Unsettling Beauty"
+	desc = "My appearance is deeply unsettling to most. There's something profoundly wrong about my features that disturbs those who look upon me. Incompatible with Socialite virtue."
+
+/datum/charflaw/unsettling_beauty/on_mob_creation(mob/user)
+	..()
+	if(ishuman(user))
+		var/mob/living/carbon/human/H = user
+		ADD_TRAIT(H, TRAIT_UNSETTLING_BEAUTY, TRAIT_GENERIC)
+
+/datum/charflaw/unsettling_beauty/on_removal(mob/user)
+	..()
+	if(ishuman(user))
+		var/mob/living/carbon/human/H = user
+		REMOVE_TRAIT(H, TRAIT_UNSETTLING_BEAUTY, TRAIT_GENERIC)
+
+/datum/charflaw/scarred
+	name = "Scarred"
+	desc = "My face bears terrible scars that make identification difficult, but not impossible."
+
+/datum/charflaw/scarred/on_mob_creation(mob/user)
+	..()
+	if(ishuman(user))
+		var/mob/living/carbon/human/H = user
+		ADD_TRAIT(H, TRAIT_SCARRED, TRAIT_GENERIC)
+
+/datum/charflaw/scarred/on_removal(mob/user)
+	..()
+	if(ishuman(user))
+		var/mob/living/carbon/human/H = user
+		REMOVE_TRAIT(H, TRAIT_SCARRED, TRAIT_GENERIC)
 
 /datum/charflaw/hunted/flaw_on_life(mob/user)
 	if(!ishuman(user))
@@ -307,14 +621,15 @@ GLOBAL_LIST_INIT(character_flaws, list(
 
 /datum/charflaw/unintelligible/on_mob_creation(mob/user)
 	var/mob/living/carbon/human/recipient = user
-	addtimer(CALLBACK(src, .proc/unintelligible_apply, recipient), 5 SECONDS)
+	addtimer(CALLBACK(src, PROC_REF(unintelligible_apply), recipient), 5 SECONDS)
 
 /datum/charflaw/unintelligible/proc/unintelligible_apply(mob/living/carbon/human/user)
 	if(user.advsetup)
-		addtimer(CALLBACK(src, .proc/unintelligible_apply, user), 5 SECONDS)
+		addtimer(CALLBACK(src, PROC_REF(unintelligible_apply), user), 5 SECONDS)
 		return
 	user.remove_language(/datum/language/common)
 	user.adjust_skillrank(/datum/skill/misc/reading, -6, TRUE)
+	user.adjust_triumphs(1)
 
 /datum/charflaw/greedy
 	name = "Greedy"
@@ -368,16 +683,16 @@ GLOBAL_LIST_INIT(character_flaws, list(
 	var/do_update_msg = TRUE
 	if(new_mammon_amount >= required_mammons)
 		// Feel better
-		if(user.has_stress_event(/datum/stressevent/vice))
+		if(user.has_stress_event(/datum/stressevent/vice/greedy))
 			to_chat(user, span_blue("[new_mammon_amount] mammons... That's more like it.."))
-		user.remove_stress(/datum/stressevent/vice)
-		user.remove_status_effect(/datum/status_effect/debuff/addiction)
+		user.remove_stress(/datum/stressevent/vice/greedy)
+		user.remove_status_effect(/datum/status_effect/debuff/addiction/greedy)
 		last_passed_check = world.time
 		do_update_msg = FALSE
 	else
 		// Feel bad
-		user.add_stress(/datum/stressevent/vice)
-		user.apply_status_effect(/datum/status_effect/debuff/addiction)
+		user.add_stress(/datum/stressevent/vice/greedy)
+		user.apply_status_effect(/datum/status_effect/debuff/addiction/greedy)
 
 	if(new_mammon_amount == last_checked_mammons)
 		do_update_msg = FALSE
@@ -389,6 +704,16 @@ GLOBAL_LIST_INIT(character_flaws, list(
 			to_chat(user, span_boldwarning("No! My precious mammons..."))
 
 	last_checked_mammons = new_mammon_amount
+
+/datum/status_effect/debuff/addiction/greedy
+	id = "addiction_greedy"
+	alert_type = /atom/movable/screen/alert/status_effect/debuff/addiction/greedy
+	effectedstats = list(STATKEY_WIL = -1, STATKEY_LCK = -1)
+
+/atom/movable/screen/alert/status_effect/debuff/addiction/greedy
+	name = "Greed"
+	desc = "My coinpurse doesn't jingle. Why even lyve?"
+	icon_state = "greedy"
 
 /datum/charflaw/narcoleptic
 	name = "Narcoleptic"
@@ -403,6 +728,9 @@ GLOBAL_LIST_INIT(character_flaws, list(
 /datum/charflaw/narcoleptic/on_mob_creation(mob/user)
 	ADD_TRAIT(user, TRAIT_FASTSLEEP, "[type]")
 	reset_timer()
+	if(ishuman(user))
+		var/mob/living/carbon/human/H = user
+		H.adjust_triumphs(1)
 
 /datum/charflaw/narcoleptic/proc/reset_timer()
 	do_sleep = FALSE
@@ -464,6 +792,13 @@ GLOBAL_LIST_INIT(character_flaws, list(
 
 /datum/charflaw/sleepless/on_mob_creation(mob/user)
 	ADD_TRAIT(user, TRAIT_NOSLEEP, TRAIT_GENERIC)
+	if(ishuman(user))
+		var/mob/living/carbon/human/H = user
+		H.adjust_triumphs(1)
+
+/datum/charflaw/sleepless/on_removal(mob/user)
+	..()
+	REMOVE_TRAIT(user, TRAIT_NOSLEEP, TRAIT_GENERIC)
 
 /datum/charflaw/mute
 	name = "Mute"
@@ -471,6 +806,13 @@ GLOBAL_LIST_INIT(character_flaws, list(
 
 /datum/charflaw/mute/on_mob_creation(mob/user)
 	ADD_TRAIT(user, TRAIT_PERMAMUTE, TRAIT_GENERIC)
+	if(ishuman(user))
+		var/mob/living/carbon/human/H = user
+		H.adjust_triumphs(1)
+
+/datum/charflaw/mute/on_removal(mob/user)
+	..()
+	REMOVE_TRAIT(user, TRAIT_PERMAMUTE, TRAIT_GENERIC)
 
 /datum/charflaw/critweakness
 	name = "Critical Weakness"
@@ -478,9 +820,146 @@ GLOBAL_LIST_INIT(character_flaws, list(
 
 /datum/charflaw/critweakness/on_mob_creation(mob/user)
 	ADD_TRAIT(user, TRAIT_CRITICAL_WEAKNESS, TRAIT_GENERIC)
+	if(ishuman(user))
+		var/mob/living/carbon/human/H = user
+		H.adjust_triumphs(1)
+
+/datum/charflaw/critweakness/on_removal(mob/user)
+	..()
+	REMOVE_TRAIT(user, TRAIT_CRITICAL_WEAKNESS, TRAIT_GENERIC)
 
 /datum/charflaw/silverweakness
 	name = "Silver Weakness"
 	desc = "I'm sensitive to silver — it burns and injures me more than it should."
+
 /datum/charflaw/silverweakness/on_mob_creation(mob/user)
 	ADD_TRAIT(user, TRAIT_SILVER_WEAK, TRAIT_GENERIC)
+
+/datum/charflaw/silverweakness/on_removal(mob/user)
+	..()
+	REMOVE_TRAIT(user, TRAIT_SILVER_WEAK, TRAIT_GENERIC)
+
+/datum/charflaw/leprosy
+	name = "Leper"
+	desc = "I am cursed with leprosy! Too poor to afford treatment, my skin now lays violated by lesions, my extremities are numb, and my presence disturbs even the most stalwart men."
+
+/datum/charflaw/leprosy/apply_post_equipment(mob/user)
+	var/mob/living/carbon/human/H = user
+	to_chat(user, "I am afflicted. I am outcast and weak. I am a pox on this world.")
+	ADD_TRAIT(user, TRAIT_LEPROSY, TRAIT_GENERIC)
+	H.change_stat(STATKEY_STR, -1)
+	H.change_stat(STATKEY_INT, -1)
+	H.change_stat(STATKEY_PER, -1)
+	H.change_stat(STATKEY_CON, -1)
+	H.change_stat(STATKEY_WIL, -1)
+	H.change_stat(STATKEY_SPD, -1)
+	H.change_stat(STATKEY_LCK, -1)
+	H.adjust_triumphs(1)
+
+/datum/charflaw/mind_broken
+	name = "Asundered Mind"
+	desc = "My mind is asundered, whether it was by my own means or an unfortunate accident. Nothing seems real to me..."
+
+/datum/charflaw/mind_broken/apply_post_equipment(mob/living/carbon/human/insane_fool)
+	insane_fool.hallucination = INFINITY
+	ADD_TRAIT(insane_fool, TRAIT_PSYCHOSIS, TRAIT_GENERIC)
+	insane_fool.adjust_triumphs(1)
+
+/datum/charflaw/marked_by_baotha
+	name = "Marked by Baotha"
+	desc = "Whether through intentionally seeking out heretical ritualists or against my will, I have been marked by Baotha. I am branded visibly on my groin and am able to be impregnated regardless of physical states that would usually prevent this. I will need to sate my new urges often to avoid stress..."
+
+/datum/charflaw/marked_by_baotha/on_mob_creation(mob/user)
+
+	var/mutable_appearance/marking_overlay = mutable_appearance('icons/roguetown/misc/baotha_marking.dmi', "marking_[user.gender == "male" ? "m" : "f"]", -BODY_LAYER)
+	if(ishuman(user))
+		var/mob/living/carbon/human/H = user
+		if(isdwarf(H) || isgoblinp(H) || iskobold(H) || iscritter(H))
+			if(H.gender == MALE)
+				marking_overlay.pixel_y -= 5
+			else
+				marking_overlay.pixel_y -= 3
+	user.add_overlay(marking_overlay)
+
+	spawn(40)
+
+	ADD_TRAIT(user, TRAIT_BAOTHA_FERTILITY_BOON, TRAIT_GENERIC)
+
+	var/obj/item/organ/vagina/vagina = user.getorganslot(ORGAN_SLOT_VAGINA)
+	if(vagina && !vagina.fertility)
+		vagina.fertility = TRUE
+
+	if(ishuman(user))
+		var/mob/living/carbon/human/H = user
+
+		// Add the adjusted Nymphomaniac addiction flaw
+		if(!HAS_TRAIT(H, TRAIT_DEPRAVED))
+			var/datum/charflaw/addiction/baothamarked/L = new
+			H.vices += L
+			L.on_mob_creation(H)
+
+/datum/charflaw/hemophage
+	name = "Hemophage"
+	desc = "Whether by curse or my people, blood is the only thing to keep me alive. Normal sources of nutrition and hydration will make me ill. <br>\
+	<small>Any element of a virtue that modifies eating will be canceled out by Hemophage.</small>"
+
+/datum/charflaw/hemophage/on_mob_creation(mob/living/carbon/human/vamp_wannabe)
+	ADD_TRAIT(vamp_wannabe, TRAIT_HEMOPHAGE, TRAIT_GENERIC)
+	ADD_TRAIT(vamp_wannabe, TRAIT_VAMPBITE, TRAIT_GENERIC)
+	vamp_wannabe.adjust_triumphs(1)
+
+/datum/charflaw/silverweakness/on_removal(mob/user)
+	..()
+	REMOVE_TRAIT(user, TRAIT_HEMOPHAGE, TRAIT_GENERIC)
+	REMOVE_TRAIT(user, TRAIT_VAMPBITE, TRAIT_GENERIC)
+
+
+/datum/charflaw/weak
+	name = "Feeble-bodied"
+	desc = "Limp-wristed and ineffectual, I am not as physically strong as most. <br>\
+	<small>-4 to Strength.</small>"
+
+/datum/charflaw/weak/apply_post_equipment(mob/user)
+	var/mob/living/carbon/human/H = user
+	to_chat(user, "You are weaker than most")
+	H.change_stat(STATKEY_STR, -4)
+
+/datum/charflaw/frail
+	name = "Frail"
+	desc = "Prone to bruising as well as coughs and sneezes, I am more easily injured than most. <br>\
+	<small>-4 to Constitution.</small>"
+
+/datum/charflaw/frail/apply_post_equipment(mob/user)
+	var/mob/living/carbon/human/H = user
+	to_chat(user, "You are more vulnerable than most")
+	H.change_stat(STATKEY_CON, -4)
+
+/datum/charflaw/slow
+	name = "Doddering"
+	desc = "Slow and Steady, you say to yourself. Perhaps a torn ankle, or perhaps it is simply your nature. You are slower than most. <br>\
+	<small>-4 to Speed.</small>"
+
+/datum/charflaw/slow/apply_post_equipment(mob/user)
+	var/mob/living/carbon/human/H = user
+	to_chat(user, "You are slower than most")
+	H.change_stat(STATKEY_SPD, -4)
+
+/datum/charflaw/dull
+	name = "Nimrodded"
+	desc = "Everyone keeps saying fancy words around you but you've never been able to figure out why... You are less intellectual than most. <br>\
+	<small>- 4 to Intellect.</small>"
+
+/datum/charflaw/dull/apply_post_equipment(mob/user)
+	var/mob/living/carbon/human/H = user
+	to_chat(user, "You are duller than most")
+	H.change_stat(STATKEY_INT, -4)
+
+/datum/charflaw/unlucky
+	name = "Unlucky"
+	desc = "Perhaps it is the glass mirror you cracked, or the black cat that follows you, or a curse of the gods. You just feel... off. <br>\
+	<small>-4 to Luck.</small>"
+
+/datum/charflaw/unlucky/apply_post_equipment(mob/user)
+	var/mob/living/carbon/human/H = user
+	to_chat(user, "You are unluckier than most")
+	H.change_stat(STATKEY_LCK, -4)

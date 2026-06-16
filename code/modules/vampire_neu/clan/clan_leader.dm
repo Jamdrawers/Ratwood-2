@@ -16,15 +16,13 @@
 	lord_verbs = list(
 		/mob/living/carbon/human/proc/punish_spawn
 	)
-	lord_traits = list(TRAIT_HEAVYARMOR, TRAIT_INFINITE_ENERGY)
+	lord_traits = list(TRAIT_HEAVYARMOR, TRAIT_INFINITE_ENERGY, TRAIT_STRENGTH_UNCAPPED)
 	lord_title = "Lord"
 	vitae_bonus = 500 // Extra vitae for lords
 	ascended = FALSE
 
 /datum/clan_leader/wretch
-	lord_spells = list(
-		/obj/effect/proc_holder/spell/targeted/shapeshift/vampire/bat,
-	)
+	lord_spells = list()//No bat / gas. Thanks. Xray vision. No issue Z-Movement. Unable to be countered via silver. Ignores miracles. Etc.
 	lord_verbs = list(
 		/mob/living/carbon/human/proc/punish_spawn
 	)

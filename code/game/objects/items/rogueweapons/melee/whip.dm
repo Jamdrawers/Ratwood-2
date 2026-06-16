@@ -19,6 +19,7 @@
 	minstr = 6
 	grid_width = 32
 	grid_height = 64
+	special = /datum/special_intent/whip_coil
 
 /obj/item/rogueweapon/whip/getonmobprop(tag)
 	. = ..()
@@ -166,7 +167,7 @@
 	icon_state = "psywhip_lesser"
 	possible_item_intents = list(/datum/intent/whip/lash/holy, /datum/intent/whip/crack, /datum/intent/whip/punish)
 	force = 23
-	minstr = 12
+	minstr = 6 // makes it so psyaltrist can actually use it properly
 	wdefense = 0
 	is_silver = TRUE
 	smeltresult = /obj/item/ingot/silverblessed
@@ -183,15 +184,16 @@
 	)
 
 /obj/item/rogueweapon/whip/spiderwhip
-	force = 22
 	name = "lashkiss whip"
-	desc = "A dark whip with segmented, ashen spines for a base. Claimed to be hewn from dendrified prisoners of terror."
+	desc = "A drow whip of crimson cordage with a fierce-looking razor of blacksteel at its tip. The grip sports a metal knuckle guard perfect for clobbering surface dwellers in the jaw."
 	icon_state = "spiderwhip"
-	minstr = 6
+	possible_item_intents = list(/datum/intent/whip/lash/holy, /datum/intent/whip/crack, /datum/intent/whip/punish, /datum/intent/dagger/sucker_punch) // sucker as a little flavor and bonus. 
+	force = 22
+	minstr = 10 //meant for a medium armor mounted soldier. With the +2 from the drow merc statspread, it should cover most statpack silliness save for Wary.  
 
 /obj/item/rogueweapon/whip/bronze
 	name = "bronze whip"
-	desc = "A heavy whip, corded from thick leather and adorned with a razor-sharp bronzehead. In ancient tymes, this shepherd's weapon once repelled the gnashing teeth of bloodthirsty nitebeasts: now, it seperates limb-from-trunk with thunderous claps. </br>Holding this whip imbues you with determination.. and a rather odd hankering for turkey dinners."
+	desc = "A heavy whip, corded from thick leather and adorned with a razor-sharp bronzehead. In ancient tymes, this shepherd's weapon once repelled the gnashing teeth of bloodthirsty nitebeasts: now, it separates limb-from-trunk with thunderous claps. </br>Holding this whip imbues you with determination.. and a rather odd hankering for turkey dinners."
 	icon_state = "silverwhip"
 	force = 21 //Same damage as the leathers.
 	color = "#f9d690"

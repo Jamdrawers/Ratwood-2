@@ -80,9 +80,10 @@
 	stress_examine = TRUE
 	stress_desc = span_red("Horrid little goblin...")
 	descriptor_choices = list(
+		/datum/descriptor_choice/trait,
+		/datum/descriptor_choice/stature,
 		/datum/descriptor_choice/height,
 		/datum/descriptor_choice/body,
-		/datum/descriptor_choice/stature,
 		/datum/descriptor_choice/face,
 		/datum/descriptor_choice/face_exp,
 		/datum/descriptor_choice/skin_all,
@@ -112,7 +113,8 @@
 		"Frost" = SKIN_COLOR_FROST,
 		"Abyss" = SKIN_COLOR_ABYSS,
 		"Teal" = SKIN_COLOR_TEAL,
-		"Hadal" = SKIN_COLOR_HADAL
+		"Hadal" = SKIN_COLOR_HADAL,
+		"Pale" = SKIN_COLOR_PALE
 	)
 
 /datum/species/goblinp/on_species_gain(mob/living/carbon/C, datum/species/old_species)

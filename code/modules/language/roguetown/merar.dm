@@ -1,6 +1,6 @@
 /datum/language/merar
 	name = "Merar"
-	desc = "The desert sands the ancestors used to walk echoes through this raspy tongue that's mostly composed of murrs and mrrps with the ocassional meow or hiss if one is getting quite vocal. Hailing from the desert tribes and kingdoms ruled by the swift tabaxi this language is sharp and direct. With a keen ear you can notice the vague Gizan influence on this language."
+	desc = "The desert sands the ancestors used to walk echoes through this raspy tongue that's mostly composed of murrs and mrrps with the occasional meow or hiss if one is getting quite vocal. Hailing from the desert tribes and kingdoms ruled by the swift tabaxi, this language is sharp and direct. With a keen ear you can notice the vague Gizan influence on this language."
 	speech_verb = "murrs"
 	ask_verb = "mrrps"
 	exclaim_verb = "hisses"
@@ -8,7 +8,7 @@
 	flags = LANGUAGE_HIDE_ICON_IF_UNDERSTOOD | LANGUAGE_HIDE_ICON_IF_NOT_UNDERSTOOD
 	space_chance = 80
 	default_priority = 90
-	icon_state = "asse"
+	icon_state = "beastial"
 	spans = list(SPAN_MERAR)
 	syllables = list(
 	    "za","az","ze","ez","zi","iz","zo","oz","zu","uz","zs","sz","ha","ah","he","eh","hi","ih",

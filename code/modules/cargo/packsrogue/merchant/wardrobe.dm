@@ -33,6 +33,20 @@
 					/obj/item/clothing/head/roguetown/bardhat,
 				)
 
+/datum/supply_pack/rogue/wardrobe/hat/articap
+	name = "Artificer's Cap"
+	cost = 10
+	contains = list(
+					/obj/item/clothing/head/roguetown/articap,
+				)
+
+/datum/supply_pack/rogue/wardrobe/suits/artijacket
+	name = "Artificer Jacket"
+	cost = 30
+	contains = list(
+					/obj/item/clothing/suit/roguetown/armor/leather/jacket/artijacket,
+				)
+
 /datum/supply_pack/rogue/wardrobe/masks/specs
 	name = "Spectacles"
 	cost = 25
@@ -56,28 +70,28 @@
 
 /datum/supply_pack/rogue/wardrobe/cloaks/raincloak
 	name = "Raincloak"
-	cost = 20
+	cost = 15
 	contains = list(
 					/obj/item/clothing/cloak/raincloak/blue,
 				)
 
 /datum/supply_pack/rogue/wardrobe/suits/dressgen
-	name = "Dress"
-	cost = 20
+	name = "Simple Dress"
+	cost = 15
 	contains = list(
 					/obj/item/clothing/suit/roguetown/shirt/dress/gen,
 				)
 
 /datum/supply_pack/rogue/wardrobe/suits/robes
 	name = "Robes"
-	cost = 30
+	cost = 20
 	contains = list(
 					/obj/item/clothing/suit/roguetown/shirt/robe,
 				)
 
 /datum/supply_pack/rogue/wardrobe/suits/formal
 	name = "Formal Silks"
-	cost = 20
+	cost = 30
 	contains = list(
 					/obj/item/clothing/suit/roguetown/shirt/undershirt/puritan,
 				)
@@ -144,3 +158,5 @@
 	contains = list(
 					/obj/item/clothing/mask/rogue/exoticsilkmask,
 				)
+
+

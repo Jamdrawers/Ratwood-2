@@ -7,6 +7,8 @@
 	max_integrity = 200
 	integrity_failure = 0.1
 	drop_sound = 'sound/foley/dropsound/cloth_drop.ogg'
+	sewrepair = TRUE
+	dropshrink = 0.85
 	///What level of bright light protection item has.
 	var/flash_protect = FLASH_PROTECTION_NONE
 	var/tint = 0				//Sets the item's level of visual impairment tint, normally set to the same as flash_protect
@@ -71,6 +73,10 @@
 	var/boobed_detail = TRUE
 	var/sleeved_detail = TRUE
 	var/list/original_armor //For restoring broken armor
+	var/ducal_primary = FALSE // Uses duchy primary color for base color
+	var/ducal_detail = FALSE // Uses duchy secondary color for detail_color
+	var/ducal_altdetail = FALSE // Uses duchy secondary color for altdetail_color
+	var/shoddy_repair = FALSE // if we've been field repaired by an unskilled person, set this to true
 
 /obj/item/clothing/New()
 	..()
@@ -226,7 +232,7 @@
 			return TRUE
 		return FALSE
 
-/obj/item/clothing/Initialize()
+/obj/item/clothing/Initialize(mapload)
 	if(CHECK_BITFIELD(clothing_flags, VOICEBOX_TOGGLABLE))
 		actions_types += /datum/action/item_action/toggle_voice_box
 	. = ..()
@@ -353,7 +359,7 @@ SEE_MOBS  // can see all mobs, no matter what
 SEE_OBJS  // can see all objs, no matter what
 SEE_TURFS // can see all turfs (and areas), no matter what
 SEE_PIXELS// if an object is located on an unlit area, but some of its pixels are
-          // in a lit area (via pixel_x,y or smooth movement), can see those pixels
+		  // in a lit area (via pixel_x,y or smooth movement), can see those pixels
 BLIND     // can't see anything
 */
 
@@ -496,16 +502,6 @@ BLIND     // can't see anything
 	if(visor_vars_to_toggle & VISOR_TINT)
 		tint ^= initial(tint)
 
-/obj/item/clothing/head/helmet/space/plasmaman/visor_toggling() //handles all the actual toggling of flags
-	up = !up
-	clothing_flags ^= visor_flags
-	flags_inv ^= visor_flags_inv
-	icon_state = "[initial(icon_state)]"
-	if(visor_vars_to_toggle & VISOR_FLASHPROTECT)
-		flash_protect ^= initial(flash_protect)
-	if(visor_vars_to_toggle & VISOR_TINT)
-		tint ^= initial(tint)
-
 /obj/item/clothing/proc/can_use(mob/user)
 	if(user && ismob(user))
 		if(!user.incapacitated())
@@ -535,3 +531,125 @@ BLIND     // can't see anything
 	if(text)
 		filtered_balloon_alert(TRAIT_COMBAT_AWARE, text, -20, y_offset)
 	. = ..()
+
+/obj/proc/generate_tooltip(examine_text, showcrits)
+	return examine_text
+
+/obj/item/clothing/generate_tooltip(examine_text, showcrits)
+	if(!armor)	// No armor
+		return examine_text
+	
+	// Fake armor
+	if(armor.getRating("slash") == 0 && armor.getRating("stab") == 0 && armor.getRating("blunt") == 0 && armor.getRating("piercing") == 0)
+		return examine_text
+
+	var/str = ""
+	str += "[colorgrade_rating("🔨 BLUNT ", armor.blunt, elaborate = TRUE)] | "
+	str += "[colorgrade_rating("🪓 SLASH ", armor.slash, elaborate = TRUE)]"
+	str += "<br>"
+	str += "[colorgrade_rating("🗡️ STAB ", armor.stab, elaborate = TRUE)] | "
+	str += "[colorgrade_rating("🏹 PIERCE ", armor.piercing, elaborate = TRUE)] "
+
+	if(showcrits && prevent_crits)
+		str += "<br>———————————————<br>"
+		str += "<font color = '#afaeae'><text-align: center>STOPS CRITS: <br>"
+		var/linebreak_count = 0
+		var/index = 0
+		for(var/flag in prevent_crits)
+			index++
+			if(flag == BCLASS_PICK) //BCLASS_PICK is named "stab", and "stabbing" is its own damage class. Prevents confusion.
+				flag = "pick"
+			str += ("[capitalize(flag)] ")
+			linebreak_count++
+			if(linebreak_count >= 3)
+				str += "<br>"
+				linebreak_count = 0
+			else if(index != length(prevent_crits))
+				str += " | "
+		str += "</font>"
+
+	//This makes it appear darker than the rest of examine text. Draws the cursor to it like to a link.
+	examine_text = "<font color = '#808080'>[examine_text]</font>"
+	// Make the armor info clickable; clicking prints full details to chat
+	return "<a href='byond://?src=\ref[src];show_examine=1'>[str]</a>"
+
+// Build the detailed examine string for chat output
+/obj/item/clothing/proc/build_examine_detail(mob/user, showcrits)
+	if(!armor) // No armor
+		return get_examine_string(user)
+
+	var/str = ""
+	str += "[colorgrade_rating("🔨 BLUNT  ", armor.blunt, elaborate = TRUE)] | "
+	str += "[colorgrade_rating("🪓 SLASH  ", armor.slash, elaborate = TRUE)]"
+	str += "<br>"
+	str += "[colorgrade_rating("🗡️ STAB   ", armor.stab, elaborate = TRUE)] | "
+	str += "[colorgrade_rating("🏹 PIERCE ", armor.piercing, elaborate = TRUE)] "
+
+	if(showcrits && prevent_crits)
+		str += "<br>———————————————<br>"
+		str += "<font color = '#afaeae'><text-align: center>STOPS CRITS: <br>"
+		var/linebreak_count = 0
+		var/index = 0
+		for(var/flag in prevent_crits)
+			index++
+			if(flag == BCLASS_PICK)
+				flag = "pick"
+			str += ("[capitalize(flag)] ")
+			linebreak_count++
+			if(linebreak_count >= 3)
+				str += "<br>"
+				linebreak_count = 0
+			else if(index != length(prevent_crits))
+				str += " | "
+		str += "</font>"
+
+	var/examine_text = get_examine_string(user)
+	if(examine_text && length(examine_text))
+		str += "<br><font color = '#808080'>[examine_text]</font>"
+	return str
+
+/obj/item/clothing/show_examine_hover_tooltip()
+	if(..())
+		return TRUE
+	if(slot_flags & ITEM_SLOT_HEAD)
+		return TRUE
+	if(slot_flags & (ITEM_SLOT_BACK | ITEM_SLOT_BACKPACK | ITEM_SLOT_BELT | ITEM_SLOT_HIP | ITEM_SLOT_CLOAK))
+		return FALSE
+	return TRUE
+
+/obj/item/clothing/get_hover_examine_stat_lines(mob/user, self_examine = FALSE)
+	var/list/lines = list()
+	if(armor && (armor.getRating("slash") != 0 || armor.getRating("stab") != 0 || armor.getRating("blunt") != 0 || armor.getRating("piercing") != 0))
+		var/armor_class_text = "None"
+		switch(armor_class)
+			if(ARMOR_CLASS_LIGHT)
+				armor_class_text = "Light"
+			if(ARMOR_CLASS_MEDIUM)
+				armor_class_text = "Medium"
+			if(ARMOR_CLASS_HEAVY)
+				armor_class_text = "Heavy"
+		lines += "<b>ARMOR CLASS:</b> [armor_class_text]"
+		lines += "[colorgrade_rating("🔨 BLUNT", armor.blunt, TRUE)] | [colorgrade_rating("🪓 SLASH", armor.slash, TRUE)]"
+		lines += "[colorgrade_rating("🗡️ STAB", armor.stab, TRUE)] | [colorgrade_rating("🏹 PIERCE", armor.piercing, TRUE)]"
+	if(length(prevent_crits))
+		var/list/prevents = list()
+		for(var/flag in prevent_crits)
+			var/prevent_text = "[flag]"
+			if(flag == BCLASS_PICK)
+				prevent_text = "pick"
+			prevents += capitalize(prevent_text)
+		lines += "<b>PREVENTS CRITS:</b> [prevents.Join(", ")]"
+	if(self_examine)
+		var/true_durability = get_true_durability_percent_text()
+		if(true_durability)
+			lines += "<b>Durability:</b> [true_durability]"
+	return lines
+
+// Handle clicks from chat to show the examine details
+/obj/item/clothing/Topic(href, href_list)
+	if(href_list["show_examine"]) 
+		var/mob/user = usr
+		if(user)
+			to_chat(user, build_examine_detail(user, TRUE))
+		return
+	..()

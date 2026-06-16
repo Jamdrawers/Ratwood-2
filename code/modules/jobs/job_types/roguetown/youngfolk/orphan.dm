@@ -1,7 +1,7 @@
 /datum/job/roguetown/orphan
 	title = "Vagabond"
 	flag = ORPHAN
-	department_flag = YOUNGFOLK
+	department_flag = PEASANTS
 	faction = "Station"
 	total_positions = 12
 	spawn_positions = 12
@@ -17,6 +17,8 @@
 	min_pq = -30
 	max_pq = null
 	round_contrib_points = 2
+	advjob_examine = TRUE
+	lowlife_examine = TRUE
 
 	cmode_music = 'sound/music/combat_bum.ogg'
 	job_subclasses = list(

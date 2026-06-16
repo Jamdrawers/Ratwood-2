@@ -8,7 +8,7 @@
 		return FALSE
 	if(!target.getorganslot(ORGAN_SLOT_PENIS))
 		return FALSE
-	if(!user.getorganslot(ORGAN_SLOT_TAIL))
+	if(!user.getorganslot(ORGAN_SLOT_TAIL) && !islamia(user))
 		return FALSE
 	return TRUE
 
@@ -19,7 +19,7 @@
 		return FALSE
 	if(!target.getorganslot(ORGAN_SLOT_PENIS))
 		return FALSE
-	if(!user.getorganslot(ORGAN_SLOT_TAIL))
+	if(!user.getorganslot(ORGAN_SLOT_TAIL) && !islamia(user))
 		return FALSE
 	return TRUE
 
@@ -28,7 +28,7 @@
 
 /datum/sex_action/tailjob/on_perform(mob/living/carbon/human/user, mob/living/carbon/human/target)
 	user.visible_message(user.sexcon.spanify_force("[user] [user.sexcon.get_generic_force_adjective()] strokes [target]'s cock with their tail."))
-	playsound(user, 'sound/misc/mat/fingering.ogg', 30, TRUE, -2, ignore_walls = FALSE)
+	user.sexcon.make_sucking_noise()
 
 	user.sexcon.perform_sex_action(target, 2, 0, TRUE)
 

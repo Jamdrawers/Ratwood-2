@@ -22,7 +22,7 @@
 		return FALSE
 	. = ..()
 
-/mob/living/carbon/human/species/human/northern/thief/Initialize()
+/mob/living/carbon/human/species/human/northern/thief/Initialize(mapload)
 	. = ..()
 	set_species(/datum/species/human/northern)
 	addtimer(CALLBACK(src, PROC_REF(after_creation)), 1 SECONDS)
@@ -127,6 +127,25 @@
 	l_hand = /obj/item/rogueweapon/huntingknife/idagger
 	if(prob(50))
 		l_hand = /obj/item/rogueweapon/huntingknife/copper
+	belt = /obj/item/storage/belt/rogue/leather/
+	switch(rand(1, 100))
+		if(1 to 50)
+			beltl = /obj/item/lockpick
+		if(51 to 60)
+			beltl = /obj/item/lockpickring/mundane
+		if(61 to 100)
+			beltl = null
+	switch(rand(1, 100))
+		if(1 to 40)
+			beltr = null
+		if(41 to 85)
+			beltr = /obj/item/storage/belt/rogue/pouch/coins/poor/
+		if(86 to 95)
+			beltr = /obj/item/storage/belt/rogue/pouch/treasure/
+		if(96 to 100)
+			beltr = /obj/item/storage/belt/rogue/pouch/treasure/lucky
+	if(prob(5))
+		id = /obj/item/clothing/ring/gold
 	H.STASTR = 11
 	H.STASPD = 16
 	H.STACON = 11

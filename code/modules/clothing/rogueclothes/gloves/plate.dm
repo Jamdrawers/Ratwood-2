@@ -14,7 +14,7 @@
 	equip_sound = 'sound/foley/equip/equip_armor_plate.ogg'
 	anvilrepair = /datum/skill/craft/armorsmithing
 	smeltresult = /obj/item/ingot/steel
-
+	sewrepair = FALSE
 	grid_width = 64
 	grid_height = 32
 	unarmed_bonus = 1.2
@@ -26,20 +26,19 @@
 	smeltresult = /obj/item/ingot/iron
 	max_integrity = ARMOR_INT_SIDE_IRON
 
-/obj/item/clothing/gloves/roguetown/plate/aalloy
+/obj/item/clothing/gloves/roguetown/plate/ancient
+	name = "ancient plate gauntlets"
+	desc = "Polished gilbranze mechanisms, meticulously interconnected to shroud splayed hands. 'Mercy' and 'innocence' are concepts paraded by the unenlightened; spill their blood without guilt, so that the world may yet be remade in Her image."
+	icon_state = "agauntlets"
+	smeltresult = /obj/item/ingot/aaslag
+
+/obj/item/clothing/gloves/roguetown/plate/ancient/decrepit
 	name = "decrepit plate gauntlets"
 	desc = "Frayed bronze mechanisms, connected to form the shells of hands. Too clumsy to properly knock a bow, too rigid to comfortably grip a sword; clench those fists any tighter, and the segments'll cut into flesh."
 	icon_state = "agauntlets"
 	max_integrity = ARMOR_INT_SIDE_DECREPIT
 	color = "#bb9696"
-	smeltresult = /obj/item/ingot/aaslag
 	anvilrepair = null
-
-/obj/item/clothing/gloves/roguetown/plate/paalloy
-	name = "ancient plate gauntlets"
-	desc = "Polished gilbranze mechanisms, meticulously interconnected to shroud splayed hands. 'Mercy' and 'innocence' are concepts paraded by the unenlightened; spill their blood without guilt, so that the world may yet be remade in Her image."
-	icon_state = "agauntlets"
-	smeltresult = /obj/item/ingot/aaslag
 
 /obj/item/clothing/gloves/roguetown/plate/graggar
 	name = "vicious gauntlets"
@@ -47,7 +46,7 @@
 	max_integrity = ARMOR_INT_SIDE_ANTAG
 	icon_state = "graggarplategloves"
 
-/obj/item/clothing/gloves/roguetown/plate/graggar/Initialize()
+/obj/item/clothing/gloves/roguetown/plate/graggar/Initialize(mapload)
 	. = ..()
 	AddComponent(/datum/component/cursed_item, TRAIT_HORDE, "ARMOR", "RENDERED ASUNDER")
 
@@ -56,8 +55,9 @@
 	desc = "Many a man his life hath sold,"
 	icon_state = "matthiosgloves"
 	max_integrity = ARMOR_INT_SIDE_ANTAG
+	armor = ARMOR_ASCENDANT
 
-/obj/item/clothing/gloves/roguetown/plate/matthios/Initialize()
+/obj/item/clothing/gloves/roguetown/plate/matthios/Initialize(mapload)
 	. = ..()
 	ADD_TRAIT(src, TRAIT_NODROP, CURSED_ITEM_TRAIT)
 
@@ -73,8 +73,9 @@
 	desc = "avantyne plate gauntlets. Called forth from the edge of what should be known. In Her name."
 	icon_state = "zizogauntlets"
 	max_integrity = ARMOR_INT_SIDE_ANTAG
+	armor = ARMOR_ASCENDANT
 
-/obj/item/clothing/gloves/roguetown/plate/zizo/Initialize()
+/obj/item/clothing/gloves/roguetown/plate/zizo/Initialize(mapload)
 	. = ..()
 	ADD_TRAIT(src, TRAIT_NODROP, CURSED_ITEM_TRAIT)
 
@@ -105,8 +106,8 @@
 /obj/item/clothing/gloves/roguetown/plate/kote/attack_right(mob/user)
 	..()
 	if(!picked)
-		var/choice = input(user, "Choose a color.", "Uniform colors") as anything in colorlist
-		var/playerchoice = colorlist[choice]
+		var/choice = input(user, "Choose a color.", "Uniform colors") as anything in GLOB.colorlist
+		var/playerchoice = GLOB.colorlist[choice]
 		picked = TRUE
 		detail_color = playerchoice
 		detail_tag = "_detail"
