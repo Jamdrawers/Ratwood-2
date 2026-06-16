@@ -958,6 +958,7 @@
 #include "code\game\area\mountdecap.dm"
 #include "code\game\area\northcoast.dm"
 #include "code\game\area\roguetownareas.dm"
+#include "code\game\area\spookmanor.dm"
 #include "code\game\area\terrorbog.dm"
 #include "code\game\area\undercoast.dm"
 #include "code\game\area\underdark.dm"
