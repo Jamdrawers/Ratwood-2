@@ -17,6 +17,9 @@
 	cold_protection = HEAD
 	min_cold_protection_temperature = BODYTEMP_COLD_LEVEL_ONE_MAX
 
+/obj/item/clothing/head/roguetown/paddedcap/ComponentInitialize()
+	AddComponent(/datum/component/armour_filtering/positive, TRAIT_FENCERDEXTERITY)
+
 /obj/item/clothing/head/roguetown/helmet/leather
 	slot_flags = ITEM_SLOT_HEAD|ITEM_SLOT_HIP
 	name = "leather helmet"
@@ -34,6 +37,50 @@
 	salvage_result = /obj/item/natural/hide/cured
 	cold_protection = HEAD
 	min_cold_protection_temperature = BODYTEMP_COLD_LEVEL_ONE_MAX
+
+/obj/item/clothing/head/roguetown/helmet/leather/ComponentInitialize() //they could already use this, this just makes the examine say so.
+	AddComponent(/datum/component/armour_filtering/positive, TRAIT_FENCERDEXTERITY)
+
+/obj/item/clothing/head/roguetown/helmet/leather/chapeau
+	name = "Chapeau a Naled"
+	desc = "A leather cap, armored with layers of especially crafted armored coins each baring wards against supernatural forces. The heavy closeable, face-obscuring flaps are both practical, to protect from sand and dust and frigid nights--and to ensure the Otavan aids were not violating Naledi customs with their uncovered faces.</br>They are heavily associated with the Poet-Historian Aalis Petit and her writings and songs about the campaign into Naledi and through her, adventurous bards of Otava. "
+	icon_state = "chapnaled"
+	armor = ARMOR_LEATHER_STUDDED//description refrences armored coins, sounds like studded armor to me
+	var/open_wear = TRUE
+	flags_inv = HIDEHAIR
+	body_parts_covered = HEAD|HAIR|EARS
+
+/obj/item/clothing/head/roguetown/helmet/leather/chapeau/attack_right(mob/user)
+	switch(open_wear)
+		if(FALSE)
+			icon_state = "chapnaledalt"
+			item_state = "chapnaledalt"
+			open_wear = TRUE
+			flags_inv = HIDESNOUT|HIDEHAIR
+			body_parts_covered_dynamic = HEAD|HAIR|FACE
+		if(TRUE)
+			icon_state = "chapnaled"
+			item_state = "chapnaled"
+			open_wear = FALSE
+			flags_inv = HIDEHAIR
+			body_parts_covered_dynamic = HEAD|HAIR|EARS
+	update_icon()
+	if(user)
+		if(ishuman(user))
+			var/mob/living/carbon/H = user
+			H.update_inv_head()
+
+//only the open cut has a snouted sprite, so the suffix hangs off the current look
+/obj/item/clothing/head/roguetown/helmet/leather/chapeau/snout_base_state()
+	return replacetext(icon_state, "_snout", "")
+
+/obj/item/clothing/head/roguetown/helmet/leather/chapeau/AltRightClick(mob/user)
+	if(!istype(loc, /mob/living/carbon))
+		return
+	var/mob/living/carbon/H = user
+	if(toggle_snout())
+		H.update_inv_head()
+
 
 /obj/item/clothing/head/roguetown/helmet/leather/volfhelm
 	slot_flags = ITEM_SLOT_HEAD|ITEM_SLOT_HIP
@@ -59,6 +106,7 @@
 	body_parts_covered = HEAD|EARS|HAIR|NOSE|EYES
 	experimental_inhand = FALSE
 	experimental_onhip = FALSE
+	dropshrink = null
 
 /obj/item/clothing/head/roguetown/helmet/leather/advanced
 	name = "hardened leather helmet"
@@ -130,14 +178,14 @@
 /obj/item/clothing/head/roguetown/grenzelhofthat/update_icon()
 	cut_overlays()
 	if(get_detail_tag())
-		var/mutable_appearance/pic = mutable_appearance(icon(icon, "[icon_state][detail_tag]"))
+		var/mutable_appearance/pic = mutable_appearance(icon(icon, "[get_detail_state(icon_state)][detail_tag]"))
 		pic.appearance_flags = RESET_COLOR
 		if(get_detail_color())
 			pic.color = get_detail_color()
 		add_overlay(pic)
 
 	if(get_altdetail_tag())
-		var/mutable_appearance/pic2 = mutable_appearance(icon(icon, "[icon_state][altdetail_tag]"))
+		var/mutable_appearance/pic2 = mutable_appearance(icon(icon, "[get_detail_state(icon_state)][altdetail_tag]"))
 		pic2.appearance_flags = RESET_COLOR
 		if(get_altdetail_color())
 			pic2.color = get_altdetail_color()
@@ -154,7 +202,6 @@
 	to_chat(user, span_warning ("The thorns prick me."))
 	user.adjustBruteLoss(4)
 
-//kazengite update
 /obj/item/clothing/head/roguetown/mentorhat
 	name = "worn bamboo hat"
 	desc = "A reinforced bamboo hat."
@@ -165,6 +212,15 @@
 	blocksound = SOFTHIT
 	flags_inv = HIDEEARS
 	body_parts_covered = HEAD|HAIR|EARS|NOSE|EYES
+
+/obj/item/clothing/head/roguetown/mentorhat/ComponentInitialize()
+	AddComponent(/datum/component/armour_filtering/positive, TRAIT_FENCERDEXTERITY)
+
+/obj/item/clothing/head/roguetown/mentorhat/decorative
+	name = "decorative bamboo hat"
+	desc = "A bamboo hat woven for style rather than protection."
+	armor = list("blunt" = 0, "slash" = 0, "stab" = 0, "piercing" = 0, "fire" = 0, "acid" = 0)
+	max_integrity = 100
 
 /obj/item/clothing/head/roguetown/horsey
 	name = "head bit"
@@ -183,7 +239,7 @@
 	icon_state = "studhood"
 	item_state = "studhood"
 	flags_inv =	HIDEHAIR|HIDEEARS|HIDEFACE
-	slot_flags = ITEM_SLOT_HEAD
+	slot_flags = ITEM_SLOT_HEAD|ITEM_SLOT_NECK
 	body_parts_covered = HEAD|EARS|HAIR|NOSE|EYES|NECK
 	//Something between leather and metal helmet, worse than metal helmet by far.
 	armor = list("blunt" = 70, "slash" = 65, "stab" = 60, "piercing" = 20, "fire" = 0, "acid" = 0)
@@ -199,6 +255,7 @@
 	desc = "A thick studded leather hood with buckles."
 	icon_state = "studhood" //make into new sprite
 	item_state = "studhood"
+	slot_flags = ITEM_SLOT_HEAD|ITEM_SLOT_NECK
 	max_integrity = 280
 	//closer to metal helmet but still quite behind, same blunt resist of hardened leather helmet though.
 	armor = ARMOR_LEATHER_STUDDED
@@ -217,6 +274,7 @@
 				var/mob/living/carbon/H = user
 				H.update_inv_head()
 				H.update_inv_neck()
+				H.update_inv_wear_mask()
 		else if(adjustable == CADJUSTED)
 			ResetAdjust(user)
 			if(user)
@@ -224,3 +282,4 @@
 					var/mob/living/carbon/H = user
 					H.update_inv_head()
 					H.update_inv_neck()
+					H.update_inv_wear_mask()

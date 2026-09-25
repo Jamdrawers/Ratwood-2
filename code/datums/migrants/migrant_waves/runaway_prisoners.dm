@@ -3,39 +3,16 @@
 /datum/migrant_wave/runaway_prisoners
 	name = "Runaway Prisoners"
 	max_spawns = 1
-	shared_wave_type = /datum/migrant_wave/runaway_prisoners
-	downgrade_wave = /datum/migrant_wave/runaway_prisoners_down_one
 	weight = 50
-	roles = list(
-		/datum/migrant_role/runaway_prisoner = 4
+	track = MIGRANT_TRACK_SPECIAL
+	required_roles = list(
+		/datum/migrant_role/runaway_prisoner = 1,
 	)
+	optional_roles = list(
+		/datum/migrant_role/runaway_prisoner = 4,
+	)
+	min_optional_fills = 0
 	greet_text = "You've been rotting for years in a cell. Though you escaped, you have nothing - your body atrophied, your mind dulled. But one thing you kknow clearlyu - you are not going back." 
-
-/datum/migrant_wave/runaway_prisoners_down_one
-	name = "Runaway Prisoners"
-	can_roll = FALSE
-	shared_wave_type = /datum/migrant_wave/runaway_prisoners
-	downgrade_wave = /datum/migrant_wave/runaway_prisoners_down_two
-	roles = list(
-		/datum/migrant_role/runaway_prisoner = 3
-	)
-
-/datum/migrant_wave/runaway_prisoners_down_two
-	name = "Runaway Prisoners"
-	can_roll = FALSE
-	shared_wave_type = /datum/migrant_wave/runaway_prisoners
-	downgrade_wave = /datum/migrant_wave/runaway_prisoners_down_three
-	roles = list(
-		/datum/migrant_role/runaway_prisoner = 2
-	)
-
-/datum/migrant_wave/runaway_prisoners_down_three
-	name = "Runaway Prisoners"
-	can_roll = FALSE
-	shared_wave_type = /datum/migrant_wave/runaway_prisoners
-	roles = list(
-		/datum/migrant_role/runaway_prisoner = 1
-	)
 
 /datum/migrant_role/runaway_prisoner
 	name = "Escaped Prisoner"
@@ -154,9 +131,10 @@
 	var/descriptor_body = build_coalesce_description_nofluff(d_list, H, list(MOB_DESCRIPTOR_SLOT_BODY), "%DESC1%")
 	var/descriptor_voice = build_coalesce_description_nofluff(d_list, H, list(MOB_DESCRIPTOR_SLOT_VOICE), "%DESC1%")
 	var/my_crime = input(H, "What is your crime?", "Crime") as text|null
+	var/realmname = SSmapping.map_adjustment.realm_name
 	if (!my_crime)
 		my_crime = "crimes against the Crown"
-	add_bounty(H.real_name, race, gender, descriptor_height, descriptor_body, descriptor_voice, rand(100, 200), FALSE, my_crime, "The Justiciary of Rotwood Vale")
+	add_bounty(H.real_name, race, gender, descriptor_height, descriptor_body, descriptor_voice, rand(100, 200), FALSE, my_crime, "The Justiciary of [realmname]")
 	if(should_wear_femme_clothes(H))
 		shirt = /obj/item/clothing/suit/roguetown/shirt/dress/gen/random
 	else if(should_wear_masc_clothes(H))
@@ -175,9 +153,10 @@
 	var/descriptor_body = build_coalesce_description_nofluff(d_list, H, list(MOB_DESCRIPTOR_SLOT_BODY), "%DESC1%")
 	var/descriptor_voice = build_coalesce_description_nofluff(d_list, H, list(MOB_DESCRIPTOR_SLOT_VOICE), "%DESC1%")
 	var/my_crime = input(H, "What is your crime?", "Crime") as text|null
+	var/realmname = SSmapping.map_adjustment.realm_name
 	if (!my_crime)
 		my_crime = "crimes against the Crown"
-	add_bounty(H.real_name, race, gender, descriptor_height, descriptor_body, descriptor_voice, rand(100, 200), FALSE, my_crime, "The Justiciary of Rotwood Vale")
+	add_bounty(H.real_name, race, gender, descriptor_height, descriptor_body, descriptor_voice, rand(100, 200), FALSE, my_crime, "The Justiciary of [realmname]")
 	if(should_wear_femme_clothes(H))
 		shirt = /obj/item/clothing/suit/roguetown/shirt/dress/gen/random
 	else if(should_wear_masc_clothes(H))
@@ -196,9 +175,10 @@
 	var/descriptor_body = build_coalesce_description_nofluff(d_list, H, list(MOB_DESCRIPTOR_SLOT_BODY), "%DESC1%")
 	var/descriptor_voice = build_coalesce_description_nofluff(d_list, H, list(MOB_DESCRIPTOR_SLOT_VOICE), "%DESC1%")
 	var/my_crime = input(H, "What is your crime?", "Crime") as text|null
+	var/realmname = SSmapping.map_adjustment.realm_name
 	if (!my_crime)
 		my_crime = "crimes against the Crown"
-	add_bounty(H.real_name, race, gender, descriptor_height, descriptor_body, descriptor_voice, rand(100, 200), FALSE, my_crime, "The Justiciary of Rotwood Vale")
+	add_bounty(H.real_name, race, gender, descriptor_height, descriptor_body, descriptor_voice, rand(100, 200), FALSE, my_crime, "The Justiciary of [realmname]")
 	if(should_wear_femme_clothes(H))
 		shirt = /obj/item/clothing/suit/roguetown/shirt/dress/gen/random
 	else if(should_wear_masc_clothes(H))

@@ -1,5 +1,4 @@
-#define DEAD_TO_ZOMBIE_TIME 7 MINUTES	//Time before death -> raised as zombie (when outside of the city)
-										//(This isn't exact time. Extended 5 -> 7 because only takes 2-3 min in testing at 5.)
+// DEAD_TO_ZOMBIE_TIME lives in __DEFINES/mobs.dm, the ghost lock in observer.dm uses it too
 
 /datum/component/rot
 	var/amount = 0
@@ -20,7 +19,7 @@
 
 /datum/component/rot/Destroy()
 	if(soundloop)
-		soundloop.stop()
+		QDEL_NULL(soundloop)
 	. = ..()
 
 /datum/component/rot/process()
@@ -157,5 +156,3 @@
 	mid_length = 60
 	volume = 50
 	extra_range = 0
-
-#undef DEAD_TO_ZOMBIE_TIME

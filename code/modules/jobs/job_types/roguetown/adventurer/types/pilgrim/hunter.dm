@@ -1,4 +1,5 @@
 /datum/advclass/hunter
+	townie_contract_gate_exempt = TRUE
 	name = "Bow-Hunter"
 	tutorial = "You are a hunter. With your bow you hunt the fauna of the glade, skinning what you kill and cooking any meat left over. The job is dangerous but important in the circulation of clothing and light armor."
 	allowed_sexes = list(MALE, FEMALE)
@@ -15,11 +16,12 @@
 		STATKEY_SPD = 1
 	)
 	subclass_skills = list(
-		/datum/skill/combat/swords = SKILL_LEVEL_APPRENTICE,
+		/datum/skill/combat/swords = SKILL_LEVEL_NOVICE,
 		/datum/skill/combat/axes = SKILL_LEVEL_NOVICE,
 		/datum/skill/combat/crossbows = SKILL_LEVEL_APPRENTICE,
 		/datum/skill/combat/bows = SKILL_LEVEL_EXPERT,
 		/datum/skill/combat/slings = SKILL_LEVEL_APPRENTICE,
+		/datum/skill/misc/athletics = SKILL_LEVEL_JOURNEYMAN,
 		/datum/skill/combat/wrestling = SKILL_LEVEL_APPRENTICE,
 		/datum/skill/combat/unarmed = SKILL_LEVEL_APPRENTICE,
 		/datum/skill/combat/knives = SKILL_LEVEL_APPRENTICE,
@@ -31,7 +33,6 @@
 		/datum/skill/labor/fishing = SKILL_LEVEL_NOVICE,
 		/datum/skill/craft/sewing = SKILL_LEVEL_APPRENTICE,
 		/datum/skill/labor/butchering = SKILL_LEVEL_EXPERT,
-		/datum/skill/craft/traps = SKILL_LEVEL_JOURNEYMAN,
 		/datum/skill/misc/medicine = SKILL_LEVEL_APPRENTICE,
 		/datum/skill/craft/cooking = SKILL_LEVEL_NOVICE,
 		/datum/skill/misc/tracking = SKILL_LEVEL_JOURNEYMAN,
@@ -45,12 +46,10 @@
 	shoes = /obj/item/clothing/shoes/roguetown/boots/leather
 	neck = /obj/item/storage/belt/rogue/pouch/coins/poor
 	cloak = /obj/item/clothing/cloak/raincloak/furcloak/brown
-	backr = /obj/item/storage/backpack/rogue/satchel
-	backl = /obj/item/gun/ballistic/revolver/grenadelauncher/bow/recurve
+	backr = /obj/item/gun/ballistic/revolver/grenadelauncher/bow/recurve
+	backl = /obj/item/storage/backpack/rogue/backpack
 	belt = /obj/item/storage/belt/rogue/leather
 	beltr = /obj/item/quiver/arrows
-	beltl = /obj/item/rogueweapon/scabbard/sword
-	l_hand = /obj/item/rogueweapon/sword/short/messer/iron
 	r_hand = /obj/item/storage/meatbag
 	backpack_contents = list(
 				/obj/item/flint = 1,
@@ -60,7 +59,7 @@
 				/obj/item/rogueweapon/scabbard/sheath = 1
 				)
 	gloves = /obj/item/clothing/gloves/roguetown/fingerless_leather
-	if(SSmapping.config.map_name == "Desert Town")
+	if(SSmapping.current_map.map_name == "Desert Town")
 		shoes = /obj/item/clothing/shoes/roguetown/shalal
 		shirt = /obj/item/clothing/suit/roguetown/shirt/dress/thawb/random
 		armor = /obj/item/clothing/suit/roguetown/shirt/robe/bisht/bluegrey
@@ -72,6 +71,17 @@
 		H.adjust_skillrank_up_to(/datum/skill/craft/tanning, 4, TRUE)
 	if(H.mind)
 		H.mind.AddSpell(new /obj/effect/proc_holder/spell/invoked/huntersyell)
+		var/weapons = list("Machete","Hatchet")
+		var/weapon_choice = input(H, "Choose your weapon.", "TAKE UP ARMS") as anything in weapons
+		H.set_blindness(0)
+		switch(weapon_choice)
+			if("Machete")
+				beltl = /obj/item/rogueweapon/scabbard/sword
+				l_hand = /obj/item/rogueweapon/sword/short/messer/iron
+				H.adjust_skillrank_up_to(/datum/skill/combat/swords, 2, TRUE)
+			if("Hatchet")
+				beltl = /obj/item/rogueweapon/stoneaxe/handaxe
+				H.adjust_skillrank_up_to(/datum/skill/combat/axes, 2, TRUE)
 
 /datum/advclass/hunter/spear
 	name = "Spear-Hunter"
@@ -87,8 +97,10 @@
 	subclass_skills = list(
 		/datum/skill/combat/wrestling = SKILL_LEVEL_JOURNEYMAN,
 		/datum/skill/combat/unarmed = SKILL_LEVEL_JOURNEYMAN,
+		/datum/skill/misc/athletics = SKILL_LEVEL_JOURNEYMAN,
 		/datum/skill/combat/knives = SKILL_LEVEL_JOURNEYMAN,
 		/datum/skill/combat/polearms = SKILL_LEVEL_JOURNEYMAN,
+		/datum/skill/combat/axes = SKILL_LEVEL_APPRENTICE,
 		/datum/skill/misc/swimming = SKILL_LEVEL_JOURNEYMAN,
 		/datum/skill/misc/climbing = SKILL_LEVEL_JOURNEYMAN,
 		/datum/skill/craft/crafting = SKILL_LEVEL_APPRENTICE,
@@ -97,7 +109,6 @@
 		/datum/skill/labor/fishing = SKILL_LEVEL_NOVICE,
 		/datum/skill/craft/sewing = SKILL_LEVEL_APPRENTICE,
 		/datum/skill/labor/butchering = SKILL_LEVEL_EXPERT,
-		/datum/skill/craft/traps = SKILL_LEVEL_JOURNEYMAN,
 		/datum/skill/misc/medicine = SKILL_LEVEL_APPRENTICE,
 		/datum/skill/craft/cooking = SKILL_LEVEL_NOVICE,
 		/datum/skill/misc/tracking = SKILL_LEVEL_JOURNEYMAN,
@@ -123,10 +134,11 @@
 				/obj/item/flint = 1,
 				/obj/item/bait = 1,
 				/obj/item/rogueweapon/huntingknife = 1,
-				/obj/item/rogueweapon/scabbard/sheath = 1
+				/obj/item/rogueweapon/scabbard/sheath = 1,
+				/obj/item/rogueweapon/stoneaxe/handaxe
 				)
 	gloves = /obj/item/clothing/gloves/roguetown/fingerless_leather
-	if(SSmapping.config.map_name == "Desert Town")
+	if(SSmapping.current_map.map_name == "Desert Town")
 		shoes = /obj/item/clothing/shoes/roguetown/shalal
 		shirt = /obj/item/clothing/suit/roguetown/shirt/dress/thawb/random
 		armor = /obj/item/clothing/suit/roguetown/shirt/robe/bisht/bluegrey

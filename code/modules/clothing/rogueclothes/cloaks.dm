@@ -80,6 +80,23 @@
 	user.update_inv_cloak()
 	user.update_inv_armor()
 
+/obj/item/clothing/cloak/reformtabard
+	name = "reformist tabard"
+	desc = "A white psycross on black background. A tabard worn by the mourning, daring to live on despite their endless grief. May our memory of HIM mend our bleeding hearts."
+	icon_state = "reformtabard"
+	item_state = "reformtabard"
+	mob_overlay_icon = 'icons/roguetown/clothing/onmob/cloaks.dmi'
+	alternate_worn_layer = TABARD_LAYER
+	body_parts_covered = CHEST|GROIN
+	boobed = TRUE
+	slot_flags = ITEM_SLOT_SHIRT|ITEM_SLOT_ARMOR|ITEM_SLOT_CLOAK
+	flags_inv = HIDECROTCH|HIDEBOOB
+	var/overarmor = TRUE
+	cold_protection = null
+	min_cold_protection_temperature = BODYTEMP_NORMAL_MIN
+	heat_protection = null
+	max_heat_protection_temperature = BODYTEMP_NORMAL_MAX
+
 /obj/item/clothing/cloak/psydontabard
 	name = "psydonian tabard"
 	desc = "A tabard worn by Psydon's disciples. Delicate stitchwork professes the psycross with pride."
@@ -426,6 +443,31 @@
 /obj/item/clothing/cloak/tabard/retinue/captain //Because of his other snowflake cloak we can't actually use the naming normally.
 	name = "captain's tabard"
 
+/obj/item/clothing/cloak/tabard/retinue/baronycloak
+	desc = "A tabard with the baron's heraldic colors."
+
+/obj/item/clothing/cloak/tabard/retinue/baronycloak/Initialize(mapload)
+	. = ..()
+	GLOB.lordcolor -= src
+	if(GLOB.baronprimary)
+		baronycolor(GLOB.baronprimary,GLOB.baronsecondary)
+	GLOB.baronycolor += src
+
+/obj/item/clothing/cloak/tabard/retinue/baronycloak/lordcolor(primary,secondary)
+	return //ignores the ducal scheme, only the barony one applies
+
+/obj/item/clothing/cloak/tabard/retinue/baronycloak/baronycolor(primary,secondary)
+	color = primary
+	detail_color = secondary
+	update_icon()
+	if(ismob(loc))
+		var/mob/L = loc
+		L.update_inv_cloak()
+
+/obj/item/clothing/cloak/tabard/retinue/baronycloak/Destroy()
+	GLOB.baronycolor -= src
+	return ..()
+
 //////////////////////////
 /// SOLDIER TABARD
 ////////////////////////
@@ -771,6 +813,31 @@
 	GLOB.lordcolor -= src
 	return ..()
 
+/obj/item/clothing/cloak/lordcloak/baronycloak
+	name = "Barony Cloak"
+	desc = "A cloak in the heraldic colors of the Lowtown Barony."
+
+/obj/item/clothing/cloak/lordcloak/baronycloak/lordcolor(primary,secondary)
+	return //ignores the ducal scheme, only the barony one applies
+
+/obj/item/clothing/cloak/lordcloak/baronycloak/baronycolor(primary,secondary)
+	detail_color = primary
+	update_icon()
+	if(ismob(loc))
+		var/mob/L = loc
+		L.update_inv_cloak()
+
+/obj/item/clothing/cloak/lordcloak/baronycloak/Initialize(mapload)
+	. = ..()
+	GLOB.lordcolor -= src
+	if(GLOB.baronprimary)
+		baronycolor(GLOB.baronprimary,GLOB.baronsecondary)
+	GLOB.baronycolor += src
+
+/obj/item/clothing/cloak/lordcloak/baronycloak/Destroy()
+	GLOB.baronycolor -= src
+	return ..()
+
 /obj/item/clothing/cloak/darkcloak
 	name = "dark cloak"
 	desc = "It'll warm up your flesh, but not your cold, dead heart."
@@ -813,7 +880,7 @@
 
 /obj/item/clothing/cloak/darkcloak/bear/wardenmaster
 	name = "Warden trophy-cloak"
-	desc = "Made from the mightiest, most ferocious black direbear pelt. The mark of a distinguished huntsman."
+	desc = "Made from the mightiest, most ferocious black direbear pelt. The mark of a distinguished huntsman, it is clasped with a pin of the Lowtown Baron."
 	sellprice = 80
 	color = "#99a39d"
 
@@ -856,6 +923,7 @@
 	min_cold_protection_temperature = BODYTEMP_NORMAL_MIN
 	heat_protection = null
 	max_heat_protection_temperature = BODYTEMP_NORMAL_MAX
+	dropshrink = null
 
 /obj/item/clothing/cloak/apron/blacksmith
 	name = "leather apron"
@@ -950,6 +1018,9 @@
 /obj/item/clothing/cloak/raincloak/darkdrab
 	color = CLOTHING_DARKDRAB
 
+/obj/item/clothing/cloak/raincloak/white
+	color = CLOTHING_WHITE
+
 /obj/item/clothing/head/hooded/rainhood
 	name = "hood"
 	desc = "This one will shelter me from the weather and my identity too."
@@ -1036,6 +1107,9 @@
 
 /obj/item/clothing/cloak/cape/guard
 	color = CLOTHING_AZURE
+
+/obj/item/clothing/cloak/cape/red
+	color = CLOTHING_RED
 
 /obj/item/clothing/cloak/cape/guard/Initialize(mapload)
 	. = ..()
@@ -1236,6 +1310,10 @@
 	heat_protection = CHEST | ARM_RIGHT | ARM_LEFT
 	max_heat_protection_temperature = 600
 
+/obj/item/clothing/cloak/shadowcloak/vanguard
+	name = "vanguard cloak"
+	desc = "A dark cloak, clasped with a pin of the Lowtown Baron. Worn by the Vanguard"
+
 /obj/item/clothing/cloak/thief_cloak
 	name = "rapscallion's shawl"
 	desc = "A simple shawl clasped with an ersatz fastener. Practical and functional, though the fabric is rough and wearing bare."
@@ -1345,17 +1423,19 @@
 	desc = "A warm cloak made using the hide and head of a slain volf. A status symbol if ever there was one."
 	icon_state = "volfpelt"
 	item_state = "volfpelt"
+	alternate_worn_layer = CLOAK_BEHIND_LAYER
+	slot_flags = ITEM_SLOT_BACK_R|ITEM_SLOT_CLOAK
+	mob_overlay_icon = 'icons/roguetown/clothing/onmob/cloaks.dmi'
 	sleeved = 'icons/roguetown/clothing/onmob/cloaks.dmi'
 	sleevetype = "shirt"
 	inhand_mod = FALSE
-	slot_flags = ITEM_SLOT_BACK_R|ITEM_SLOT_CLOAK
-	flags_inv = HIDECROTCH|HIDEBOOB
 	salvage_result = /obj/item/natural/hide/cured
 	salvage_amount = 1
 	cold_protection = CHEST | GROIN | ARM_LEFT | ARM_RIGHT
 	min_cold_protection_temperature = 50
 	heat_protection = null
 	max_heat_protection_temperature = BODYTEMP_NORMAL_MAX
+	dropshrink = null
 
 /obj/item/clothing/cloak/wickercloak
 	name = "wicker cloak"
@@ -1388,6 +1468,7 @@
 	min_cold_protection_temperature = BODYTEMP_COLD_LEVEL_ONE_MAX
 	heat_protection = null
 	max_heat_protection_temperature = BODYTEMP_NORMAL_MAX
+	dropshrink = null
 
 /obj/item/clothing/cloak/lordcloak/ladycloak
 	name = "ladylike shortcloak"
@@ -1563,6 +1644,7 @@
 	icon_state = "bksash"
 	icon = 'icons/roguetown/clothing/special/blkknight.dmi'
 	mob_overlay_icon = 'icons/roguetown/clothing/special/onmob/blkknight.dmi'
+	dropshrink = null
 
 /obj/item/clothing/under/roguetown/platelegs/blk
 	name = "blacksteel legs"
@@ -1669,6 +1751,23 @@
 	icon_state = "naledisash"
 	item_state = "naledisash"
 	desc = "A limp piece of fabric traditionally used to fasten bags that are too baggy, but in modern days has become more of a fashion statement than anything."
+	color = null
+	detail_color = null
+	detail_tag = "_detail"
+	naledicolor = TRUE
+
+/obj/item/clothing/cloak/hierophant/Initialize(mapload)
+	. = ..()
+	update_icon()
+
+/obj/item/clothing/cloak/hierophant/update_icon()
+	cut_overlays()
+	if(get_detail_tag())
+		var/mutable_appearance/pic = mutable_appearance(icon(icon, "[icon_state][detail_tag]"))
+		pic.appearance_flags = RESET_COLOR
+		if(get_detail_color())
+			pic.color = get_detail_color()
+		add_overlay(pic)
 
 /obj/item/clothing/cloak/stabard/grenzelmage
 	name = "grenzelhoftian magos mantle"
@@ -1682,7 +1781,7 @@
 
 /obj/item/clothing/cloak/wardencloak
 	name = "warden cloak"
-	desc = "A cloak worn by the Wardens of the vale's Forests"
+	desc = "A cloak worn by the Wardens of the realm's Forests. It is clasped with a pin of the Lowtown Baron."
 	icon_state = "wardencloak"
 	alternate_worn_layer = CLOAK_BEHIND_LAYER
 	slot_flags = ITEM_SLOT_BACK_R|ITEM_SLOT_CLOAK
@@ -1731,6 +1830,7 @@
 	sleeved = 'icons/roguetown/clothing/onmob/cloaks.dmi'
 	sleevetype = "shirt"
 	inhand_mod = TRUE
+	resistance_flags = FIRE_PROOF
 	cold_protection = CHEST | GROIN | ARM_LEFT | ARM_RIGHT
 	min_cold_protection_temperature = 50
 	heat_protection =  CHEST | GROIN | ARM_LEFT | ARM_RIGHT
@@ -1741,6 +1841,28 @@
 	desc = "A cloak meant to keep one's body warm in the cold of the mountains as well as the dampness of the vale."
 	icon_state = "snowcloak"
 	cold_protection = CHEST | GROIN | ARM_LEFT | ARM_RIGHT
+
+/// Dendor ritual reward variant of the forrester cloak — hallowed by the Treefather.
+/obj/item/clothing/cloak/forrestercloak/blessed
+	name = "blessed forrester cloak"
+	desc = "A forrester cloak hallowed by the Treefather's rite. Living wood fibres are woven through the cloth and it seems to breathe with the quiet life of the forest."
+	color = "#73c47a"
+
+/obj/item/clothing/cloak/forrestercloak/blessed/Initialize(mapload)
+	. = ..()
+	set_light(1, 1, 2, l_color = "#58C86A")
+	add_filter("druid_blessed_glow", 2, list("type" = "outline", "color" = "#58C86A", "alpha" = 95, "size" = 1))
+
+/obj/item/clothing/cloak/forrestercloak/blessed/pickup(mob/user)
+	. = ..()
+	if(!istype(user, /mob/living/carbon/human))
+		return
+	var/mob/living/carbon/human/H = user
+	if(H.patron?.type == /datum/patron/divine/dendor)
+		return
+	H.electrocute_act(30, src)
+	H.mob_timers["kneestinger"] = world.time
+	to_chat(H, span_warning("[name] rejects my grasp — only the Treefather's faithful may bear such a gift!"))
 
 /obj/item/clothing/cloak/poncho
 	name = "cloth poncho"
@@ -1843,7 +1965,7 @@
 	var/overarmor = TRUE
 
 /obj/item/clothing/cloak/cotehardie/Initialize(mapload)
-	..()
+	. = ..()
 	update_icon()
 
 /obj/item/clothing/cloak/cotehardie/MiddleClick(mob/user)
@@ -1858,7 +1980,7 @@
 
 /obj/item/clothing/cloak/captain
 	name = "captain's cape"
-	desc = "A cape with a gold embroided heraldry of the vale."
+	desc = "A cape with a gold embroided heraldry of the realm."
 	icon = 'icons/roguetown/clothing/special/captain.dmi'
 	mob_overlay_icon = 'icons/roguetown/clothing/special/onmob/captain.dmi'
 	sleeved = 'icons/roguetown/clothing/special/onmob/captain.dmi'
@@ -1891,7 +2013,7 @@
 
 /obj/item/clothing/cloak/kazengun
 	name = "jinbaori"
-	desc = "A simple kind of Kazengunite surcoat, worn here in the distant battlefields of Rotwood Vale to differentiate friend from foe."
+	desc = "A simple kind of Kazengunite surcoat, worn here in these distant battlefields, so far from its homelands, to differentiate friend from foe."
 	icon_state = "kazenguncoat"
 	item_state = "kazenguncoat"
 	detail_tag = "_detail"
@@ -1926,6 +2048,7 @@
 	min_cold_protection_temperature = BODYTEMP_COLD_LEVEL_ONE_MAX
 	heat_protection = CHEST | ARM_RIGHT | ARM_LEFT
 	max_heat_protection_temperature = 600
+	dropshrink = null
 
 /obj/item/clothing/cloak/citywatch
 	name = "citywatch cape"
@@ -1939,8 +2062,8 @@
 /obj/item/clothing/cloak/citywatchcaptain
 	name = "citywatch captain's cloak"
 	desc = "A most handsome cloak, denoting a certain superlative cosmipolitan authority"
-	icon_state = "shortcloak"
-	item_state = "shortcloak"
+	icon_state = "sheriffcloak"
+	item_state = "sheriffcloak"
 	alternate_worn_layer = CLOAK_BEHIND_LAYER
 	slot_flags = ITEM_SLOT_BACK_R|ITEM_SLOT_CLOAK
 	boobed = TRUE

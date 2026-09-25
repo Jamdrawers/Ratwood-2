@@ -133,7 +133,6 @@
 	H.adjust_skillrank(/datum/skill/craft/masonry, 1, TRUE)
 	H.adjust_skillrank(/datum/skill/craft/engineering, 3, TRUE)
 	H.adjust_skillrank(/datum/skill/misc/reading, 2, TRUE)
-	H.adjust_skillrank(/datum/skill/craft/traps, 1, TRUE)
 	H.adjust_skillrank(/datum/skill/labor/lumberjacking, 3, TRUE)
 	H.adjust_skillrank(/datum/skill/misc/medicine, 1, TRUE)
 	H.change_stat("strength", 1)
@@ -196,7 +195,6 @@
 	H.adjust_skillrank(/datum/skill/labor/fishing, 1, TRUE)
 	H.adjust_skillrank(/datum/skill/craft/sewing, 2, TRUE)
 	H.adjust_skillrank(/datum/skill/labor/butchering, 3, TRUE)
-	H.adjust_skillrank(/datum/skill/craft/traps, 1, TRUE)
 	H.adjust_skillrank(/datum/skill/misc/medicine, 1, TRUE)
 	H.adjust_skillrank(/datum/skill/craft/cooking, 1, TRUE)
 	H.adjust_skillrank(/datum/skill/misc/tracking, 3, TRUE)
@@ -440,7 +438,6 @@
 	H.adjust_skillrank(/datum/skill/misc/swimming, 1, TRUE)
 	H.adjust_skillrank(/datum/skill/misc/climbing, 2, TRUE)
 	H.adjust_skillrank(/datum/skill/craft/crafting, 2, TRUE)
-	H.adjust_skillrank(/datum/skill/craft/traps, 2, TRUE)
 	H.adjust_skillrank(/datum/skill/craft/engineering, 1, TRUE)
 	H.adjust_skillrank(/datum/skill/craft/carpentry, 1, TRUE)
 	H.adjust_skillrank(/datum/skill/craft/masonry, 3, TRUE)
@@ -453,6 +450,7 @@
 	H.change_stat("constitution", 2)
 	H.change_stat("fortune", 2)
 	ADD_TRAIT(H, TRAIT_DARKVISION, TRAIT_GENERIC)
+	ADD_TRAIT(H, TRAIT_LEGENDARY_MINER, TRAIT_GENERIC)
 
 /datum/advclass/prisoner_woodcutter
 	parent_type = /datum/advclass

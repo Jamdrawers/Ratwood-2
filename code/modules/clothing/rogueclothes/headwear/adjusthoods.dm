@@ -56,11 +56,11 @@
 
 /obj/item/clothing/head/roguetown/roguehood/random/Initialize(mapload)
 	color = pick("#544236", "#435436", "#543836", "#79763f")
-	..()
+	return ..()
 
 /obj/item/clothing/head/roguetown/roguehood/mage/Initialize(mapload)
 	color = pick("#4756d8", "#759259", "#bf6f39", "#c1b144", "#b8252c")
-	..()
+	return ..()
 
 /obj/item/clothing/head/roguetown/roguehood/reinforced
 	name = "reinforced hood"
@@ -84,7 +84,6 @@
 	icon = 'icons/roguetown/clothing/head.dmi'
 	mob_overlay_icon = 'icons/roguetown/clothing/onmob/head.dmi' //Overrides slot icon behavior
 	alternate_worn_layer  = 8.9 //On top of helmet
-	body_parts_covered = HEAD|HAIR|EARS|NECK
 	slot_flags = ITEM_SLOT_HEAD|ITEM_SLOT_MASK
 	dynamic_hair_suffix = ""
 	edelay_type = 1
@@ -101,9 +100,6 @@
 	heat_protection = HEAD
 	max_heat_protection_temperature = 600
 
-/obj/item/clothing/neck/roguetown/roguehood/shalal/ComponentInitialize()
-	AddComponent(/datum/component/adjustable_clothing, HEAD|EARS|NECK|HAIR, HIDEHAIR|HIDEFACE, null, null, null, (UPD_HEAD|UPD_MASK|UPD_NECK))
-
 /obj/item/clothing/head/roguetown/roguehood/shalal/black
 	color = CLOTHING_BLACK
 
@@ -115,13 +111,9 @@
 	desc = "Flowing like blood from a wound, this tithe of cloth-and-silk spills out to the shoulders. It carries the telltale mark of Naledian stitcheries."
 	item_state = "hijab"
 	icon_state = "deserthood"
-	hidesnoutADJ = FALSE
 	flags_inv = HIDEEARS|HIDEHAIR	//Does not hide face.
 	slot_flags = ITEM_SLOT_HEAD|ITEM_SLOT_MASK|ITEM_SLOT_NECK
 	block2add = null
-
-/obj/item/clothing/neck/roguetown/roguehood/shalal/hijab/ComponentInitialize()
-	AddComponent(/datum/component/adjustable_clothing, NECK, null, null, null, null, (UPD_HEAD|UPD_MASK|UPD_NECK))
 
 /obj/item/clothing/head/roguetown/roguehood/shalal/hijab/zyb
 	name = "padded headscarf"
@@ -143,12 +135,14 @@
 	slot_flags = ITEM_SLOT_HEAD|ITEM_SLOT_MASK|ITEM_SLOT_NECK
 	item_state = "heavyhood"
 	icon_state = "heavyhood"
-	hidesnoutADJ = FALSE
 	nudist_approved = TRUE
 	cold_protection = HEAD
 	min_cold_protection_temperature = 50
 	heat_protection = null
 	max_heat_protection_temperature = BODYTEMP_NORMAL_MAX
+
+/obj/item/clothing/head/roguetown/roguehood/shalal/heavyhood/blue
+	color = CLOTHING_BLUE
 
 /obj/item/clothing/head/roguetown/roguehood/shalal/hijab/yoruku
 	name = "shadowed hood"
@@ -327,11 +321,13 @@
 	max_integrity = 200
 	salvage_result = /obj/item/natural/cloth
 	salvage_amount = 1
+	resistance_flags = FIRE_PROOF
 
 /obj/item/clothing/head/roguetown/roguehood/hierophant
 	name = "hierophant's pashmina"
 	desc = "A thick hood that covers one's entire head, should they desire, or merely acts as a scarf otherwise. Made with spell-laced fabric to provide some protection against daemons and mortals alike."
 	max_integrity = 100
+	resistance_flags = FIRE_PROOF
 	prevent_crits = list(BCLASS_CUT, BCLASS_BLUNT, BCLASS_TWIST)
 	armor = ARMOR_SPELLSINGER
 	icon_state = "deserthood"
@@ -345,6 +341,7 @@
 	name = "pontifex's pashmina"
 	desc = "A slim hood with thin, yet dense fabric. Stretchy and malleable, allowing for full flexibility and mobility. Made with spell-laced fabric to provide some protection against daemons and mortals alike."
 	max_integrity = 100
+	resistance_flags = FIRE_PROOF
 	prevent_crits = list(BCLASS_CUT, BCLASS_BLUNT, BCLASS_TWIST)
 	armor = ARMOR_SPELLSINGER
 	icon_state = "monkhood"

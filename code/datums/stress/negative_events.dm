@@ -7,6 +7,9 @@
 /datum/stressevent/vice/nympho
 	desc = list(span_boldred("I'm feeling randy..."),span_boldred("I need to sate my desires."))
 
+/datum/stressevent/vice/baothamarked
+	desc = list(span_boldred("My brand burns painfully..."),span_boldred("I need to sate this brand's yearning soon."))
+
 /datum/stressevent/vice/sadist
 	desc = list(span_boldred("I need to hear someone whimper."),span_boldred("I crave the suffering of others."))
 
@@ -45,6 +48,21 @@
 	timer = 10 SECONDS
 	stressadd = 2
 	desc = span_red("Smells like death here.")
+
+/datum/stressevent/stinky_aura
+	timer = 1 MINUTES
+	stressadd = 2
+	desc = span_red("Something nearby reeks.")
+
+/datum/stressevent/prominent_scent
+	timer = 1 MINUTES
+	stressadd = 1
+	desc = span_red("There's a prominent scent in the air.")
+
+/datum/stressevent/herald_progress_music
+	timer = 2 MINUTES
+	stressadd = 5
+	desc = span_boldred("This music makes me feel hollow. Something is terribly wrong.")
 
 /datum/stressevent/peckish
 	timer = 10 MINUTES
@@ -164,6 +182,11 @@
 	timer = 5 MINUTES
 	stressadd = 5
 	desc = span_boldred("Oh no! I've received divine punishment!")
+
+/datum/stressevent/treefather_loss
+	timer = 10 MINUTES
+	stressadd = 5
+	desc = span_boldred("The Treefather cries out in grief. A sacred tree has fallen.")
 
 /datum/stressevent/virginchurch
 	timer = INFINITY
@@ -403,7 +426,7 @@
 
 /datum/stressevent/uncanny
 	stressadd = 2
-	desc = span_red("Their face is.. wrong!")
+	desc = span_red("Their face is... wrong!")
 	timer = 3 MINUTES
 
 /datum/stressevent/syoncalamity
@@ -422,13 +445,13 @@
 	timer = INFINITY
 
 /datum/stressevent/excommunicated
-	stressadd = 5
+	stressadd = 10
 	desc = span_boldred("The Ten have forsaken me!")
 	timer = INFINITY
 
 /datum/stressevent/apostasy
-	stressadd = 3
-	desc = span_boldred("The apostasy's mark is upon me!")
+	stressadd = 15
+	desc = span_boldred("I have been decreed an apostate! My connection to the Divine is SEVERED!")
 	timer = INFINITY
 
 /datum/stressevent/heretic_on_sermon
@@ -516,3 +539,30 @@
 	timer = 5 MINUTES
 	stressadd = 1
 	desc = span_red("Xylix took pity upon me and saved me from the consequences of bad luck. I must do better!")
+
+// Prestidigitation water bolt stress events — triggered by being a cat and splashed in the face
+/datum/stressevent/water_splashed_cat
+	timer = 30 SECONDS
+	stressadd = 2
+	desc = span_red("Mrowl! My fur and face is completely drenched. What a humiliating experience.")
+
+/datum/stressevent/water_splashed_noble
+	timer = 30 SECONDS
+	stressadd = 2
+	desc = span_red("The nerve! Water in my face? This indignity is intolerable.")
+
+/datum/stressevent/water_splashed_noble_cat
+	timer = 30 SECONDS
+	stressadd = 4
+	desc = span_boldred("My fur and face is drenched! Not only is this humiliating, but a slight to my noble status!")
+
+/datum/stressevent/stinky_contact
+	timer = 15 MINUTES
+	stressadd = 2
+	desc = span_red("Ugh! That foul stench is all over me! I need to wash it off or wait it out.")
+
+// Indebted charflaw: missed the daily debt payment.
+/datum/stressevent/debt
+	timer = 25 MINUTES
+	stressadd = 3
+	desc = span_red("I couldn't pay my debts in time.")

@@ -31,7 +31,6 @@
 	H.adjust_skillrank(/datum/skill/misc/reading, 1, TRUE)
 
 	H.adjust_skillrank(/datum/skill/craft/crafting, 2, TRUE)
-	H.adjust_skillrank(/datum/skill/craft/traps, 2, TRUE)
 	H.adjust_skillrank(/datum/skill/craft/carpentry, 2, TRUE) //gotta build your farmstead
 	H.adjust_skillrank(/datum/skill/craft/masonry, 1, TRUE)
 	H.adjust_skillrank(/datum/skill/labor/farming, 3, TRUE) //less than a dedicated farmer
@@ -80,7 +79,7 @@
 	outfit = /datum/outfit/job/roguetown/refugee/prospector
 
 	category_tags = list(CTAG_PILGRIM)
-	traits_applied = list(TRAIT_SMITHING_EXPERT, TRAIT_TRAINED_SMITH, TRAIT_HOMESTEAD_EXPERT)
+	traits_applied = list(TRAIT_SMITHING_EXPERT, TRAIT_TRAINED_SMITH, TRAIT_HOMESTEAD_EXPERT, TRAIT_LEGENDARY_MINER)
 	subclass_stats = list(
 		STATKEY_WIL = 2,
 		STATKEY_CON = 2,

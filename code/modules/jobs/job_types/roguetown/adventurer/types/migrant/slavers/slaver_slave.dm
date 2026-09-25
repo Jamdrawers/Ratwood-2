@@ -1,3 +1,8 @@
+/datum/advclass/slaver/slave
+	name = ""
+	category_tags = list()
+	subclass_languages = list(/datum/language/celestial)
+
 /datum/advclass/slaver/slave/service
 	name = "Service Slave"
 	tutorial = "An unlucky slave, captured from their home, moved to the Zybantines and trained for slave labor and obediency, for long enough to where you can only faintly remember who you were before... You are now being transported from the deserts to harsher lands to be sold."
@@ -54,8 +59,6 @@
 			H.adjust_skillrank_up_to(/datum/skill/misc/reading, SKILL_LEVEL_EXPERT, TRUE)
 		if("Commoner(+2 LCK)")
 			H.change_stat(STATKEY_LCK, 2)
-
-	ADD_TRAIT(H, TRAIT_NOBLE,TRAIT_GENERIC)
 
 /datum/advclass/slaver/slave/battle
 	name = "Battle Slave"

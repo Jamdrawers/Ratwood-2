@@ -53,7 +53,6 @@
 				remove_stress(/datum/stressevent/sleepytime)
 				if(mind)
 					mind.sleep_adv.advance_cycle()
-					handle_sleep_triumphs()
 	if(leprosy == 1)
 		adjustToxLoss(2)
 	else if(leprosy == 2)
@@ -79,6 +78,10 @@
 	// Legacy single vice support
 	else if(charflaw && !charflaw.ephemeral && mind)
 		charflaw.flaw_on_life(src)
+
+	// Redolent quirk scent processing
+	if(mind && HAS_TRAIT(src, TRAIT_REDOLENT))
+		handle_redolent_scent()
 	
 	if(health <= 0)
 		adjustOxyLoss(0.5)

@@ -1,4 +1,5 @@
 /datum/advclass/rogue
+	townie_contract_gate_exempt = TRUE
 	name = "Treasure Hunter"
 	tutorial = "You are a treasure hunter trained in hunting for valuables. Discern what is treasure or not, your fortune could be hidden anywhere."
 	allowed_sexes = list(MALE, FEMALE)
@@ -29,7 +30,7 @@
 		/datum/skill/misc/sneaking = SKILL_LEVEL_JOURNEYMAN,
 		/datum/skill/misc/stealing = SKILL_LEVEL_JOURNEYMAN,
 		/datum/skill/misc/lockpicking = SKILL_LEVEL_JOURNEYMAN,
-		/datum/skill/craft/traps = SKILL_LEVEL_JOURNEYMAN,
+		/datum/skill/craft/crafting = SKILL_LEVEL_APPRENTICE,
 	)
 
 /datum/outfit/job/roguetown/adventurer/rogue/pre_equip(mob/living/carbon/human/H)
@@ -93,7 +94,7 @@
 		/datum/skill/misc/sneaking = SKILL_LEVEL_EXPERT,
 		/datum/skill/misc/stealing = SKILL_LEVEL_EXPERT,
 		/datum/skill/misc/lockpicking = SKILL_LEVEL_EXPERT,
-		/datum/skill/craft/traps = SKILL_LEVEL_EXPERT,
+		/datum/skill/craft/crafting = SKILL_LEVEL_APPRENTICE,
 	)
 
 /datum/outfit/job/roguetown/adventurer/thief/pre_equip(mob/living/carbon/human/H)
@@ -112,6 +113,7 @@
 	cloak = /obj/item/clothing/cloak/raincloak/mortus
 	beltl = /obj/item/quiver/Warrows
 	beltr = /obj/item/rogueweapon/mace/cudgel
+	head = /obj/item/clothing/head/roguetown/helmet/leather/armorhood
 	backpack_contents = list(
 		/obj/item/flashlight/flare/torch = 1,
 		/obj/item/rogueweapon/huntingknife/idagger/steel = 1,
@@ -143,7 +145,7 @@
 		/datum/skill/misc/stealing = SKILL_LEVEL_JOURNEYMAN,
 		/datum/skill/misc/music = SKILL_LEVEL_EXPERT,
 		/datum/skill/misc/lockpicking = SKILL_LEVEL_JOURNEYMAN,
-		/datum/skill/craft/traps = SKILL_LEVEL_APPRENTICE,
+		/datum/skill/craft/crafting = SKILL_LEVEL_NOVICE,
 	)
 
 /datum/outfit/job/roguetown/adventurer/bard/pre_equip(mob/living/carbon/human/H)

@@ -21,7 +21,8 @@
 		TRAIT_TOXIMMUNE,
 		TRAIT_STEELHEARTED,
 		TRAIT_NOSLEEP,
-		TRAIT_VAMPMANSION,
+		// TRAIT_VAMPMANSION,
+		TRAIT_LICHLAIR, //Ability to far travel to and from our lair.
 		TRAIT_NOMOOD,
 		TRAIT_NOLIMBDISABLE,
 		TRAIT_SHOCKIMMUNE,
@@ -106,7 +107,7 @@
 	equip_and_traits()
 	L.equipOutfit(/datum/outfit/job/roguetown/lich)
 	L.set_patron(/datum/patron/inhumen/zizo)
-	owner.current.forceMove(pick(GLOB.vlord_starts)) // as opposed to spawning at their normal role spot as a skeleton; which is le bad
+	owner.current.forceMove(pick(GLOB.lich_starts)) // as opposed to spawning at their normal role spot as a skeleton; which is le bad
 
 
 /datum/outfit/job/roguetown/lich/pre_equip(mob/living/carbon/human/H) //Equipment is located below
@@ -283,10 +284,12 @@
 	animate(src, pixel_x = pixel_x + offset, time = 0.2, loop = -1) //start shaking
 	visible_message(span_warning("[src] begins to glow and shake violently!"))
 
-	spawn(timer)
-		possessor.owner.current.forceMove(get_turf(src))
-		possessor.rise_anew()
-		qdel(src)
+	addtimer(CALLBACK(src, PROC_REF(consume_complete)), timer)
+
+/obj/item/phylactery/proc/consume_complete()
+	possessor.owner.current.forceMove(get_turf(src))
+	possessor.rise_anew()
+	qdel(src)
 
 /obj/effect/proc_holder/spell/self/lich_announce
 	name = "Command Will"
@@ -297,7 +300,7 @@
 	if(user.stat)
 		return FALSE
 
-	var/calltext = input("Send Your Will To Your Undead", "UNDEAD ANNOUNCE") as text|null
+	var/calltext = sanitize(input("Send Your Will To Your Undead", "UNDEAD ANNOUNCE") as text|null)
 	if(!calltext)
 		return FALSE
 

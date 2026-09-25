@@ -67,17 +67,11 @@
 
 /obj/item/clothing/suit/roguetown/armor/brigandine/agha
 	name = "Agha Scale"
-	desc = "Fine armor made of treated animal scales, denoting an esteemd career in the dunes."
+	desc = "Fine armor made of treated animal scales, denoting an esteemed career in the dunes."
 	icon_state = "huus"
 	item_state = "huus"
-	armor = ARMOR_LEATHER_STUDDED
-	prevent_crits = list(BCLASS_CUT, BCLASS_STAB, BCLASS_CHOP, BCLASS_BLUNT, BCLASS_TWIST)
-	blocksound = SOFTHIT
-	slot_flags = ITEM_SLOT_ARMOR
-	blade_dulling = DULLING_BASHCHOP
+	armor = ARMOR_BRIGANDINE
 	body_parts_covered = CHEST|GROIN|LEGS|VITALS|ARMS
-	break_sound = 'sound/foley/cloth_rip.ogg'
-	drop_sound = 'sound/foley/dropsound/cloth_drop.ogg'
 	sewrepair = TRUE
 	armor_class = ARMOR_CLASS_MEDIUM
 
@@ -94,6 +88,7 @@
 	flags_inv = HIDEEARS|HIDEFACE|HIDEHAIR|HIDEFACIALHAIR
 	block2add = FOV_BEHIND
 	smeltresult = /obj/item/ingot/steel
+	dropshrink = null
 
 /obj/item/clothing/head/roguetown/helmet/janissaryhelm
 	name = "Janissary Helmet"
@@ -104,6 +99,7 @@
 	max_integrity = 250
 	body_parts_covered = HEAD|HAIR|EARS
 	flags_inv = HIDEEARS|HIDEHAIR
+	dropshrink = null
 
 // /obj/item/clothing/head/roguetown/helmet/janissary
 // 	name = "Janissaries Helm"
@@ -147,7 +143,7 @@
 
 /obj/item/clothing/suit/roguetown/armor/leather/vest/open/random/Initialize()
 	color = pick("#2f51b8", CLOTHING_RED, CLOTHING_ORANGE, CLOTHING_GREEN, CLOTHING_PURPLE)
-	..()
+	return ..()
 
 /obj/item/clothing/suit/roguetown/shirt/robe/bisht
 	slot_flags = ITEM_SLOT_ARMOR|ITEM_SLOT_SHIRT
@@ -184,13 +180,14 @@
 
 /obj/item/clothing/suit/roguetown/shirt/robe/bisht/random/Initialize()
 	color = pick("#989898", "#FFFFFF", "#9c4744", "#2f51b8", "#846145", "#e9c792", CLOTHING_BLACK)
-	..()
+	return ..()
 
 /obj/item/clothing/suit/roguetown/shirt/robe/bisht/bluegrey
 	slot_flags = ITEM_SLOT_ARMOR|ITEM_SLOT_SHIRT
 	name = "grey bisht"
 	icon_state = "bluethawb"
 	item_state = "bluethawb"
+	fiber_salvage = FALSE
 
 /obj/item/clothing/suit/roguetown/shirt/robe/bisht/purple
 	slot_flags = ITEM_SLOT_ARMOR|ITEM_SLOT_SHIRT
@@ -235,6 +232,8 @@
 	mob_overlay_icon = 'modular_deserttown/icons/clothing/onmob/shirts.dmi'
 	icon_state = "thawb"
 	item_state = "thawb"
+	dropshrink = null
+	fiber_salvage = FALSE
 
 /obj/item/clothing/suit/roguetown/shirt/dress/thawb/black
 	color = CLOTHING_BLACK
@@ -258,7 +257,7 @@
 
 /obj/item/clothing/suit/roguetown/shirt/dress/thawb/random/Initialize()
 	color = pick("#989898", "#FFFFFF", "#9c4744", "#2f51b8", "#846145", "#e9c792", CLOTHING_BLACK)
-	..()
+	return ..()
 
 /datum/crafting_recipe/roguetown/sewing/thawb
 	name = "thawb"
@@ -348,6 +347,8 @@
 	mob_overlay_icon = 'modular_deserttown/icons/clothing/onmob/easternclothes.dmi'
 	icon_state = "turban"
 	item_state = "turban"
+	dropshrink = null
+	fiber_salvage = FALSE
 
 /obj/item/clothing/head/roguetown/turban/tan
 	color = "#93714b"
@@ -368,7 +369,7 @@
 
 /obj/item/clothing/head/roguetown/turban/random/Initialize()
 	color = pick("#414141", "#684f41", "#93714b", "#FFFFFF", "#848484")
-	..()
+	return ..()
 
 /datum/crafting_recipe/roguetown/sewing/turban
 	name = "turban"
@@ -463,6 +464,8 @@
 	mob_overlay_icon = 'modular_deserttown/icons/clothing/onmob/pants.dmi'
 	icon_state = "sirwal"
 	item_state = "sirwal"
+	salvage_amount = 1
+	fiber_salvage = FALSE
 
 /obj/item/clothing/under/roguetown/sirwal/beige
 	color = "#edc6a5"
@@ -477,7 +480,7 @@
 
 /obj/item/clothing/under/roguetown/sirwal/plainrandom/Initialize()
 	color = pick("#FFFFFF", "#edc6a5", "#927351", CLOTHING_BLACK)
-	..()
+	return ..()
 
 /obj/item/clothing/under/roguetown/sirwal/fancy
 	color = null
@@ -500,7 +503,7 @@
 
 /obj/item/clothing/under/roguetown/sirwal/fancy/random/Initialize()
 	color = pick(CLOTHING_BLACK, CLOTHING_BLUE, CLOTHING_PURPLE, CLOTHING_RED, CLOTHING_YELLOW)
-	..()
+	return ..()
 
 /datum/crafting_recipe/roguetown/sewing/sirwal
 	name = "sirwal"
@@ -517,6 +520,8 @@
 	icon_state = "thong"
 	item_state = "thong"
 	body_parts_covered = GROIN
+	salvage_amount = 1
+	fiber_salvage = FALSE
 
 /datum/crafting_recipe/roguetown/sewing/thong
 	name = "thong"
@@ -624,7 +629,7 @@
 
 /obj/item/storage/belt/rogue/leather/cloth/sash/random/Initialize()
 	color = pick(CLOTHING_BROWN, CLOTHING_RED, CLOTHING_ORANGE, CLOTHING_YELLOW, CLOTHING_WHITE, CLOTHING_PURPLE)
-	..()
+	return ..()
 	
 /obj/item/storage/belt/rogue/leather/noblesash
 	name = "Zybantine noble sash"
@@ -688,6 +693,7 @@
 	mob_overlay_icon = 'modular_deserttown/icons/clothing/onmob/shirts.dmi'
 	icon_state = "exoticsilkbrag"
 	item_state = "exoticsilkbrag"
+	dropshrink = null
 
 /datum/crafting_recipe/roguetown/sewing/bragreen
 	name = "exotic silk bra(green)"
@@ -701,6 +707,7 @@
 	mob_overlay_icon = 'modular_deserttown/icons/clothing/onmob/shirts.dmi'
 	icon_state = "exoticsilkbrar"
 	item_state = "exoticsilkbrar"
+	dropshrink = null
 
 /datum/crafting_recipe/roguetown/sewing/brared
 	name = "exotic silk bra (red)"
@@ -713,6 +720,7 @@
 	mob_overlay_icon = 'modular_deserttown/icons/clothing/onmob/masks.dmi'
 	icon_state = "exoticsilkmaskg"
 	item_state = "exoticsilkmaskg"
+	dropshrink = null
 
 /datum/crafting_recipe/roguetown/sewing/maskgreen
 	name = "exotic silk mask (green)"
@@ -741,7 +749,7 @@
 	color = "#d4c7bf"
 	armor = ARMOR_LEATHER_GOOD
 	prevent_crits = list(BCLASS_CUT, BCLASS_STAB, BCLASS_BLUNT, BCLASS_TWIST)	//Same as gloves
-	max_integrity = 100			//Half that of iron boots
+	max_integrity = ARMOR_INT_SIDE_HARDLEATHER
 
 	
 /obj/item/clothing/shoes/roguetown/boots/armor/shalal

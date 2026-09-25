@@ -31,7 +31,7 @@
 /obj/structure/flora/newtree/obj_destruction(damage_flag)//this proc is stupidly long for a destruction proc
 	var/turf/NT = get_turf(src)
 	var/turf/UPNT = get_step_multiz(src, UP)
-	src.obj_flags = CAN_BE_HIT | BLOCK_Z_IN_UP //so the logs actually fall when pulled by zfall
+	set_is_platform(FALSE) //so the logs actually fall when pulled by zfall
 	if(burnt)
 		damage_flag = "fire"
 
@@ -47,13 +47,13 @@
 				var/turf/BI = get_step(B, DI)
 				for(var/obj/structure/flora/newbranch/bi in BI)//2 tile end branch
 					if(bi.dir == DI)
-						bi.obj_flags = CAN_BE_HIT
+						bi.set_is_platform(FALSE)
 						bi.obj_destruction(damage_flag)
 					for(var/atom/bio in BI)
 						BI.zFall(bio)
 				for(var/obj/structure/flora/newleaf/bil in BI)//2 tile end leaf
 					bil.obj_destruction(damage_flag)
-				BRANCH.obj_flags = CAN_BE_HIT 
+				BRANCH.set_is_platform(FALSE)
 				BRANCH.obj_destruction(damage_flag)
 			for(var/atom/BRA in B)//unload a sack of rocks on a branch and stand under it, it'll be funny bro
 				B.zFall(BRA)
@@ -108,6 +108,23 @@
 			if(L.mind) // idk just following whats going on above
 				L.mind.add_sleep_experience(/datum/skill/misc/climbing, exp_to_gain, FALSE)
 
+/obj/structure/flora/newtree/attackby(obj/item/I, mob/living/user, params)
+	if(!isliving(user) || user.used_intent.blade_class != BCLASS_CHOP)
+		return ..()
+	var/mob/living/living_user = user
+	if(living_user.client && !living_user.client.prefs?.autowoodcut)
+		return ..()
+	if(user.doing)
+		return ..()
+	user.doing = FALSE
+	while(!QDELETED(src) && user.Adjacent(src))
+		if((living_user.energy > 0) && do_after(user, 1.5 SECONDS, TRUE, src))
+			if(QDELETED(src))
+				break
+			..()
+		else
+			break
+
 /obj/structure/flora/newtree/attacked_by(obj/item/I, mob/living/user)
 	var/was_destroyed = obj_destroyed
 	. = ..()
@@ -116,6 +133,12 @@
 			SEND_SIGNAL(user, COMSIG_MOB_FELL_TREE)
 			record_featured_stat(FEATURED_STATS_TREE_FELLERS, user)
 			record_round_statistic(STATS_TREES_CUT)
+
+/obj/structure/flora/newtree/proc/bless_tree(mob/user)
+	if(obj_integrity < max_integrity)
+		obj_integrity = min(max_integrity, obj_integrity + round(max_integrity / 2))
+		return TRUE
+	return FALSE
 
 /obj/structure/flora/newtree/update_icon_state()
 	icon_state = burnt ? "burnt" : ""
@@ -134,8 +157,12 @@
 	. = ..()
 	tree_type = rand(1,2)
 	dir = pick(GLOB.cardinals)
-	SStreesetup.initialize_me |= src
 	build_trees()
+	if(!SStreesetup.initialized)
+		SStreesetup.initialize_me += src
+	else
+		build_branches()
+		build_leafs()
 	update_icon()
 	if(istype(loc, /turf/open/floor/rogue/grass))
 		var/turf/T = loc
@@ -149,6 +176,8 @@
 		T.update_icon()
 
 /obj/structure/flora/newtree/proc/build_branches()
+	if(!istype(loc, /turf/open/transparent/openspace))
+		return
 	for(var/D in GLOB.cardinals)
 		var/turf/NT = get_step(src, D)
 		if(istype(NT, /turf/open/transparent/openspace))

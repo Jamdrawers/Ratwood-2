@@ -97,11 +97,7 @@
 							emote("painmoan")
 							return
 					if(prob(probby) && !HAS_TRAIT(src, TRAIT_NOPAINSTUN) && !has_status_effect(/datum/status_effect/buff/psyhealing))
-						Immobilize(10)
-						emote("painscream")
-						stuttering += 5
-						addtimer(CALLBACK(src, PROC_REF(Stun), 110), 10)
-						addtimer(CALLBACK(src, PROC_REF(Knockdown), 110), 10)
+						paincrit()
 						mob_timers["painstun"] = world.time + 160
 					else
 						emote("painmoan")
@@ -113,6 +109,61 @@
 
 		if(painpercent >= 100)
 			add_stress(/datum/stressevent/painmax)
+
+/mob/living/carbon/proc/paincrit()
+	Immobilize(10)
+	emote("paincrit", forced = TRUE)
+	stuttering += 5
+	addtimer(CALLBACK(src, PROC_REF(Stun), 110), 10)
+	addtimer(CALLBACK(src, PROC_REF(Knockdown), 110), 10)
+
+// Odds of not getting painstunned by your limbs getting ripped off.
+// Scales linearly off WIL and CON. Intentionally harsh, this is supposed to be cinematic both ways.
+// 10 CON 10 WIL has 20 percent to avoid paincrit, 15 CON 15 WIL has 40 percent exactly.
+/mob/living/carbon/proc/get_delimb_survival_chance()
+	var/con_wil = STACON + STAWIL
+	var/base_chance = (con_wil - 10) * 2
+	// Psydonian grit gives you a flat twenty percent extra to resist limbcrit.
+	// If you succeed the roll with psydonian grit you get a protagonist moment with an adrenaline rush and some cool flavor text.
+	if(HAS_TRAIT(src, TRAIT_PSYDONIAN_GRIT))
+		base_chance += 20
+	return max(base_chance, 0)
+
+/mob/living/carbon/proc/delimb_pain()
+	if(!client)
+		return
+	if(stat)
+		return
+	if(HAS_TRAIT(src, TRAIT_NOPAIN)) // You don't feel shit.
+		return
+	if(HAS_TRAIT(src, TRAIT_NUMBED_LIMBS))
+		return
+	var/survived = HAS_TRAIT(src, TRAIT_NOPAINSTUN) ? TRUE : prob(get_delimb_survival_chance()) // NOPAINSTUN guys simply always succeed the roll.
+	if(!survived)
+		paincrit()
+		return
+	if(HAS_TRAIT(src, TRAIT_PSYDONIAN_GRIT))
+		emote("warcry", forced = TRUE)
+		var/hiswill = pick(
+			"THROUGH HIM, I ENDURE!!",
+			"THE BELLS TOLL MY NAME, BUT I CAN STILL FIGHT!!",
+			"ENDURE!!",
+			"IF I AM TO FALL, THEN THEY SHALL FALL WITH ME!!",
+		)
+		visible_message(span_reallybig(span_danger("[src] ROARS through the pain, teeth bared in defiant fury!")), span_extremelybig(span_userdanger(hiswill)))
+		playsound(src, 'sound/magic/PSYDONE.ogg', 100, FALSE)
+		playsound(src, 'sound/combat/clash_struck.ogg', 100) // Kino
+		var/datum/status_effect/buff/adrenaline_rush/rush = apply_status_effect(/datum/status_effect/buff/adrenaline_rush)
+		if(rush) // These are actually enough to kinda stabilize you, but let's be real you're probably not winning.
+			rush.duration += 4 SECONDS
+		var/datum/status_effect/buff/psyhealing/stirring = apply_status_effect(/datum/status_effect/buff/psyhealing, 3)
+		if(stirring)
+			stirring.duration += 4 SECONDS
+	else
+		emote("painscream", forced = TRUE)
+		visible_message(span_danger("[src] staggers back from the shock, but holds fast with fire in their eyes!"), span_reallybig(span_danger("I can still fight!")))
+		if(STAWIL > 14)
+			apply_status_effect(/datum/status_effect/buff/adrenaline_rush)
 
 /mob/living/carbon/proc/handle_roguebreath()
 	return
@@ -211,6 +262,10 @@
 /mob/living/carbon/handle_embedded_objects()
 	for(var/obj/item/bodypart/bodypart as anything in bodyparts)
 		for(var/obj/item/embedded as anything in bodypart.embedded_objects)
+			if(embedded.item_flags & SURGICAL_TOOL)
+				if(prob(2))
+					to_chat(src, span_danger("[embedded] in my [bodypart.name] hurts!"))
+				continue // surgical tools embedded as part of an ongoing operation shouldn't tick damage, This makes surgery hellish to do.
 			if(embedded.on_embed_life(src, bodypart))
 				continue
 
@@ -567,12 +622,22 @@ GLOBAL_LIST_INIT(ballmer_windows_me_msg, list("Yo man, what if, we like, uh, put
 		return
 	//Healing while sleeping in a bed
 	if(IsSleeping())
+		SEND_SIGNAL(src, COMSIG_CARBON_HANDLE_SLEEP)
 		var/sleepy_mod = 0.5
 		var/doesnt_hunger = HAS_TRAIT(src, TRAIT_NOHUNGER)
 		if(HAS_TRAIT(src, TRAIT_BETTER_SLEEP))
 			energy_add(sleepy_mod * 4)
 		if(buckled?.sleepy)
 			sleepy_mod = buckled.sleepy
+		//OV edit
+		if(HAS_TRAIT(src, TRAIT_REGROW_LIMBS))
+			var/list/limb_list = list(BODY_ZONE_R_ARM, BODY_ZONE_L_ARM, BODY_ZONE_R_LEG, BODY_ZONE_L_LEG)
+			for(var/zone in limb_list)
+				var/obj/item/bodypart/limb = get_bodypart(zone)
+				if(!limb && nutrition > 250)
+					regenerate_limb(zone)
+					nutrition -= 250
+		//OV edit end
 		else if(isturf(loc)) //No illegal tech.
 			var/obj/structure/bed/rogue/bed = locate() in loc
 			if(bed)
@@ -584,6 +649,8 @@ GLOBAL_LIST_INIT(ballmer_windows_me_msg, list("Yo man, what if, we like, uh, put
 						sleepy_mod = 1.6 // little worse than a bedroll
 		if(sleepy_mod >= 2 && bodytemperature < BODYTEMP_NORMAL_MIN) // if we're sleeping on a bedroll or better
 			adjust_bodytemperature(0.5) // not exactly the best way to regain heat but it'll keep you from freezing to death, won't protect you from a snowstorm though
+		if(drunkenness)
+			drunkenness *= 0.94 //reduce drunkenness by 6% per 2 seconds
 		if(nutrition > 0 || doesnt_hunger)
 			energy_add(sleepy_mod * 15)
 		if(hydration > 0 || doesnt_hunger)
@@ -609,6 +676,20 @@ GLOBAL_LIST_INIT(ballmer_windows_me_msg, list("Yo man, what if, we like, uh, put
 			if(eyesclosed && !HAS_TRAIT(src, TRAIT_NOSLEEP))
 				teleport_to_dream(src, 10000, 2)
 				Sleeping(300)
+		// i would love it if handle_sleep actually handled just sleep instead of also falling asleep
+		// that way i could put this in an override on /mob/living/carbon/human
+		if(ishuman(src))
+			var/mob/living/carbon/human/human_src = src
+			var/obj/item/clothing/suit/roguetown/armor/skin_armor/harpy_skin/skin = human_src.skin_armor
+			if(istype(skin)) // this checks if it's harpy skin specifically
+				if(skin.obj_integrity < skin.max_integrity)
+					skin.obj_integrity = skin.max_integrity
+					to_chat(src, "I can feel the skin on my feet mend...")
+				else if((skin.obj_integrity >= skin.max_integrity) && skin.obj_broken)
+					skin.obj_broken = FALSE
+		// handle_dreams() // this has no functionality currently
+		if(prob(10) && health > crit_threshold)
+			emote("snore")
 	else if(!IsSleeping() && !HAS_TRAIT(src, TRAIT_NOSLEEP))
 		// Resting on a bed or something
 		var/sleepy_mod = 0

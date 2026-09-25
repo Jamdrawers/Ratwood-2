@@ -24,6 +24,23 @@
 /obj/structure/flora/roguetree/attack_right(mob/user)
 	handle_special_items_retrieval(user, src)
 
+/obj/structure/flora/roguetree/attackby(obj/item/I, mob/living/user, params)
+	if(!isliving(user) || user.used_intent.blade_class != BCLASS_CHOP)
+		return ..()
+	var/mob/living/L = user
+	if(L.client && !L.client.prefs?.autowoodcut)
+		return ..()
+	if(user.doing)
+		return ..()
+	user.doing = FALSE
+	while(!QDELETED(src) && user.Adjacent(src))
+		if((L.energy > 0) && do_after(user, 1.5 SECONDS, TRUE, src))
+			if(QDELETED(src))
+				break
+			..()
+		else
+			break
+
 /obj/structure/flora/roguetree/attacked_by(obj/item/I, mob/living/user)
 	var/was_destroyed = obj_destroyed
 	. = ..()
@@ -80,6 +97,25 @@
 	. = ..()
 	icon_state = "t[rand(1,16)]"
 
+/obj/structure/flora/roguetree/proc/bless_tree(mob/user)
+	if(obj_integrity < max_integrity)
+		obj_integrity = min(max_integrity, obj_integrity + round(max_integrity / 2))
+		return TRUE
+	return FALSE
+
+/obj/structure/flora/roguetree/proc/reinvigorate_tree(mob/user)
+	if(type == /obj/structure/flora/roguetree)
+		spawn_reinvigorated_tree()
+		if(isliving(user) && user.mind)
+			user.mind.add_sleep_experience(/datum/skill/magic/druidic, 20)
+		return TRUE
+	return FALSE
+
+/obj/structure/flora/roguetree/proc/spawn_reinvigorated_tree()
+	new /obj/structure/flora/newtree(get_turf(src))
+	qdel(src)
+	return TRUE
+
 /obj/structure/flora/roguetree/evil/Initialize(mapload)
 	. = ..()
 	icon_state = "wv[rand(1,2)]"
@@ -88,6 +124,7 @@
 
 /obj/structure/flora/roguetree/evil/Destroy()
 	soundloop.stop()
+	QDEL_NULL(soundloop)
 	if(controller)
 		controller.endvines()
 		controller.tree = null
@@ -97,6 +134,19 @@
 /obj/structure/flora/roguetree/evil
 	var/datum/looping_sound/boneloop/soundloop
 	var/datum/vine_controller/controller
+
+/obj/structure/flora/roguetree/evil/reinvigorate_tree(mob/user)
+	var/turf/T = get_turf(src)
+	for(var/D in GLOB.cardinals)
+		var/turf/adj = get_step(T, D)
+		if(!isclosedturf(adj) && !locate(/obj/structure/glowshroom) in adj)
+			new /obj/structure/glowshroom(adj)
+	// Evil trees cleansed by Dendor's blessing become sanctified, not merely regrown.
+	new /obj/structure/flora/roguetree/wise/sanctified(T)
+	qdel(src)
+	if(isliving(user) && user.mind)
+		user.mind.add_sleep_experience(/datum/skill/magic/druidic, 50)
+	return TRUE
 
 /obj/structure/flora/roguetree/wise
 	name = "sacred tree"
@@ -136,10 +186,60 @@
 	target.throw_at(throw_target, 4, 2)
 	target.adjustBruteLoss(8)
 
+/obj/structure/flora/roguetree/wise
+	var/examine_plays_music = TRUE
+
 /obj/structure/flora/roguetree/wise/examine(mob/user)
 	. = ..()
-	SEND_SOUND(usr, sound(null))
-	playsound(user, 'sound/music/tree.ogg', 80)
+	if(examine_plays_music)
+		SEND_SOUND(user, sound(null))
+		playsound(user, 'sound/music/tree.ogg', 80)
+
+/obj/structure/flora/roguetree/wise/bless_tree(mob/user)
+	if(obj_integrity < max_integrity)
+		obj_integrity = min(max_integrity, obj_integrity + 50)
+		return TRUE
+	return FALSE
+
+/// Converts an unsanctified wise tree into a sanctified wise tree.
+/// Called from blesscrop when blessed seed powder is held.
+/obj/structure/flora/roguetree/wise/reinvigorate_tree(mob/user)
+	if(istype(src, /obj/structure/flora/roguetree/wise/sanctified))
+		return FALSE  // already sanctified in some form
+	var/turf/T = get_turf(src)
+	new /obj/structure/flora/roguetree/wise/sanctified/wise(T)
+	qdel(src)
+	if(isliving(user) && user.mind)
+		user.mind.add_sleep_experience(/datum/skill/magic/druidic, 50)
+	return TRUE
+
+/obj/structure/flora/roguetree/wise/proc/notify_nearby_dendorites()
+	for(var/mob/living/carbon/human/H in GLOB.alive_mob_list)
+		if(H.patron?.type != /datum/patron/divine/dendor)
+			continue
+		if(H.z != z)
+			continue
+		if(get_dist(H, src) > 10)
+			continue
+		H.add_stress(/datum/stressevent/treefather_loss)
+		var/tree_dir = dir2text(get_dir(H, src))
+		to_chat(H, span_boldwarning("A sacred tree has fallen to my [tree_dir]! The land's natural energies feel disrupted."))
+		playsound(H, 'sound/misc/jack_killing_2.ogg', 60, FALSE)
+
+/obj/structure/flora/roguetree/wise/proc/fling_nearby_mobs()
+	for(var/mob/living/L in range(3, src))
+		if(L.stat == DEAD)
+			continue
+		var/atom/throwtarget = get_edge_target_turf(src, get_dir(src, get_step_away(L, src)))
+		if(!throwtarget)
+			continue
+		L.safe_throw_at(throwtarget, 4, 1, force = MOVE_FORCE_STRONG)
+		L.Knockdown(2 SECONDS)
+
+/obj/structure/flora/roguetree/wise/obj_destruction(damage_flag)
+	fling_nearby_mobs()
+	notify_nearby_dendorites()
+	return ..()
 
 /obj/structure/flora/roguetree/burnt
 	name = "burnt tree"
@@ -152,6 +252,12 @@
 /obj/structure/flora/roguetree/burnt/Initialize(mapload)
 	. = ..()
 	icon_state = "t[rand(1,4)]"
+
+/obj/structure/flora/roguetree/burnt/reinvigorate_tree(mob/user)
+	spawn_reinvigorated_tree()
+	if(isliving(user) && user.mind)
+		user.mind.add_sleep_experience(/datum/skill/magic/druidic, 20)
+	return TRUE
 
 /obj/structure/flora/roguetree/stump/burnt
 	name = "tree stump"
@@ -216,6 +322,17 @@
 	icon_state = "t[rand(1,4)]stump"
 
 /obj/structure/flora/roguetree/stump/attackby(obj/item/I, mob/living/user)
+	if(istype(I, /obj/item/rogueweapon/shovel))
+		var/skill_level = user.get_skill_level(/datum/skill/labor/lumberjacking)
+		var/dig_time = (120 - (skill_level * 15)) / 2
+		playsound(src, 'sound/items/dig_shovel.ogg', 80, TRUE)
+		if(!do_after(user, dig_time, target = user))
+			return
+		to_chat(user, span_notice("I dig up [src]."))
+		new lumber(get_turf(src))
+		playsound(src, destroy_sound, 100, TRUE)
+		qdel(src)
+		return TRUE
 	if(user.used_intent.blade_class == BCLASS_CHOP && lumber_amount)
 		var/skill_level = user.get_skill_level(/datum/skill/labor/lumberjacking)
 		var/lumber_time = (120 - (skill_level * 15))
@@ -257,6 +374,10 @@
 	. = ..()
 	icon_state = "log[rand(1,2)]"
 
+	AddComponent(/datum/component/hiding_spot, \
+		"Someone is already hiding inside %LOCATION!", \
+		"I hide inside %LOCATION!", \
+		"I come out from inside %LOCATION!")
 
 //newbushes
 
@@ -270,7 +391,15 @@
 	max_integrity = 2
 	blade_dulling = DULLING_CUT
 	debris = list(/obj/item/natural/fibers = 1)
+	plane = FLOOR_PLANE
+	var/list/bush_stuck = list()	// handles mobility impairment in-tile
 
+/obj/structure/flora/roguegrass/proc/release_bush_stuck(mob/living/L)	// Helps you get stuck in a feature for a bit. Usual slowdown is applied after you leave the tile, this is on the actual tile.
+	if(!L)
+		return
+
+	bush_stuck -= L
+	L.mobility_flags |= MOBILITY_MOVE
 
 /obj/structure/flora/roguegrass/spark_act()
 	fire_act()
@@ -282,6 +411,28 @@
 
 /obj/structure/flora/roguegrass/update_icon()
 	icon_state = "grass[rand(1, 6)]"
+
+/obj/structure/flora/roguegrass/verdant
+	icon = 'icons/obj/flora/ausflora.dmi'
+	icon_state = "sparsegrass_1"
+
+/obj/structure/flora/roguegrass/verdant/Initialize(mapload)
+	. = ..()
+	if(prob(60))
+		icon_state = "sparsegrass_[rand(1, 3)]"
+	else
+		icon_state = "fullgrass_[rand(1, 3)]"
+
+/obj/structure/flora/roguegrass/reedbush
+	name = "reed bush"
+	icon = 'icons/obj/flora/ausflora.dmi'
+	icon_state = "reedbush_1"
+	max_integrity = 1
+	plane = GAME_PLANE_UPPER // the default for flora so it conceals things as intended
+
+/obj/structure/flora/roguegrass/reedbush/Initialize(mapload)
+	. = ..()
+	icon_state = "reedbush_[rand(1, 4)]"
 
 /obj/structure/flora/roguegrass/water
 	name = "grass"
@@ -297,9 +448,13 @@
 	max_integrity = 10
 	layer = 4.1
 	blade_dulling = DULLING_CUT
+	plane = GAME_PLANE_UPPER // the default for flora so it conceals things as intended
 
 /obj/structure/flora/roguegrass/water/update_icon()
 	dir = pick(GLOB.cardinals)
+
+/obj/structure/flora/roguegrass/water/reeds/update_icon()
+	dir = pick(GLOB.alldirs)
 
 /datum/component/roguegrass/Initialize()
 	RegisterSignal(parent, list(COMSIG_MOVABLE_CROSSED), PROC_REF(Crossed))
@@ -313,7 +468,7 @@
 			return
 		else
 			if(!(HAS_TRAIT(L, TRAIT_AZURENATIVE) && L.m_intent != MOVE_INTENT_RUN))
-				playsound(A.loc, "plantcross", 100, FALSE, -1)
+				playsound(A.loc, "plantcross", 80, FALSE, -1)
 			var/oldx = A.pixel_x
 			animate(A, pixel_x = oldx+1, time = 0.5)
 			animate(pixel_x = oldx-1, time = 0.5)
@@ -324,22 +479,25 @@
 
 /obj/structure/flora/roguegrass/bush
 	name = "bush"
-	desc = "A bush. It's crawling with spiders, but maybe there’s something useful inside..."
+	desc = "A bush. It's crawling with spiders, but maybe there's something useful inside..."
 	icon_state = "bush2"
 	layer = ABOVE_ALL_MOB_LAYER
 	var/res_replenish
 	blade_dulling = DULLING_CUT
-	max_integrity = 35
+	max_integrity = 100
+	destroy_sound = "plantcross"
 	climbable = FALSE
 	dir = SOUTH
-	debris = list(/obj/item/natural/fibers = 1, /obj/item/grown/log/tree/stick = 1)
+	debris = list(/obj/item/natural/fibers = 1, /obj/item/grown/log/tree/stick = 1, /obj/item/natural/thorn = 2)
+	plane = GAME_PLANE_UPPER // the default for flora so it conceals things as intended
 	var/list/looty = list()
 	var/bushtype
 
 /obj/structure/flora/roguegrass/bush/Initialize(mapload)
+	AddComponent(/datum/component/hiding_spot)
 	if(isnull(bushtype))
 		var/area/rogue/bush_area = get_area(src)
-		if(!bush_area.town_area)
+		if(!istype(bush_area) || !bush_area.town_area)
 			if(prob(88))
 				bushtype = pickweight(list(/obj/item/reagent_containers/food/snacks/grown/berries/rogue=5,
 						/obj/item/reagent_containers/food/snacks/grown/berries/rogue/poison=3,
@@ -360,18 +518,28 @@
 
 /obj/structure/flora/roguegrass/bush/Crossed(atom/movable/AM)
 	..()
-	if(isliving(AM))
-		var/mob/living/L = AM
-		if(L.m_intent == MOVE_INTENT_RUN && (L.mobility_flags & MOBILITY_STAND))
+
+	if(!isliving(AM))
+		return
+
+	var/mob/living/L = AM
+
+	if(L.mobility_flags & MOBILITY_STAND)
+		var/stuck_time = max(1, 18 - round(L.STASTR * 0.6))
+
+		bush_stuck[L] = TRUE
+		L.mobility_flags &= ~MOBILITY_MOVE
+
+		addtimer(CALLBACK(src, PROC_REF(release_bush_stuck), L), stuck_time)
+
+		if(L.m_intent == MOVE_INTENT_RUN || (L.buckled)) // running or riding brings injury since they sidestep the slowdown
 			if(!ishuman(L))
 				to_chat(L, span_warning("I'm cut on a thorn!"))
 				L.apply_damage(5, BRUTE)
-
 			else
 				var/mob/living/carbon/human/H = L
-				if(prob(20))
+				if(prob(25))
 					if(!HAS_TRAIT(src, TRAIT_PIERCEIMMUNE))
-//						H.throw_alert("embeddedobject", /atom/movable/screen/alert/embeddedobject)
 						var/obj/item/bodypart/BP = pick(H.bodyparts)
 						var/obj/item/natural/thorn/TH = new(src.loc)
 						BP.add_embedded_object(TH, silent = TRUE)
@@ -382,7 +550,29 @@
 					to_chat(H, span_warning("A thorn [pick("slices","cuts","nicks")] my [BP.name]."))
 					BP.receive_damage(10)
 
+
+/obj/structure/flora/roguegrass/bush/CanAStarPass(ID, travel_dir, caller)
+	if(ismovableatom(caller))
+		var/atom/movable/mover = caller
+		if(mover.pass_flags & PASSGRILLE)
+			return TRUE
+	if(travel_dir == dir)
+		return FALSE // just don't even try, not even if you can climb it
+	return ..()
+
+/obj/structure/flora/roguegrass/bush/CanPass(atom/movable/mover, turf/target)
+	..()
+	if(istype(mover) && (mover.pass_flags & PASSGRILLE))
+		return 1
+	if(isliving(mover) && bush_stuck[mover])
+		if(get_turf(mover) == loc && target != loc)
+			return FALSE
+	return 1
+
 /obj/structure/flora/roguegrass/bush/attack_hand(mob/user)
+	. = ..()
+	if(.)
+		return
 	if(isliving(user))
 		var/mob/living/L = user
 		user.changeNext_move(CLICK_CD_INTENTCAP)
@@ -404,24 +594,11 @@
 				attack_hand(user)
 			if(!looty.len)
 				to_chat(user, span_warning("Picked clean... I should try later."))
+
 /obj/structure/flora/roguegrass/bush/update_icon()
 	icon_state = "bush[rand(2, 4)]"
 
-/obj/structure/flora/roguegrass/bush/CanAStarPass(ID, travel_dir, caller)
-	if(ismovableatom(caller))
-		var/atom/movable/mover = caller
-		if(mover.pass_flags & PASSGRILLE)
-			return TRUE
-	if(travel_dir == dir)
-		return FALSE // just don't even try, not even if you can climb it
-	return ..()
 
-/obj/structure/flora/roguegrass/bush/CanPass(atom/movable/mover, turf/target)
-	if(istype(mover) && (mover.pass_flags & PASSGRILLE))
-		return 1
-	if(get_dir(loc, target) == dir)
-		return 0
-	return 1
 
 /obj/structure/flora/roguegrass/bush/westleach
 	name = "westleach bush"
@@ -442,13 +619,13 @@
 
 /obj/structure/flora/roguegrass/bush/wall
 	name = "great bush"
-	desc = "A bush. This one’s roots are thick enough to block the way."
+	desc = "A bush. This one's roots are thick enough to block the way."
 	opacity = TRUE
 	density = TRUE
 	climbable = FALSE
 	icon_state = "bushwall1"
 	max_integrity = 150
-	debris = list(/obj/item/natural/fibers = 1, /obj/item/grown/log/tree/stick = 1, /obj/item/natural/thorn = 1)
+	debris = list(/obj/item/grown/log/tree/small = 1, /obj/item/natural/fibers = 1, /obj/item/grown/log/tree/stick = 1, /obj/item/natural/thorn = 1)
 	attacked_sound = 'sound/misc/woodhit.ogg'
 
 /obj/structure/flora/roguegrass/bush/wall/Initialize(mapload)
@@ -570,6 +747,14 @@
 	. = ..()
 	icon_state = "t[rand(1,4)]stump"
 
+/obj/structure/flora/shroomstump/obj_destruction(damage_flag)
+	if(prob(50))
+		new /obj/item/grown/log/tree/small(get_turf(src))
+	else
+		new /obj/item/grown/log/tree/stick(get_turf(src))
+		new /obj/item/grown/log/tree/stick(get_turf(src))
+	return ..()
+
 /obj/structure/roguerock
 	name = "rock"
 	desc = "A rock protuding from the ground."
@@ -609,7 +794,70 @@
 
 /obj/structure/flora/roguegrass/thorn_bush/update_icon()
 	icon_state = "thornbush"
-//WIP
+
+/obj/structure/flora/roguegrass/thorn_bush/Crossed(atom/movable/AM)
+	..()
+	if(!isliving(AM))
+		return
+
+	var/mob/living/L = AM
+
+	// Small critters can zoom past.
+	if(L.mob_size <= MOB_SIZE_SMALL)
+		return
+
+	// Dense thorn bushes briefly tangle anything large enough to trigger them.
+	L.Immobilize(max(0, 36 - L.STASTR * 2))
+
+	// Non-carbon mobs just take basic thorn damage. Another size check since the previous doesnt catch damage for some reason.
+	if(!iscarbon(L))
+		to_chat(L, span_warning("I'm cut on a thorn!"))
+		L.apply_damage(5, BRUTE)
+		return
+
+	var/mob/living/carbon/human/H = L
+
+	// Dendor curse causes a guaranteed thorn embedding.
+	if(HAS_TRAIT(H, TRAIT_CURSE_DENDOR))
+		var/obj/item/bodypart/BP = pick(H.bodyparts)
+		var/obj/item/natural/thorn/TH = new(src.loc)
+		BP.add_embedded_object(TH, silent = TRUE)
+		BP.receive_damage(10)
+		to_chat(H, span_danger("\A [TH] impales my [BP.name]!"))
+		return
+
+	// Kneestinger immunity prevents the thorn effects unless cursed.
+	if(HAS_TRAIT(H, TRAIT_KNEESTINGER_IMMUNITY))
+		return
+	
+	// Riding movestop and extra damage since it sidesteps stun. Galloping through thorn bushes shouldnt be the play. Riding skill gives a chance to escape this fate
+	if(H.buckled)
+		var/obj/item/bodypart/BP = pick(H.bodyparts)
+		to_chat(H, span_warning("My [BP.name] snags on a thorn."))
+		BP.receive_damage(10)
+		var/riding_level = H.get_skill_level(/datum/skill/misc/riding)
+		if(prob(100 - (riding_level * 5)))
+			to_chat(H, span_danger("My mount goes mad with pain!"))
+			H.unbuckle_mob()
+			H.Paralyze(10)
+
+	// Chance to embed a thorn, reduced by LUCK.
+	if(prob(25 - H.STALUC))
+		if(HAS_TRAIT(H, TRAIT_PIERCEIMMUNE))
+			return
+
+		var/obj/item/bodypart/BP = pick(H.bodyparts)
+		var/obj/item/natural/thorn/TH = new(src.loc)
+		BP.add_embedded_object(TH, silent = TRUE)
+		BP.receive_damage(10)
+		to_chat(H, span_danger("\A [TH] impales my [BP.name]!"))
+		return
+
+	// Otherwise, just take a normal cut.
+	var/obj/item/bodypart/BP = pick(H.bodyparts)
+	to_chat(H, span_warning("A thorn [pick("slices", "cuts", "nicks")] my [BP.name]."))
+	BP.receive_damage(10)
+
 
 // fyrituis bush -- STONEKEEP PORT
 /obj/structure/flora/roguegrass/pyroclasticflowers
@@ -859,6 +1107,7 @@
 	mush_animate = FALSE
 
 /obj/structure/flora/rogueshroom/unhappy/random
+	mush_light_power = 0 // don't try to make a light for us, we will just be deleted
 
 /obj/structure/flora/rogueshroom/unhappy/random/Initialize(mapload)
 	. = ..()
@@ -871,10 +1120,10 @@
 	)
 	var/mushroom_type = pickweight(mushroom_types)
 	new mushroom_type(loc)
-	qdel(src)
+	return INITIALIZE_HINT_QDEL
 
-/obj/structure/flora/rogueshroom/unhappy/New(loc)
-	..()
+/obj/structure/flora/rogueshroom/unhappy/Initialize(mapload)
+	. = ..()
 	if(mush_light_power > 0)
 		set_light(mush_light_range, mush_light_range, mush_light_power, l_color = mush_light_color)
 
@@ -902,8 +1151,8 @@
 	. = ..()
 	icon_state = "happymush[rand(1,5)]"
 
-/obj/structure/flora/rogueshroom/happy/New(loc)
-	..()
+/obj/structure/flora/rogueshroom/happy/Initialize(mapload)
+	. = ..()
 	set_light(3, 3, 3, l_color ="#5D3FD3")
 
 /obj/structure/flora/rogueshroom/unhappy/metal
@@ -935,8 +1184,8 @@
 	desc = "A cluster of mushrooms native to the underdark."
 	icon_state = "mushroomclusterunhappy"
 
-/obj/structure/flora/mushroomcluster/New(loc)
-	..()
+/obj/structure/flora/mushroomcluster/Initialize(mapload)
+	. = ..()
 	set_light(1.5, 1.5, 1.5, l_color ="#5D3FD3")
 
 /obj/structure/flora/tinymushrooms
@@ -981,12 +1230,22 @@
 	. = ..()
 	icon_state = "dead[rand(1, 3)]"
 
-//A smattering of jungle-themed assets
+/obj/structure/flora/roguetree/pine/dead/reinvigorate_tree(mob/user)
+	var/turf/tree_turf = get_turf(src)
+	new /obj/structure/flora/roguetree/pine(tree_turf)
+	qdel(src)
+	if(isliving(user) && user.mind)
+		user.mind.add_sleep_experience(/datum/skill/magic/druidic, 20)
+	return TRUE
+
+//A smattering of jungle-themed assets. The default artstyle of SS13 is far too bright so they all have a color to darken them down to more of a roguetown pallette
 //trees
+
+#define COLOR_JUNGLE			"#9bb6ae"
 
 /obj/structure/flora/roguetree/jungle//version with mechanics this time
 	name = "jungle tree"
-	color = "#a7b5a9"
+	color = COLOR_JUNGLE
 	// desc = "Scant, precious shade."
 	stump_type = /obj/structure/flora/roguetree/stump/palm
 	icon = 'icons/obj/flora/jungletrees.dmi'
@@ -1018,7 +1277,7 @@
 /obj/structure/flora/roguegrass/bush/jungle
 	name = "jungle bush"
 	desc = ""
-	color = "#b9c4bd"
+	color = COLOR_JUNGLE
 	icon = 'icons/obj/flora/jungleflora.dmi'
 	icon_state = "bushb"
 
@@ -1036,7 +1295,7 @@
 	desc = "Haha, im in danger."
 
 /obj/structure/flora/roguegrass/bush/jungle/large
-	color = "#a7b5a9"
+	color = COLOR_JUNGLE
 	icon = 'icons/obj/flora/largejungleflora.dmi'
 	icon_state = "bush"
 	pixel_x = -16
@@ -1057,7 +1316,7 @@
 /obj/structure/flora/roguegrass/jungle
 	name = "jungle grass"
 	desc = ""
-	color = "#a7b5a9"
+	color = COLOR_JUNGLE
 	icon = 'icons/obj/flora/jungleflora.dmi'
 	icon_state = "grassa"
 

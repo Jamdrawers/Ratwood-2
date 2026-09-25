@@ -47,6 +47,7 @@
 	sewrepair = TRUE
 	sellprice = 10
 	resistance_flags = FIRE_PROOF
+	dropshrink = 0.8
 
 /obj/item/storage/belt/rogue/leather/plaquegold
 	name = "plaque belt"
@@ -104,6 +105,25 @@
 /obj/item/storage/belt/rogue/leather/battleskirt/black
 	color = CLOTHING_BLACK
 
+/obj/item/storage/belt/rogue/leather/battleskirt/breechcloth
+	name = "belt with breechcloth"
+	desc = "A fine leather strap notched with holes for a buckle to secure itself, and nestled above a halved tabard's coverings."
+	icon_state = "breechcloth"
+	flags_inv = HIDECROTCH
+	sewrepair = FALSE
+	detail_tag = "_belt"
+
+/obj/item/storage/belt/rogue/leather/battleskirt/breechcloth/blackbelt
+	name = "black belt with breechcloth"
+	desc = "A fine black-leather strap notched with holes for a buckle to secure itself, and nestled above a halved tabard's coverings."
+	icon_state = "breechclothalt"
+	flags_inv = HIDECROTCH
+	sewrepair = FALSE
+	detail_tag = "_belt"
+
+/obj/item/storage/belt/rogue/leather/battleskirt/breechcloth/red
+	color = CLOTHING_RED
+
 /obj/item/storage/belt/rogue/leather/battleskirt/barbarian
 	color = "#48443b"
 
@@ -158,6 +178,15 @@
 	icon = 'icons/roguetown/clothing/belts.dmi'
 	icon_state = "butlersuspenders"
 	item_state = "butlersuspenders"
+	mob_overlay_icon = 'icons/roguetown/clothing/onmob/belts.dmi'
+	slot_flags = ITEM_SLOT_BELT
+
+/obj/item/storage/belt/rogue/leather/suspenders/butler/colored
+	name = "suspenders"
+	desc = "A pair of suspenders which go over the shoulders. Used for keeping one's pants in place in an admittably fashionable style."
+	icon = 'icons/roguetown/clothing/belts.dmi'
+	icon_state = "butlersuspenderscolorable"
+	item_state = "butlersuspenderscolorable"
 	mob_overlay_icon = 'icons/roguetown/clothing/onmob/belts.dmi'
 	slot_flags = ITEM_SLOT_BELT
 
@@ -435,6 +464,7 @@
 	w_class = WEIGHT_CLASS_NORMAL
 	max_integrity = 300
 	equip_sound = 'sound/blank.ogg'
+	dropshrink = 0.8
 	//content_overlays = FALSE
 	bloody_icon_state = "bodyblood"
 	anvilrepair = /datum/skill/craft/blacksmithing

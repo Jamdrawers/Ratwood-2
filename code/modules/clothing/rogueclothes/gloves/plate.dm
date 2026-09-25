@@ -14,10 +14,13 @@
 	equip_sound = 'sound/foley/equip/equip_armor_plate.ogg'
 	anvilrepair = /datum/skill/craft/armorsmithing
 	smeltresult = /obj/item/ingot/steel
-
+	sewrepair = FALSE
 	grid_width = 64
 	grid_height = 32
 	unarmed_bonus = 1.2
+
+/obj/item/clothing/gloves/roguetown/plate/ComponentInitialize()
+	AddComponent(/datum/component/armour_filtering/positive, TRAIT_FENCERDEXTERITY)
 
 /obj/item/clothing/gloves/roguetown/plate/iron
 	name = "iron plate gauntlets"
@@ -26,25 +29,25 @@
 	smeltresult = /obj/item/ingot/iron
 	max_integrity = ARMOR_INT_SIDE_IRON
 
-/obj/item/clothing/gloves/roguetown/plate/aalloy
-	name = "decrepit plate gauntlets"
-	desc = "Frayed bronze mechanisms, connected to form the shells of hands. Too clumsy to properly knock a bow, too rigid to comfortably grip a sword; clench those fists any tighter, and the segments'll cut into flesh."
-	icon_state = "agauntlets"
-	max_integrity = ARMOR_INT_SIDE_DECREPIT
-	color = "#bb9696"
-	smeltresult = /obj/item/ingot/aaslag
-	anvilrepair = null
-
-/obj/item/clothing/gloves/roguetown/plate/paalloy
+/obj/item/clothing/gloves/roguetown/plate/ancient
 	name = "ancient plate gauntlets"
 	desc = "Polished gilbranze mechanisms, meticulously interconnected to shroud splayed hands. 'Mercy' and 'innocence' are concepts paraded by the unenlightened; spill their blood without guilt, so that the world may yet be remade in Her image."
 	icon_state = "agauntlets"
 	smeltresult = /obj/item/ingot/aaslag
 
+/obj/item/clothing/gloves/roguetown/plate/ancient/decrepit
+	name = "decrepit plate gauntlets"
+	desc = "Frayed bronze mechanisms, connected to form the shells of hands. Too clumsy to properly knock a bow, too rigid to comfortably grip a sword; clench those fists any tighter, and the segments'll cut into flesh."
+	icon_state = "agauntlets"
+	max_integrity = ARMOR_INT_SIDE_DECREPIT
+	color = "#bb9696"
+	anvilrepair = null
+
 /obj/item/clothing/gloves/roguetown/plate/graggar
 	name = "vicious gauntlets"
 	desc = "Plate gauntlets which carry the motive force of this world, violence."
 	max_integrity = ARMOR_INT_SIDE_ANTAG
+	armor = ARMOR_ASCENDANT
 	icon_state = "graggarplategloves"
 
 /obj/item/clothing/gloves/roguetown/plate/graggar/Initialize(mapload)
@@ -56,6 +59,7 @@
 	desc = "Many a man his life hath sold,"
 	icon_state = "matthiosgloves"
 	max_integrity = ARMOR_INT_SIDE_ANTAG
+	armor = ARMOR_ASCENDANT
 
 /obj/item/clothing/gloves/roguetown/plate/matthios/Initialize(mapload)
 	. = ..()
@@ -69,10 +73,11 @@
 
 
 /obj/item/clothing/gloves/roguetown/plate/zizo
-	name = "avantyne gauntlets"
+	name = "avantyne plate gauntlets"
 	desc = "avantyne plate gauntlets. Called forth from the edge of what should be known. In Her name."
 	icon_state = "zizogauntlets"
 	max_integrity = ARMOR_INT_SIDE_ANTAG
+	armor = ARMOR_ASCENDANT
 
 /obj/item/clothing/gloves/roguetown/plate/zizo/Initialize(mapload)
 	. = ..()
@@ -83,6 +88,19 @@
 	if(QDELETED(src))
 		return
 	qdel(src)
+
+/obj/item/clothing/gloves/roguetown/plate/medium/zizo
+	name = "avantyne gauntlets"
+	desc = "A razor-tipped finger was all it took to splay the divine fillament; now, it is time to bring down the wrath of God's hand in full. </br> Do mind the forearm's guards, however - they \
+	tend to leave a stinging bruise, whenever used to parry an incoming strike."
+	armor_class = ARMOR_CLASS_MEDIUM
+	max_integrity = ARMOR_INT_SIDE_ANTAG
+	armor = ARMOR_ASCENDANT
+	icon_state = "zizoplategauntlets_med"
+
+/obj/item/clothing/gloves/roguetown/plate/medium/zizo/Initialize(mapload)
+	. = ..()
+	AddComponent(/datum/component/cursed_item, TRAIT_CABAL, "ARMOR", "RENDERED ASUNDER")
 
 /obj/item/clothing/gloves/roguetown/plate/shadowgauntlets
 	name = "darkplate gauntlets"
